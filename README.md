@@ -1,8 +1,6 @@
 # The secret ingredient
 
-## Prerequisites
-
-### Environment
+## Environment
 
 1. Deno runtime (Backend)
 2. NodeJs runtime (Frontend)
