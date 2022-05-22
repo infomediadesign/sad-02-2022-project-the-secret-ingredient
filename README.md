@@ -18,5 +18,6 @@
 ## Mainly used technologies
 
 - Typescript
+- Scss
 - React.js
 - Immutable.js
