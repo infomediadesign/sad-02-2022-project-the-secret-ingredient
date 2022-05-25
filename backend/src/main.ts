@@ -1,14 +1,26 @@
-import { uuid } from './deps.ts';
+import { Oak, Mongo } from './deps.ts';
+import { Car } from './models/Car.ts';
+import { Tree } from './models/Tree.ts';
+import { crudFactory } from './util.ts';
 
-async function prompt(message: string = '') {
-    const buf = new Uint8Array(1024);
-    await Deno.stdout.write(new TextEncoder().encode(message + ': '));
-    const n = <number>await Deno.stdin.read(buf);
-    return new TextDecoder().decode(buf.subarray(0, n)).trim();
-}
+const port = 1234;
+const appName = 'crud-factory-server';
+const client = new Mongo.MongoClient();
+await client.connect('mongodb://127.0.0.1:27017');
 
-const uid = uuid.v1.generate();
+const db = client.database(appName);
 
-console.log(uid);
+const app = new Oak.Application();
+const router = new Oak.Router();
 
-const input = await prompt('\nFinished\n');
+const tree = Tree(db);
+const car = Car(db);
+
+crudFactory(router, tree);
+crudFactory(router, car);
+
+app.use(router.routes());
+app.use(router.allowedMethods());
+
+console.log(`Server started at: http://localhost:${port}`);
+app.listen({ port });
