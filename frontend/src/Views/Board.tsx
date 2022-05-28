@@ -1,15 +1,38 @@
 import React, { useState } from 'react';
-import logo from './logo.svg';
 import CSS from 'csstype';
 import './App.css';
+import {CreateIssueList} from './IssueList'
+import { DragDropContext, Droppable, Draggable, DraggableProvided, DraggableStateSnapshot} from 'react-beautiful-dnd';
 
-interface  issueListData {
+export interface  issueListData {
   indexK : Number,
   name : String,
   number : Number,
 }
 
+const myTestList =[
+  {
+    id: "1",
+    name: 'Me1'
+  },
+  {
+    id: "2",
+    name: 'Me2'
+  },
+  {
+    id: "3",
+    name: 'Me3'
+  }
+]
+
 let arrayOfIssueLists : issueListData[] = new Array();
+
+const horizontalList: CSS.Properties = {
+  float: 'left',
+  padding: '0.8rem',
+  border: 'dotted',
+  margin: '0.2rem',
+}
 
 function App() {
   const [age, setAge] = useState(18);
@@ -44,28 +67,34 @@ function App() {
           ));
         }}>Change top number</button>
         <div>
-          <ul>{listsOfIssues.map((index : issueListData, key) => CreateIssueList(listsOfIssues[key]))}</ul>
+          <ul>{listsOfIssues.map(issue => (
+            <div style={horizontalList}>
+              <p>{issue.number}</p>
+              <button onClick={() => {
+                  arrayOfIssueLists = listsOfIssues;
+                  setlistsOfIssues(arrayOfIssueLists.map((listI, key) => key == issue.indexK
+                    ?{}
+                    :{...listI}
+                  ));
+                }}>Delete</button>
+                <DragDropContext onDragEnd={() => {}}>
+                  <Droppable droppableId='issuesId'>
+                    {(provided) => (
+                      <ul className='' {...provided.droppableProps} ref={provided.innerRef}>
+                        {myTestList.map((item, index) => {return(
+                          <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(providedDraggable:DraggableProvided, snapshotDraggable:DraggableStateSnapshot) => (
+                            <div><p>{item.id}</p><p>{item.name}</p></div>
+                            )}
+                          </Draggable>
+                        )})}
+                      </ul>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+            </div>
+          ))}</ul>
         </div>
-    </div>
-  )
-}
-
-const horizontalList: CSS.Properties = {
-  float: 'left',
-  padding: '0.8rem',
-  border: 'dotted',
-  margin: '0.2rem',
-}
-
-export function CreateIssueList(me: issueListData){
-
-  return (
-    <div style={horizontalList}>
-      <p>List of issues</p>
-      <p>{me.number.toString()}</p>
-      <button onClick={() =>
-        {me.number = 2}
-      }>Delete</button>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import App from './Views/Board';
 import Home from './Views/Home';
 import reportWebVitals from './reportWebVitals';
 
+
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
     <React.StrictMode>
