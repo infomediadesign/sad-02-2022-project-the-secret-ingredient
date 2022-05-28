@@ -1,0 +1,56 @@
+name: nodeJS CI
+on: push
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    env:
+        working-directory: ./frontend
+    steps:
+    
+    
+    - uses: actions/checkout@master
+    - name: current working directory
+      run: ls -R
+      working-directory: ${{env.working-directory}}
+    - name: run npm
+      run: |
+         npm i
+         npm run test
+         npm run build
+
+      working-directory: ${{env.working-directory}}
+      
+  
+  backend:
+      runs-on: ubuntu-latest
+      env:
+        working-directory: ./backend
+
+      steps:
+        - name: Checkout repo
+          uses: actions/checkout@master
+        - name: working dir
+          run : ls -R   
+          working-directory: ${{env.working-directory}}
+          
+
+        - name: Download Deno
+          uses: denolib/setup-deno@master
+          with:
+            deno-version: v1.1.2
+
+
+        - name: Start main.ts
+          run: |
+             pwd
+             ls -R
+             deno --version
+             #deno lint --unstable
+             deno run main.ts
+          working-directory: ./backend/src
+             
+
+ 
+ 
+ 
