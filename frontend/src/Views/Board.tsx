@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, {useCallback, useState, useReducer } from "react";
 import ReactDOM from "react-dom";
 import CSS from 'csstype';
 import {Issue, IssueListTemp, getIssues} from '../ViewModels/Board'
+import produce from "immer";
 import {
   DragDropContext,
   Draggable,
@@ -18,152 +19,157 @@ const horizontalList: CSS.Properties = {
   margin: '0.2rem',
 }
 
-const reorder = (
-  list: Issue[],
-  startIndex: number,
-  endIndex: number
-): Issue[] => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
+const issueStyle: CSS.Properties = {
+  padding: '0.2rem',
+  border: 'dotted',
+  margin: '0.1rem',
+}
 
-  return result;
-};
+const issueLists = fetchIssueLists;
 
-const grid = 8;
-
-const getItemStyle = (
-  isDragging: boolean,
-  draggableStyle: DraggingStyle | NotDraggingStyle | undefined
-): React.CSSProperties => ({
-  // some basic styles to make the items look a bit nicer
-  userSelect: "none",
-  padding: grid * 2,
-  margin: `0 0 ${grid}px 0`,
-
-  // change background colour if dragging
-  background: isDragging ? "lightgreen" : "grey",
-
-  // styles we need to apply on draggables
-  ...draggableStyle
-});
-
-const getListStyle = (isDraggingOver: boolean): React.CSSProperties => ({
-  background: isDraggingOver ? "lightblue" : "lightgrey",
-  padding: grid,
-  width: 250
-});
-
-function fetchIssueLists() : IssueListTemp[]{
-  const testA = new Array();
-  testA.push(    {
-    number : 1,
-    content : getIssues(4)
-  })
-  
+function fetchIssues() : Issue[]{
+  const testA = data;
 
   return (testA);
 }
 
+function fetchIssueLists() : IssueListTemp[]{
+  const localTest = {
+    id: "1111",
+    content: ""
+  }
+
+  const testA = {
+    name: "To Do",
+    content: data
+  };
+  const testB = {
+    name: "Doing",
+    content: [localTest]
+  };
+
+  return ([testA, testB]);
+}
+
+const dragReducer = produce((draft, action) => {
+  switch (action.type) {
+    case "MOVE": {
+      draft[action.from] = draft[action.from] || [];
+      draft[action.to] = draft[action.to] || [];
+      const [removed] = draft[action.from].splice(action.fromIndex, 1);
+      draft[action.to].splice(action.toIndex, 0, removed);
+    }
+  }
+});
 
 function App (){
-  const [issueCount, setIssueCount] = useState(5);
-  //const [listOfIssues, setlistOfIssues] = useState(fetchIssueLists());
-  const [state, setState] = useState(getIssues(5));
-  
+  const [state, dispatch] = useReducer(dragReducer, {
+    items: fetchIssues(),
+  });
 
-  const onDragEnd = (result: DropResult): void => {
-    if (!result.destination) {
-      return;
+  const onDragEnd = useCallback((result : any) => {
+    if (result.reason === "DROP") {
+      if (!result.destination) {
+        return;
+      }
+      dispatch({
+        type: "MOVE",
+        from: result.source.droppableId,
+        to: result.destination.droppableId,
+        fromIndex: result.source.index,
+        toIndex: result.destination.index,
+      });
     }
-
-    const items: Issue[] = reorder(
-      state,
-      result.source.index,
-      result.destination.index
-    );
-
-    setState(items);
-  };
+  }, []);
 
   return (
     <div>
-      <div>
-
-      </div>
-
-      {aList("droppable1")}
-
-{aList("droppable2")}
-
-{aList("droppable3")}
+      <button>Add Issue List</button>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="items" type="PERSON">
+          {(provided, snapshot) => 
+            arrangeDragDropForIssueList(provided, state, state.items)
+          }
+        </Droppable>
+        <Droppable droppableId="items2" type="PERSON">
+          {(provided, snapshot) => 
+            arrangeDragDropForIssueList(provided, state, state.items2)
+          }
+        </Droppable>
+      </DragDropContext>
     </div>
   );
+
+  function arrangeDragDropForIssueList(provided : any, state: any, mapItem : any){
+    return (
+      <div style={horizontalList}
+        ref={provided.innerRef}
+        {...provided.droppableProps}
+        
+      >
+        {mapItem?.map((person : any, index : any) => 
+        arrangeIssueInList(person, index)
+        )}
+        {provided.placeholder}
+        <button onClick={
+          () => {}
+        }
+        >Add Issue</button>
+      </div>
+    );
+  }
 };
 
-function aList(id: string){
-  const [amount, setAmount] = useState(5);
-  const [state, setState] = useState(getIssues(5));
-
-  const onDragEnd = (result: DropResult): void => {
-    if (!result.destination) {
-      return;
-    }
-
-    const items: Issue[] = reorder(
-      state,
-      result.source.index,
-      result.destination.index
-    );
-
-    setState(items);
-  };
-
-  return(
-    <div style={horizontalList}>
-            <DragDropContext onDragEnd={onDragEnd}>
-<Droppable droppableId={id} type="PERSON">
-            {(provided, snapshot): JSX.Element => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  style={getListStyle(snapshot.isDraggingOver)}
-                >
-                  {listCreator(state)}
-                  {provided.placeholder}
-                  <button onClick={() => {
-                    setAmount(amount+1);
-                    setState(getIssues(amount));
-                    }}>Add new issue</button>
-                </div>
-              )
-            }
-  </Droppable>
-  </DragDropContext>
-    </div>)
+function arrangeIssueInList(issue : any, index : any){
+  return (
+    <Draggable
+      key={issue.id}
+      draggableId={issue.id}
+      index={index}
+    >
+      {(provided, snapshot) => 
+        arrangeIssue(provided, issue)
+      }
+    </Draggable>
+  );
 }
 
-function listCreator(state : Issue[]){
-  return(<div>{
-    state.map((item, index) => (
-      <Draggable key={item.id} draggableId={item.id} index={index}>
-        {(provided, snapshot): JSX.Element => (
-          <div
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            style={getItemStyle(
-              snapshot.isDragging,
-              provided.draggableProps.style
-            )}
-          >
-            {item.content}
-          </div>
-        )}
-      </Draggable>
-    ))
-  }</div>)
+function arrangeIssue(provided : any, issue : any){
+  return (
+    <div
+      ref={provided.innerRef}
+      {...provided.draggableProps}
+      {...provided.dragHandleProps}
+    >
+      <div style={issueStyle}>
+        <span>
+          {issue.content}
+        </span>
+      </div>
+    </div>
+  );
 }
+
+export const data :Issue[] = [
+  {
+    id: "1",
+    content: "This list is buggy"
+  },
+  {
+    id: "2",
+    content: "I hate lists like this..."
+  },
+  {
+    id: "3",
+    content: "Why would react do this to me"
+  },
+  {
+    id: "4",
+    content: "HAMBURGER PLEAAAAAAAAAAAAAAAASE"
+  },
+];
+
+
 
 export default App;
 
