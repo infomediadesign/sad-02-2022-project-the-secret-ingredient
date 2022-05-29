@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import CSS from 'csstype';
-import {Issue, getIssues} from '../ViewModels/Board'
+import {Issue, IssueListTemp, getIssues} from '../ViewModels/Board'
 import {
   DragDropContext,
   Draggable,
@@ -54,13 +54,13 @@ const getListStyle = (isDraggingOver: boolean): React.CSSProperties => ({
   width: 250
 });
 
-function fetchIssueLists(){
-  const testA = [
-    {
-      number : 1,
-      content : getIssues(4)
-    }
-  ]
+function fetchIssueLists() : IssueListTemp[]{
+  const testA = new Array();
+  testA.push(    {
+    number : 1,
+    content : getIssues(4)
+  })
+  
 
   return (testA);
 }
@@ -68,8 +68,9 @@ function fetchIssueLists(){
 
 function App (){
   const [issueCount, setIssueCount] = useState(5);
-  const [listOfIssues, setlistOfIssues] = useState(fetchIssueLists());
+  //const [listOfIssues, setlistOfIssues] = useState(fetchIssueLists());
   const [state, setState] = useState(getIssues(5));
+  
 
   const onDragEnd = (result: DropResult): void => {
     if (!result.destination) {
@@ -88,23 +89,39 @@ function App (){
   return (
     <div>
       <div>
-        <button
-        onClick={() =>
-          {
-            setlistOfIssues((oldArr) => [
-              ...oldArr,
-              {
-                number : 2,
-                content : getIssues(0)
-              }
-          ])
-          }}>Add list</button>
+
       </div>
 
-      <DragDropContext onDragEnd={onDragEnd}>
-        {listOfIssues.map((item) => (
-          <div style={horizontalList}>
-          <Droppable droppableId="droppable">
+      {aList()}
+
+{aList()}
+
+{aList()}
+    </div>
+  );
+};
+
+function aList(){
+  const [state, setState] = useState(getIssues(5));
+
+  const onDragEnd = (result: DropResult): void => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items: Issue[] = reorder(
+      state,
+      result.source.index,
+      result.destination.index
+    );
+
+    setState(items);
+  };
+
+  return(
+    <div style={horizontalList}>
+            <DragDropContext onDragEnd={onDragEnd}>
+<Droppable droppableId="droppable">
             {(provided, snapshot): JSX.Element => (
                 <div
                   {...provided.droppableProps}
@@ -114,7 +131,6 @@ function App (){
                   {listCreator(state)}
                   {provided.placeholder}
                   <button onClick={() => {
-                    setState(item.content);
                     setState(
                       (oldArr) => [
                         ...oldArr,
@@ -124,18 +140,14 @@ function App (){
                         }
                     ]
                     );
-                    item.content = state;
                     }}>Add new issue</button>
                 </div>
               )
             }
-          </Droppable>
-          </div>
-        ))}
-    </DragDropContext>
-    </div>
-  );
-};
+  </Droppable>
+  </DragDropContext>
+    </div>)
+}
 
 function listCreator(state : Issue[]){
   return(<div>{
