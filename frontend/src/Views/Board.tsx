@@ -92,16 +92,17 @@ function App (){
 
       </div>
 
-      {aList()}
+      {aList("droppable1")}
 
-{aList()}
+{aList("droppable2")}
 
-{aList()}
+{aList("droppable3")}
     </div>
   );
 };
 
-function aList(){
+function aList(id: string){
+  const [amount, setAmount] = useState(5);
   const [state, setState] = useState(getIssues(5));
 
   const onDragEnd = (result: DropResult): void => {
@@ -121,7 +122,7 @@ function aList(){
   return(
     <div style={horizontalList}>
             <DragDropContext onDragEnd={onDragEnd}>
-<Droppable droppableId="droppable">
+<Droppable droppableId={id} type="PERSON">
             {(provided, snapshot): JSX.Element => (
                 <div
                   {...provided.droppableProps}
@@ -131,15 +132,8 @@ function aList(){
                   {listCreator(state)}
                   {provided.placeholder}
                   <button onClick={() => {
-                    setState(
-                      (oldArr) => [
-                        ...oldArr,
-                        {
-                          id: `issue-`,
-                          content: `new issue`
-                        }
-                    ]
-                    );
+                    setAmount(amount+1);
+                    setState(getIssues(amount));
                     }}>Add new issue</button>
                 </div>
               )
