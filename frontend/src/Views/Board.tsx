@@ -6,6 +6,7 @@ import produce from "immer";
 import {
   DragDropContext,
   Draggable,
+  DraggableProvided,
   DraggingStyle,
   Droppable,
   DropResult,
@@ -25,8 +26,6 @@ const issueStyle: CSS.Properties = {
   margin: '0.1rem',
 }
 
-const issueLists = fetchIssueLists;
-
 function fetchIssues() : Issue[]{
   const testA = data;
 
@@ -34,21 +33,12 @@ function fetchIssues() : Issue[]{
 }
 
 function fetchIssueLists() : IssueListTemp[]{
-  const localTest = {
-    id: "1111",
-    content: ""
-  }
-
   const testA = {
-    name: "To Do",
-    content: data
-  };
-  const testB = {
-    name: "Doing",
-    content: [localTest]
+    name: "string",
+    content: fetchIssues()
   };
 
-  return ([testA, testB]);
+  return ([testA]);
 }
 
 const dragReducer = produce((draft, action) => {
@@ -62,10 +52,13 @@ const dragReducer = produce((draft, action) => {
   }
 });
 
+let issueIdIncrement = 5;
+
 function App (){
-  const [state, dispatch] = useReducer(dragReducer, {
-    items: fetchIssues(),
-  });
+  const [state, dispatch] : [any, React.Dispatch<any>] = useReducer(dragReducer, {
+    items: data,
+  }
+  );
 
   const onDragEnd = useCallback((result : any) => {
     if (result.reason === "DROP") {
@@ -88,12 +81,85 @@ function App (){
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="items" type="PERSON">
           {(provided, snapshot) => 
-            arrangeDragDropForIssueList(provided, state, state.items)
+            {    return (
+              <div style={horizontalList}
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {state.items?.map((issue : Issue, index : number) => 
+                  arrangeIssueInList(issue, index)
+                )}
+                {provided.placeholder}
+                <button onClick={
+                  () => {
+                    issueIdIncrement++;
+                    data.push(
+                      {
+                        id: issueIdIncrement.toString(),
+                        content: "This list is buggy"
+                      }
+                    );
+                  }
+                }
+                >Add Issue</button>
+              </div>
+            );}
           }
         </Droppable>
         <Droppable droppableId="items2" type="PERSON">
           {(provided, snapshot) => 
-            arrangeDragDropForIssueList(provided, state, state.items2)
+            {    return (
+              <div style={horizontalList}
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                
+              >
+                {state.items2?.map((issue : Issue, index : number) => 
+                arrangeIssueInList(issue, index)
+                )}
+                {provided.placeholder}
+                <button onClick={
+                  () => {
+                    issueIdIncrement++;
+                    data.push(
+                      {
+                        id: issueIdIncrement.toString(),
+                        content: "This list is buggy"
+                      }
+                    );
+                  }
+                }
+                >Add Issue</button>
+              </div>
+            );}
+          }
+        </Droppable>
+        <Droppable droppableId="items3" type="PERSON">
+          {(provided, snapshot) => 
+            {    return (
+              <div style={horizontalList}
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                
+              >
+                {state.items3?.map((issue : Issue, index : number) => 
+                arrangeIssueInList(issue, index)
+                )}
+                {provided.placeholder}
+                <button onClick={
+                  () => {
+                    issueIdIncrement++;
+                    data.push(
+                      {
+                        id: issueIdIncrement.toString(),
+                        content: "This list is buggy"
+                      }
+                    );
+                  }
+                }
+                >Add Issue</button>
+              </div>
+            );}
           }
         </Droppable>
       </DragDropContext>
@@ -120,7 +186,7 @@ function App (){
   }
 };
 
-function arrangeIssueInList(issue : any, index : any){
+function arrangeIssueInList(issue : Issue, index : number){
   return (
     <Draggable
       key={issue.id}
@@ -134,7 +200,7 @@ function arrangeIssueInList(issue : any, index : any){
   );
 }
 
-function arrangeIssue(provided : any, issue : any){
+function arrangeIssue(provided : DraggableProvided, issue : Issue){
   return (
     <div
       ref={provided.innerRef}
