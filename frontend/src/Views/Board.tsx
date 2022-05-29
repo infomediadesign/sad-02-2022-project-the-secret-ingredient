@@ -1,31 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import CSS from 'csstype';
-import './App.css';
-import {CreateIssueList} from './IssueList'
-import { DragDropContext, Droppable, Draggable, DraggableProvided, DraggableStateSnapshot} from 'react-beautiful-dnd';
-
-export interface  issueListData {
-  indexK : Number,
-  name : String,
-  number : Number,
-}
-
-const myTestList =[
-  {
-    id: "1",
-    name: 'Me1'
-  },
-  {
-    id: "2",
-    name: 'Me2'
-  },
-  {
-    id: "3",
-    name: 'Me3'
-  }
-]
-
-let arrayOfIssueLists : issueListData[] = new Array();
+import {Issue, getIssues} from '../ViewModels/Board'
+import {
+  DragDropContext,
+  Draggable,
+  DraggingStyle,
+  Droppable,
+  DropResult,
+  NotDraggingStyle
+} from "react-beautiful-dnd";
 
 const horizontalList: CSS.Properties = {
   float: 'left',
@@ -34,69 +18,133 @@ const horizontalList: CSS.Properties = {
   margin: '0.2rem',
 }
 
-function App() {
-  const [age, setAge] = useState(18);
-  const [name, setName] = useState('class');
-  const [element, setElement] = useState(<h1>Hello, {name}</h1>);
-  const [count, setCount] = useState(0);
+// a little function to help us with reordering the result
+const reorder = (
+  list: Issue[],
+  startIndex: number,
+  endIndex: number
+): Issue[] => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
 
-  const [listsOfIssues, setlistsOfIssues] = useState(new Array); 
+  return result;
+};
+
+const grid = 8;
+
+const getItemStyle = (
+  isDragging: boolean,
+  draggableStyle: DraggingStyle | NotDraggingStyle | undefined
+): React.CSSProperties => ({
+  // some basic styles to make the items look a bit nicer
+  userSelect: "none",
+  padding: grid * 2,
+  margin: `0 0 ${grid}px 0`,
+
+  // change background colour if dragging
+  background: isDragging ? "lightgreen" : "grey",
+
+  // styles we need to apply on draggables
+  ...draggableStyle
+});
+
+const getListStyle = (isDraggingOver: boolean): React.CSSProperties => ({
+  background: isDraggingOver ? "lightblue" : "lightgrey",
+  padding: grid,
+  width: 250
+});
+
+const testA = [
+  {
+    number : 1
+  },
+  {
+    number : 2
+  }
+]
+
+function App (){
+  const [issueCount, setIssueCount] = useState(5);
+  const [listOfIssues, setlistOfIssues] = useState(testA);
+  const [state, setState] = useState(getIssues(5));
+
+  const onDragEnd = (result: DropResult): void => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items: Issue[] = reorder(
+      state,
+      result.source.index,
+      result.destination.index
+    );
+
+    setState(items);
+  };
 
   return (
     <div>
-      <h1>Top of page</h1>
-      {element}
-      <p>Click count is: {count}</p>
-      <button onClick={() => setCount(count + 1)}>Click</button>
-      <button onClick={() => {
-          setlistsOfIssues((oldArr) => [
-            ...oldArr,
-            {
-              indexK : oldArr.length,
-              name : "",
-              number : count
+      <div>
+        <button
+        onClick={() =>
+          {
+            setlistOfIssues((oldArr) => [
+              ...oldArr,
+              {
+                number : 1
+              }
+          ])
+          }}>Add list</button>
+      </div>
+
+      <DragDropContext onDragEnd={onDragEnd}>
+        {listOfIssues.map((item) => (
+          <div style={horizontalList}>
+          <Droppable droppableId="droppable">
+            {(provided, snapshot): JSX.Element => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  style={getListStyle(snapshot.isDraggingOver)}
+                >
+                  {listCreator(state)}
+                  {provided.placeholder}
+                  <button onClick={() => {setState(getIssues(issueCount)); setIssueCount(issueCount + 1)}}>Add new issue</button>
+                </div>
+              )
             }
-        ]);
-        arrayOfIssueLists = listsOfIssues;
-        }}>Add in list</button>
-        <button onClick={() => {
-          arrayOfIssueLists = listsOfIssues;
-          setlistsOfIssues(arrayOfIssueLists.map((listI, key) => key == 0
-            ?{...listI, number: count}
-            :{...listI}
-          ));
-        }}>Change top number</button>
-        <div>
-          <ul>{listsOfIssues.map(issue => (
-            <div style={horizontalList}>
-              <p>{issue.number}</p>
-              <button onClick={() => {
-                  arrayOfIssueLists = listsOfIssues;
-                  setlistsOfIssues(arrayOfIssueLists.map((listI, key) => key == issue.indexK
-                    ?{}
-                    :{...listI}
-                  ));
-                }}>Delete</button>
-                <DragDropContext onDragEnd={() => {}}>
-                  <Droppable droppableId='issuesId'>
-                    {(provided) => (
-                      <ul className='' {...provided.droppableProps} ref={provided.innerRef}>
-                        {myTestList.map((item, index) => {return(
-                          <Draggable key={item.id} draggableId={item.id} index={index}>
-                            {(providedDraggable:DraggableProvided, snapshotDraggable:DraggableStateSnapshot) => (
-                            <div><p>{item.id}</p><p>{item.name}</p></div>
-                            )}
-                          </Draggable>
-                        )})}
-                      </ul>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-            </div>
-          ))}</ul>
-        </div>
+          </Droppable>
+          </div>
+        ))}
+    </DragDropContext>
     </div>
-  )
+  );
+};
+
+function listCreator(state : Issue[]){
+  return(<div>{
+    state.map((item, index) => (
+      <Draggable key={item.id} draggableId={item.id} index={index}>
+        {(provided, snapshot): JSX.Element => (
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            style={getItemStyle(
+              snapshot.isDragging,
+              provided.draggableProps.style
+            )}
+          >
+            {item.content}
+          </div>
+        )}
+      </Draggable>
+    ))
+  }</div>)
 }
 
 export default App;
+
+// Put the thing into the DOM!
+ReactDOM.render(<App />, document.getElementById("root"));
