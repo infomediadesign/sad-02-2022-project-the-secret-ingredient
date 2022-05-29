@@ -18,7 +18,6 @@ const horizontalList: CSS.Properties = {
   margin: '0.2rem',
 }
 
-// a little function to help us with reordering the result
 const reorder = (
   list: Issue[],
   startIndex: number,
@@ -55,18 +54,21 @@ const getListStyle = (isDraggingOver: boolean): React.CSSProperties => ({
   width: 250
 });
 
-const testA = [
-  {
-    number : 1
-  },
-  {
-    number : 2
-  }
-]
+function fetchIssueLists(){
+  const testA = [
+    {
+      number : 1,
+      content : getIssues(4)
+    }
+  ]
+
+  return (testA);
+}
+
 
 function App (){
   const [issueCount, setIssueCount] = useState(5);
-  const [listOfIssues, setlistOfIssues] = useState(testA);
+  const [listOfIssues, setlistOfIssues] = useState(fetchIssueLists());
   const [state, setState] = useState(getIssues(5));
 
   const onDragEnd = (result: DropResult): void => {
@@ -92,7 +94,8 @@ function App (){
             setlistOfIssues((oldArr) => [
               ...oldArr,
               {
-                number : 1
+                number : 2,
+                content : getIssues(0)
               }
           ])
           }}>Add list</button>
@@ -110,7 +113,19 @@ function App (){
                 >
                   {listCreator(state)}
                   {provided.placeholder}
-                  <button onClick={() => {setState(getIssues(issueCount)); setIssueCount(issueCount + 1)}}>Add new issue</button>
+                  <button onClick={() => {
+                    setState(item.content);
+                    setState(
+                      (oldArr) => [
+                        ...oldArr,
+                        {
+                          id: `issue-`,
+                          content: `new issue`
+                        }
+                    ]
+                    );
+                    item.content = state;
+                    }}>Add new issue</button>
                 </div>
               )
             }
@@ -146,5 +161,4 @@ function listCreator(state : Issue[]){
 
 export default App;
 
-// Put the thing into the DOM!
 ReactDOM.render(<App />, document.getElementById("root"));

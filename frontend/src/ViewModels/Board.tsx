@@ -9,6 +9,11 @@ import {
   NotDraggingStyle
 } from "react-beautiful-dnd";
 
+export interface IssueListTemp {
+    name: string;
+    content: Issue[];
+  }
+
 export interface Issue {
     id: string;
     content: string;
