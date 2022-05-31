@@ -6,7 +6,7 @@ export interface userSchema {
     password: string;
 }
 
-export function user(db: Mongo.Database): Model<userSchema> {
+export function User(db: Mongo.Database): Model<userSchema> {
     return {
         name: 'user',
         schema: db.collection<userSchema>('user'),
