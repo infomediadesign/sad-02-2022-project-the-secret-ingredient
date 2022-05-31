@@ -41,18 +41,21 @@ function fetchIssueLists(): IssueListTemp[] {
     return [testA];
 }
 
-const dragReducer = produce((draft, action) => {
+const dragReducer = produce((state: any, action: any) => {
     switch (action.type) {
         case 'MOVE': {
-            draft[action.from] = draft[action.from] || [];
-            draft[action.to] = draft[action.to] || [];
-            const [removed] = draft[action.from].splice(action.fromIndex, 1);
-            draft[action.to].splice(action.toIndex, 0, removed);
+            state[action.from] = state[action.from] || [];
+            state[action.to] = state[action.to] || [];
+            const [removed] = state[action.from].splice(action.fromIndex, 1);
+            state[action.to].splice(action.toIndex, 0, removed);
             return;
         }
         case 'ADDITEM': {
-            return [...draft, action.value];
+            console.log('FUCK THIS LIST');
+            return { items: data2 };
         }
+        default:
+            throw new Error();
     }
 });
 
@@ -60,10 +63,7 @@ let issueIdIncrement = 6;
 
 function App() {
     const [test, setTest] = useState(data);
-    const [state, dispatch]: [any, React.Dispatch<any>] = useReducer(dragReducer, {
-        items: test, //array instead :)
-        items2: data2,
-    });
+    const [state, dispatch] = useReducer(dragReducer, initialState);
 
     const onDragEnd = useCallback((result: any) => {
         if (result.reason === 'DROP') {
@@ -82,6 +82,7 @@ function App() {
 
     return (
         <div>
+            <button onClick={() => dispatch({ type: 'ADDITEM' })}>-</button>
             <button>Add Issue List</button>
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="items" type="PERSON">
@@ -93,17 +94,13 @@ function App() {
                                 <button
                                     onClick={() => {
                                         issueIdIncrement++;
-                                        setTest(() => [
+                                        data.map(() => [
                                             ...test,
                                             {
                                                 id: issueIdIncrement.toString(),
                                                 content: 'This list is buggy',
                                             },
                                         ]);
-                                        data.push({
-                                            id: issueIdIncrement.toString(),
-                                            content: 'This list is buggy',
-                                        });
                                     }}
                                 >
                                     Add Issue
@@ -128,10 +125,6 @@ function App() {
                                                 content: 'This list is buggy',
                                             },
                                         ]);
-                                        data.push({
-                                            id: issueIdIncrement.toString(),
-                                            content: 'This list is buggy',
-                                        });
                                     }}
                                 >
                                     Add Issue
@@ -156,10 +149,6 @@ function App() {
                                                 content: 'This list is buggy',
                                             },
                                         ]);
-                                        data.push({
-                                            id: issueIdIncrement.toString(),
-                                            content: 'This list is buggy',
-                                        });
                                     }}
                                 >
                                     Add Issue
@@ -226,7 +215,7 @@ export const data2: Issue[] = [
         content: 'This list is buggy',
     },
 ];
-
+const initialState = { items: data };
 export default App;
 
 ReactDOM.render(<App />, document.getElementById('root'));
