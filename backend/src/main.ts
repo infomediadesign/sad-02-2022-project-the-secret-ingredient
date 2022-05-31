@@ -1,5 +1,6 @@
 import { Oak, Mongo } from './deps.ts';
 import { Baord } from './models/Board.ts';
+import { User } from './models/User.ts';
 import { Activity } from './models/Activity.ts';
 import { crudFactory } from './util.ts';
 import { createActivity } from './handlers/ActivityHandler.ts';
@@ -8,6 +9,7 @@ import { createList } from './handlers/ListHandler.ts';
 import { createCard } from './handlers/CardHandler.ts';
 import { List } from './models/List.ts';
 import { Card } from './models/Card.ts';
+import { registerUser } from './handlers/userHandler.ts';
 
 const port = 1234;
 const appName = 'crud-factory-server';
@@ -23,12 +25,14 @@ const board = Baord(db);
 const activity = Activity(db);
 const list = List(db);
 const card = Card(db);
+const user = User(db);
 
 crudFactory({ router, model: board });
 createBoard(router, board);
 createList(router, list, board);
 createCard(router, card, board, list);
 createActivity(router, activity, board);
+registerUser(router, user);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
