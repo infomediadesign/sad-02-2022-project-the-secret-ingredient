@@ -16,6 +16,7 @@ const mongoUri = Deno.env.get('MONGO_URI') || 'mongodb://localhost:27017';
 
 const appName = 'crud-factory-server';
 const client = new Mongo.MongoClient();
+
 await client.connect(mongoUri);
 
 const db = client.database(appName);
@@ -44,4 +45,5 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 console.log(`Server started at: http://localhost:${port}`);
+
 app.listen({ port });
