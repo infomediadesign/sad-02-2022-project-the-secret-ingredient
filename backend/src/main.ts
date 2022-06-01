@@ -11,10 +11,12 @@ import { List } from './models/List.ts';
 import { Card } from './models/Card.ts';
 import { registerUser } from './handlers/UserHandler.ts';
 
-const port = 1234;
+const port = Number(Deno.env.get('PORT')) || 1234;
+const mongoUri = Deno.env.get('MONGO_URI') || 'mongodb://localhost:27017';
+
 const appName = 'crud-factory-server';
 const client = new Mongo.MongoClient();
-await client.connect('mongodb://127.0.0.1:27017');
+await client.connect(mongoUri);
 
 const db = client.database(appName);
 
@@ -26,6 +28,10 @@ const activity = Activity(db);
 const list = List(db);
 const card = Card(db);
 const user = User(db);
+
+router.get('/', (ctx) => {
+    ctx.response.body = 'Server started :)';
+});
 
 crudFactory({ router, model: board });
 createBoard(router, board);

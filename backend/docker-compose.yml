@@ -2,7 +2,28 @@ version: '3.9'
 services:
     mongodb-master:
         image: mongo
+        container_name: mongodb-master
         volumes:
             - './data:/data'
+        networks:
+            - backend
         ports:
             - '27017:27017'
+
+    backend:
+        build:
+            context: .
+        container_name: backend
+        restart: unless-stopped
+        depends_on:
+            - mongodb-master
+        networks:
+            - backend
+        ports:
+            - ${PORT}:${PORT}
+        environment:
+            - MONGO_URI=mongodb://mongodb-master:27017
+
+networks:
+    backend:
+        driver: bridge
