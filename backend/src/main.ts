@@ -9,7 +9,7 @@ import { createList } from './handlers/ListHandler.ts';
 import { createCard } from './handlers/CardHandler.ts';
 import { List } from './models/List.ts';
 import { Card } from './models/Card.ts';
-import { registerUser } from './handlers/userHandler.ts';
+import { registerUser } from './handlers/UserHandler.ts';
 
 const port = 1234;
 const appName = 'crud-factory-server';
