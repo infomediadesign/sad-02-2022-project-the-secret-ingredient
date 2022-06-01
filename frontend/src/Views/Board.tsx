@@ -12,6 +12,7 @@ import {
     DropResult,
     NotDraggingStyle,
 } from 'react-beautiful-dnd';
+import { getSystemErrorName } from 'util';
 
 const horizontalList: CSS.Properties = {
     float: 'left',
@@ -36,40 +37,26 @@ const dragReducer = produce((state: any, action: any) => {
             return;
         }
         case 'ADDITEM': {
-            let itemRef = action.pass;
-            test[action.myIndex] = new Array();
-            if (action.myData != null && action.myData.length > 0) {
-                action.myData.map((item: Issue) => {
-                    test[action.myIndex].push(item);
-                });
-            }
+            let test = state[issueListsNames[action.myIndex]];
 
-            console.log(action.pass);
-            issueIdIncrement++;
-            test[action.myIndex].push({
-                id: issueIdIncrement.toString(),
-                content: 'Test' + issueIdIncrement.toString(),
-            });
-            let testL: Issue[] = Array.from(test[action.myIndex]);
-            let wird = { items: test[0], items2: test[1], items3: test[2] };
-            return wird;
+            return state;
         }
         case 'UPDATE': {
-            test[0] = action.myData1;
-            test[1] = action.myData2;
-            test[2] = action.myData3;
-
-            return issueListsNames.map((item) => {
-                return { [item]: test[0] };
-            });
+            return state;
         }
         case 'UPDATELISTS': {
-            let wird = issueListsNames.map((item, index) => {
-                return { [item]: state[item] };
-            });
-            console.log(wird);
+            let i = 0;
 
-            return wird;
+            issueListsNames.map((item, index) => {
+                if (i == issueListsNames.length - 1) {
+                    state[item] = new Array();
+                } else {
+                    state[item] = state[item];
+                    i++;
+                }
+            });
+
+            return state;
         }
         default:
             throw new Error();
@@ -143,7 +130,7 @@ function App() {
                             myData2: state.items2,
                             myData3: state.items3,
                         });
-                        dispatch({ type: 'ADDITEM', pass: 'items', myIndex: 0, myData: state.items });
+                        dispatch({ type: 'ADDITEM', pass: 'items', myIndex: index, myData: state.items });
                     }}
                 >
                     Add Issue
