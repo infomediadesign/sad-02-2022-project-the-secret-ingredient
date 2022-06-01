@@ -9,10 +9,10 @@ import { createList } from './handlers/ListHandler.ts';
 import { createCard } from './handlers/CardHandler.ts';
 import { List } from './models/List.ts';
 import { Card } from './models/Card.ts';
-import { registerUser } from './handlers/UserHandler.ts';
+import { registerUser } from './handlers/userHandler.ts';
 
 const port = Number(Deno.env.get('PORT')) || 1234;
-const mongoUri = Deno.env.get('MONGO_URI') || 'mongodb://localhost:27017';
+const mongoUri = Deno.env.get('MONGO_URI') || 'mongodb://127.0.0.1:27017';
 
 const appName = 'crud-factory-server';
 const client = new Mongo.MongoClient();
