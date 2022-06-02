@@ -19,8 +19,13 @@ export const authMiddleware = async (ctx: Context, _next: Next) => {
         return;
     }
     const data = await verify(jwt, key);
+
+    console.log(data);
     if (data) {
-        console.log(data);
+        ctx.response.body = {
+            exp: data.exp,
+            iss: data.iss,
+        };
     } else {
         ctx.response.status = 401;
         return;

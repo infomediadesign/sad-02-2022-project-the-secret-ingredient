@@ -2,7 +2,7 @@ import { Mongo } from '../../deps.ts';
 import { Model, Router } from '../types.ts';
 import { authMiddleware } from '../middlewares/authMiddleware.ts';
 export function createCard<T, E, M>(router: Router, card: Model<T>, board: Model<E>, list: Model<M>) {
-    router.post(`/${card.name}`, async (ctx) => {
+    router.post(`/${card.name}`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
         const content = await body.value;
         const name = content.name;

@@ -4,6 +4,7 @@ import { Model } from '../types.ts';
 export interface userSchema {
     username: string;
     password: string;
+    email: string;
 }
 
 export function User(db: Mongo.Database): Model<userSchema> {
