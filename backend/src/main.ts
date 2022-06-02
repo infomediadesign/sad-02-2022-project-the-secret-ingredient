@@ -33,6 +33,14 @@ const user = User(db);
 router.get('/', (ctx) => {
     ctx.response.body = 'Server started :)';
 });
+router.get('/text', (ctx) => {
+    try {
+        ctx.throw(201, 'Whatsup my dud!');
+        ctx.response.body = 'Test';
+    } catch (error) {
+        ctx.response.body = error;
+    }
+});
 
 // crudFactory({ router, model: board });
 createBoard(router, board);

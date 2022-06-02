@@ -1,9 +1,8 @@
 import { create, bcrypt, getNumericDate } from '../../deps.ts';
 // import { auth } from '../middlewares/authMiddleware.ts';
 import { Model, Router } from '../types.ts';
+
 export const key = await crypto.subtle.generateKey({ name: 'HMAC', hash: 'SHA-512' }, true, ['sign', 'verify']);
-export const exported = await window.crypto.subtle.exportKey('raw', key);
-console.log(exported);
 
 export function registerUser<T>(router: Router, user: Model<T>) {
     router.post('/register', async (ctx) => {
@@ -72,34 +71,33 @@ export function loginUser<T>(router: Router, user: Model<T>) {
         const { username, password } = value;
 
         try {
-            await user.schema.findOne({ username }).then(async function (e: any) {
-                if (!bcrypt.compareSync(password, e.passwordHash!)) {
-                    ctx.response.status = 422;
-                    ctx.response.body = {
-                        msg: 'incorrect password',
-                    };
-                    return;
-                }
-                // deno-lint-ignore no-unreachable
-                const jwt = await create(
-                    { alg: 'HS512', typ: 'JWT' },
-                    { exp: getNumericDate(60 * 60), iss: e.username! },
-                    key
-                );
-                if (!e) {
-                    ctx.response.status = 422;
-                    ctx.response.body = {
-                        msg: 'incorrect username',
-                    };
-                    return;
-                }
-
+            const e = (await user.schema.findOne({ username })) as any;
+            if (!bcrypt.compareSync(password, e.passwordHash!)) {
+                ctx.response.status = 422;
                 ctx.response.body = {
-                    username: e.username,
-                    passwordHash: e.passwordHash,
-                    jwt,
+                    msg: 'incorrect password',
                 };
-            });
+                return;
+            }
+
+            const jwt = await create(
+                { alg: 'HS512', typ: 'JWT' },
+                { exp: getNumericDate(60 * 60), iss: e.username! },
+                key
+            );
+            if (!e) {
+                ctx.response.status = 422;
+                ctx.response.body = {
+                    msg: 'incorrect username',
+                };
+                return;
+            }
+
+            ctx.response.body = {
+                username: e.username,
+                passwordHash: e.passwordHash,
+                jwt,
+            };
 
             if (!username || !password) {
                 {
