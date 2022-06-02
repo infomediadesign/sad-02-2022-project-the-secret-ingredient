@@ -1,4 +1,4 @@
-import { verify } from '../deps.ts';
+import { verify } from '../../deps.ts';
 import { exported } from '../handlers/userHandler.ts';
 
 const key = await window.crypto.subtle.importKey('raw', exported, { name: 'HMAC', hash: 'SHA-512' }, true, [

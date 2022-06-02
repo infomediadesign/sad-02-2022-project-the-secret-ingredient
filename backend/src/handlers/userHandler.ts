@@ -1,4 +1,4 @@
-import { create, bcrypt, getNumericDate } from '../deps.ts';
+import { create, bcrypt, getNumericDate } from '../../deps.ts';
 // import { auth } from '../middlewares/authMiddleware.ts';
 import { Model, Router } from '../types.ts';
 export const key = await crypto.subtle.generateKey({ name: 'HMAC', hash: 'SHA-512' }, true, ['sign', 'verify']);

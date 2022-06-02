@@ -1,4 +1,4 @@
-import { Mongo, Oak } from './deps.ts';
+import { Mongo, Oak } from '../deps.ts';
 
 export interface Model<T> {
     name: string;

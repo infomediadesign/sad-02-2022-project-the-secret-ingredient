@@ -1,4 +1,4 @@
-import { Mongo } from '../deps.ts';
+import { Mongo } from '../../deps.ts';
 import { Model } from '../types.ts';
 
 export interface userSchema {
