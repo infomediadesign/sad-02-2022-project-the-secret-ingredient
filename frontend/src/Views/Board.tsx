@@ -44,6 +44,21 @@ const dragReducer = produce((state: any, action: any) => {
         case 'UPDATE': {
             return state;
         }
+        case 'DELETEISSUE': {
+            console.log('REEEEEEEEEEEE');
+            let newA: Issue[] = new Array();
+
+            state[issueListsNames[action.myIndex]].map((item: Issue, index: number) => {
+                if (item.id != action.deleteMe) {
+                    console.log(item.id);
+                    newA[index] = item;
+                }
+            });
+
+            state[issueListsNames[action.myIndex]] = newA;
+
+            return state;
+        }
         case 'UPDATELISTS': {
             let i = 0;
 
@@ -120,7 +135,7 @@ function App() {
     function arrangeDragDropForIssueList(provided: any, state: any, mapItem: Issue[], index: any): JSX.Element {
         return (
             <div style={horizontalList} ref={provided.innerRef} {...provided.droppableProps}>
-                {mapItem?.map((issue: Issue, index: number) => arrangeIssueInList(issue, index))}
+                {mapItem?.map((issue: Issue, IIndex: number) => arrangeIssueInList(issue, IIndex, index))}
                 {provided.placeholder}
                 <button
                     onClick={() => {
@@ -148,25 +163,35 @@ function App() {
             </div>
         );
     }
-}
 
-function arrangeIssueInList(issue: Issue, index: number) {
-    return (
-        <Draggable key={issue.id} draggableId={issue.id} index={index}>
-            {(provided, snapshot) => arrangeIssue(provided, issue)}
-        </Draggable>
-    );
-}
+    function arrangeIssueInList(issue: Issue, index: number, IIndex: number) {
+        return (
+            <Draggable key={issue.id} draggableId={issue.id} index={index}>
+                {(provided, snapshot) => arrangeIssue(provided, issue, index, IIndex)}
+            </Draggable>
+        );
+    }
 
-function arrangeIssue(provided: DraggableProvided, issue: Issue) {
-    return (
-        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-            <div style={issueStyle}>
-                <span>{issue.content + ' '}</span>
-                <button>Delete</button>
+    function arrangeIssue(provided: DraggableProvided, issue: Issue, index: number, IIndex: number) {
+        return (
+            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                <div style={issueStyle}>
+                    <span>{issue.content + ' '}</span>
+                    <button
+                        onClick={() => {
+                            dispatch({
+                                type: 'DELETEISSUE',
+                                deleteMe: issue.id,
+                                myIndex: IIndex,
+                            });
+                        }}
+                    >
+                        Delete
+                    </button>
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
 }
 
 export const data: Issue[] = [
