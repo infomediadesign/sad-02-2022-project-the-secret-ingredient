@@ -2,7 +2,7 @@ import { Oak, Mongo } from './deps.ts';
 import { Baord } from './models/Board.ts';
 import { User } from './models/User.ts';
 import { Activity } from './models/Activity.ts';
-import { crudFactory } from './util.ts';
+// import { crudFactory } from './util.ts';
 import { createActivity } from './handlers/ActivityHandler.ts';
 import { createBoard } from './handlers/BoardHandler.ts';
 import { createList } from './handlers/ListHandler.ts';
@@ -34,7 +34,7 @@ router.get('/', (ctx) => {
     ctx.response.body = 'Server started :)';
 });
 
-crudFactory({ router, model: board });
+// crudFactory({ router, model: board });
 createBoard(router, board);
 createList(router, list, board);
 createCard(router, card, board, list);

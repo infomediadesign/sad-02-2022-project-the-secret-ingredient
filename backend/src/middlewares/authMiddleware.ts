@@ -1,34 +1,31 @@
-// import { jwt } from '../deps.ts';
+import { verify } from '../deps.ts';
+import { exported } from '../handlers/userHandler.ts';
 
-// export const notFoundHandler =
-//     ('*',
-//     (req: any, res: any, next: any) => {
-//         const error = new Error(`Not found - ${req.originalUrl}`);
-//         res.status(404);
-//         next(error);
-//     });
+const key = await window.crypto.subtle.importKey('raw', exported, { name: 'HMAC', hash: 'SHA-512' }, true, [
+    'sign',
+    'verify',
+]);
 
-// export const auth = (req: any, res: any, next: any) => {
-//     const token = req.header('x-auth-token');
-//     try {
-//         if (!token) return res.status(401).json({ msg: 'No authentiaction token, access denied' });
-
-//         if (!verified) return res.status(401).json({ msg: 'Token verification failed, access denied. ' });
-//         req.user = verified._id;
-//         next();
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-
-// export const errorHandler = (error: any, req, res, next) => {
-//     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-//     res.status(statusCode);
-//     if (process.env.NODE_ENV === 'production') return res.json({ msg: 'error occurred' });
-
-//     res.json({
-//         message: error.message,
-//         stack: error.stack,
-//         status: statusCode,
-//     });
-// };
+export const authMiddleware = async (ctx: any, next: Function) => {
+    const Headers = ctx.request.headers;
+    const authHeader = Headers.get('Authorization');
+    if (!authHeader) {
+        ctx.response.status = 401;
+        ctx.response.body = {
+            msg: 'unauthorized access',
+        };
+        return;
+    }
+    const jwt = authHeader.split(' ')[1];
+    if (!jwt) {
+        ctx.response.status = 401;
+        return;
+    }
+    const data = await verify(jwt, key);
+    if (data) {
+        console.log(data.payload);
+    } else {
+        ctx.response.status = 401;
+        return;
+    }
+};
