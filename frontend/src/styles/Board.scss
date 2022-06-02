@@ -1,0 +1,67 @@
+$font-stack: Arial, Helvetica, sans-serif;
+$light-color: #f4f4f4;
+// $primary-color: #0e6cff;
+$primary-color: #ffffff;
+$secondary-color: #ff8700;
+
+
+
+
+
+
+%btn {
+    display: inline-block;
+    border-radius: 5px;
+    padding: 8px 20px;
+    margin: 3px;
+
+    &:hover {
+        transform: scale(.98);
+    }
+}
+
+
+
+
+
+.horizontalList{
+    float: left;
+    padding: 0.8rem;
+    margin: 0.2rem;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%);
+    border-radius: 5px;
+    border-style:groove;
+    font-family: 'Trebuchet MS', sans-serif;
+    
+}
+
+
+.horizontalList:hover{
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.issueList{
+    padding: 0.2rem;
+    margin: 0.1rem;
+    border-radius: 5px;
+    border-style:groove;
+}
+.issueList:hover{
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.btn-primary {
+    @extend %btn;
+    background-color: lighten($secondary-color, 10%);
+    set-background:lighten($secondary-color, 10%);
+    color: $primary-color;
+    border: none;
+}
+
+.btn-secondary {
+    @extend %btn;
+    background-color:lighten($secondary-color, 10%);
+    set-background:lighten($secondary-color, 10%);
+    color: $primary-color;
+    border: none;
+}
