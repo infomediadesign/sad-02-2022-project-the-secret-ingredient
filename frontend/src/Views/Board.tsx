@@ -37,7 +37,7 @@ const dragReducer = produce((state: any, action: any) => {
             return;
         }
         case 'ADDITEM': {
-            let test = state[issueListsNames[action.myIndex]];
+            state[issueListsNames[action.myIndex]].push(action.addThis);
 
             return state;
         }
@@ -64,7 +64,7 @@ const dragReducer = produce((state: any, action: any) => {
 });
 
 let issueIdIncrement = 6;
-let issueListsNames: string[] = ['items', 'items2', 'items3'];
+let issueListsNames: string[] = ['items0', 'items1', 'items2'];
 
 function App() {
     const [test, setTest] = useState(data);
@@ -89,7 +89,7 @@ function App() {
         <div>
             <button
                 onClick={() => {
-                    issueListsNames.push('items' + issueIdIncrement++);
+                    issueListsNames.push('items' + issueListsNames.length);
                     dispatch({ type: 'UPDATELISTS', me: state });
                 }}
             >
@@ -109,7 +109,7 @@ function App() {
 
     function arrangeDataInDragDropList(state: any, item: string, index: number) {
         return (
-            <Droppable droppableId={'items' + index} type="PERSON">
+            <Droppable droppableId={'items' + index.toString()} type="PERSON">
                 {(provided, snapshot) => {
                     return arrangeDragDropForIssueList(provided, state, state[item], index);
                 }}
@@ -124,13 +124,23 @@ function App() {
                 {provided.placeholder}
                 <button
                     onClick={() => {
+                        issueIdIncrement++;
                         dispatch({
                             type: 'UPDATE',
                             myData1: state.items,
                             myData2: state.items2,
                             myData3: state.items3,
                         });
-                        dispatch({ type: 'ADDITEM', pass: 'items', myIndex: index, myData: state.items });
+                        dispatch({
+                            type: 'ADDITEM',
+                            pass: 'items',
+                            myIndex: index,
+                            myData: state.items,
+                            addThis: {
+                                id: issueIdIncrement.toString(),
+                                content: 'HAMBURGER PLEAAAAAAAAAAAAAAAASE',
+                            },
+                        });
                     }}
                 >
                     Add Issue
@@ -184,7 +194,7 @@ export const data2: Issue[] = [
         content: 'This list is buggy',
     },
 ];
-const initialState = { items: data };
+const initialState = { items0: data, items1: new Array(), items2: new Array() };
 let test: Issue[][] = new Array();
 
 export default App;
