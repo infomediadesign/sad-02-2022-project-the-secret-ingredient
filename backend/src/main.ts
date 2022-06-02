@@ -1,4 +1,4 @@
-import { Oak, Mongo } from './deps.ts';
+import { Oak, Mongo } from '../deps.ts';
 import { Baord } from './models/Board.ts';
 import { User } from './models/User.ts';
 import { Activity } from './models/Activity.ts';
@@ -11,13 +11,13 @@ import { List } from './models/List.ts';
 import { Card } from './models/Card.ts';
 import { registerUser, loginUser } from './handlers/userHandler.ts';
 
-const port = Number(Deno.env.get('PORT')) || 1234;
-const mongoUri = Deno.env.get('MONGO_URI') || 'mongodb://127.0.0.1:27017';
+const port = Number(Deno.env.get('APP_PORT')) || 3000;
+const connectString = Deno.env.get('MONGODB_CONNECT_STRING') || 'mongodb://127.0.0.1:27017';
 
-const appName = 'crud-factory-server';
+const appName = 'the-secret-ingredient';
 const client = new Mongo.MongoClient();
 
-await client.connect(mongoUri);
+await client.connect(connectString);
 
 const db = client.database(appName);
 

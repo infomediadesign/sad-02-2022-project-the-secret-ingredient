@@ -1,4 +1,4 @@
-import { Mongo } from '../deps.ts';
+import { Mongo } from '../../deps.ts';
 import { Model, Router } from '../types.ts';
 import { authMiddleware } from '../middlewares/authMiddleware.ts';
 export function createCard<T, E, M>(router: Router, card: Model<T>, board: Model<E>, list: Model<M>) {
