@@ -1,8 +1,8 @@
 import { Mongo } from '../deps.ts';
 import { Model, Router } from '../types.ts';
-
+import { authMiddleware } from '../middlewares/authMiddleware.ts';
 export function createActivity<T, E>(router: Router, activity: Model<T>, board: Model<E>) {
-    router.post(`/${activity.name}`, async (ctx) => {
+    router.post(`/${activity.name}`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
         const content = await body.value;
         const text = content.text;
