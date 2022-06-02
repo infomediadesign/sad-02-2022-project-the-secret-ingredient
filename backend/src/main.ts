@@ -9,7 +9,7 @@ import { createList } from './handlers/ListHandler.ts';
 import { createCard } from './handlers/CardHandler.ts';
 import { List } from './models/List.ts';
 import { Card } from './models/Card.ts';
-import { registerUser } from './handlers/userHandler.ts';
+import { registerUser, loginUser } from './handlers/userHandler.ts';
 
 const port = Number(Deno.env.get('PORT')) || 1234;
 const mongoUri = Deno.env.get('MONGO_URI') || 'mongodb://127.0.0.1:27017';
@@ -40,6 +40,7 @@ createList(router, list, board);
 createCard(router, card, board, list);
 createActivity(router, activity, board);
 registerUser(router, user);
+loginUser(router, user);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
