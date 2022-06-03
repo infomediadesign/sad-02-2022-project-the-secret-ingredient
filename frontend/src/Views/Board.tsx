@@ -59,6 +59,27 @@ const dragReducer = produce((state: any, action: any) => {
 
             return state;
         }
+        case 'DELETEISSUELIST': {
+            let i = 0;
+
+            issueListsNames.map((item, index) => {
+                if (index === action.deleteMe) {
+                    console.log('not adding ' + index);
+                    state['items' + i.toString()] = null;
+                    return item;
+                } else {
+                    console.log('items' + i);
+                    console.log(issueListsNames.length);
+                    state['items' + i.toString()] = state[item];
+                    i++;
+                    return item;
+                }
+            });
+
+            issueListsNames.pop();
+
+            return state;
+        }
         case 'UPDATELISTS': {
             let i = 0;
 
@@ -82,7 +103,7 @@ let issueIdIncrement = 6;
 let issueListsNames: string[] = ['items0', 'items1', 'items2'];
 
 function App() {
-    const [test, setTest] = useState(data);
+    const [issueStrings, setIssueStrings] = useState(issueListsNames);
     const [state, dispatch] = useReducer(dragReducer, initialState);
 
     function useCallback(result: any) {
@@ -142,9 +163,6 @@ function App() {
                         issueIdIncrement++;
                         dispatch({
                             type: 'UPDATE',
-                            myData1: state.items,
-                            myData2: state.items2,
-                            myData3: state.items3,
                         });
                         dispatch({
                             type: 'ADDITEM',
@@ -153,12 +171,19 @@ function App() {
                             myData: state.items,
                             addThis: {
                                 id: issueIdIncrement.toString(),
-                                content: 'HAMBURGER PLEAAAAAAAAAAAAAAAASE',
+                                content: 'timeless, through and through',
                             },
                         });
                     }}
                 >
                     Add Issue
+                </button>
+                <button
+                    onClick={() => {
+                        dispatch({ type: 'DELETEISSUELIST', deleteMe: index });
+                    }}
+                >
+                    Delete List
                 </button>
             </div>
         );
@@ -197,28 +222,22 @@ function App() {
 export const data: Issue[] = [
     {
         id: '1',
-        content: 'This list is buggy',
+        content: "I'm a hussar",
     },
     {
         id: '2',
-        content: 'I hate lists like this...',
+        content: "I'm a Hun",
     },
     {
         id: '3',
-        content: 'Why would react do this to me',
+        content: "I'm a wretched Englishman",
     },
     {
         id: '4',
-        content: 'HAMBURGER PLEAAAAAAAAAAAAAAAASE',
+        content: "I'm a horse soldier",
     },
 ];
 
-export const data2: Issue[] = [
-    {
-        id: '5',
-        content: 'This list is buggy',
-    },
-];
 const initialState = { items0: data, items1: new Array(), items2: new Array() };
 let test: Issue[][] = new Array();
 
