@@ -6,3 +6,5 @@ export interface Model<T> {
 }
 
 export type Router = Oak.Router<Record<string, any>>;
+export type Context = Oak.Context<Record<string, any>, Record<string, any>>;
+export type Next = () => Promise<unknown>;

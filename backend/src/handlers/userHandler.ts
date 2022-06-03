@@ -1,19 +1,31 @@
-import { create, bcrypt, getNumericDate } from '../../deps.ts';
+import { create, bcrypt, getNumericDate, validate, required, isEmail } from '../../deps.ts';
 // import { auth } from '../middlewares/authMiddleware.ts';
 import { Model, Router } from '../types.ts';
+
 export const key = await crypto.subtle.generateKey({ name: 'HMAC', hash: 'SHA-512' }, true, ['sign', 'verify']);
-export const exported = await window.crypto.subtle.exportKey('raw', key);
-console.log(exported);
 
 export function registerUser<T>(router: Router, user: Model<T>) {
     router.post('/register', async (ctx) => {
         const body = ctx.request.body();
         const value = await body.value;
-        const { password, passwordCheck, username } = value;
-        try {
-            const existingUser = await user.schema.findOne({ username });
+        const { password, passwordCheck, username, email } = value;
+        const inputs = {
+            pwd: password,
+            uname: username,
+            email: email,
+        };
 
-            if (!password || !passwordCheck || !username) {
+        const [passes, errors] = await validate(inputs, {
+            uname: required,
+            pwd: required,
+            email: isEmail,
+        });
+        console.log({ passes, errors });
+
+        try {
+            const existingUser = await user.schema.findOne({ email });
+
+            if (!password || !passwordCheck || !username || !email) {
                 ctx.response.status = 400;
                 ctx.response.body = {
                     msg: "Don't be lazy 🦥, enter all fields value",
@@ -36,24 +48,25 @@ export function registerUser<T>(router: Router, user: Model<T>) {
                 };
                 return;
             }
-            // ctx.throw(400, "Password don't match 👿");
-            if (existingUser) {
-                console.log(existingUser);
-                ctx.response.status = 400;
-                ctx.response.body = {
-                    msg: 'username already exists, think of something unique 🦄',
-                };
-                return;
-            }
+            if (email)
+                if (existingUser) {
+                    // ctx.throw(400, "Password don't match 👿");
+                    console.log(existingUser);
+                    ctx.response.status = 400;
+                    ctx.response.body = {
+                        msg: 'user already exists, think of something unique 🦄',
+                    };
+                    return;
+                }
             // ctx.throw(400, 'username already exists, think of something unique 🦄');
 
             const salt = await bcrypt.genSalt();
             const passwordHash = await bcrypt.hash(password, salt);
 
             // deno-lint-ignore no-explicit-any
-            const payload = { username, passwordHash } as any;
+            const payload = { username, email, passwordHash } as any;
             const newUserOId = await user.schema.insertOne(payload);
-            ctx.response.body = { _id: newUserOId, username, passwordHash };
+            ctx.response.body = { _id: newUserOId, username, email, passwordHash };
         } catch (error) {
             if (error) {
                 ctx.response.status = 422;
@@ -67,25 +80,36 @@ export function registerUser<T>(router: Router, user: Model<T>) {
 }
 export function loginUser<T>(router: Router, user: Model<T>) {
     router.post('/login', async (ctx) => {
+        const Headers = ctx.request.headers;
+        const authHeader = Headers.get('Authorization');
+
         const body = ctx.request.body();
         const value = await body.value;
         const { username, password } = value;
+        let jwt = '';
 
         try {
-            await user.schema.findOne({ username }).then(async function (e: any) {
-                if (!bcrypt.compareSync(password, e.passwordHash!)) {
-                    ctx.response.status = 422;
-                    ctx.response.body = {
-                        msg: 'incorrect password',
-                    };
-                    return;
-                }
-                // deno-lint-ignore no-unreachable
-                const jwt = await create(
+            const e = (await user.schema.findOne({ username })) as any;
+            if (!bcrypt.compareSync(password, e.passwordHash!)) {
+                ctx.response.status = 422;
+                ctx.response.body = {
+                    msg: 'incorrect password',
+                };
+                return;
+            }
+            if (authHeader === null) {
+                jwt = await create(
                     { alg: 'HS512', typ: 'JWT' },
                     { exp: getNumericDate(60 * 60), iss: e.username! },
                     key
                 );
+                ctx.response.body = {
+                    username: e.username,
+                    passwordHash: e.passwordHash,
+                    jwt,
+                };
+            } else {
+                jwt = authHeader;
                 if (!e) {
                     ctx.response.status = 422;
                     ctx.response.body = {
@@ -93,13 +117,12 @@ export function loginUser<T>(router: Router, user: Model<T>) {
                     };
                     return;
                 }
-
                 ctx.response.body = {
                     username: e.username,
                     passwordHash: e.passwordHash,
                     jwt,
                 };
-            });
+            }
 
             if (!username || !password) {
                 {

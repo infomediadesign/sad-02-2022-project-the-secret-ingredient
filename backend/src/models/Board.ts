@@ -9,6 +9,7 @@ export interface BoardSchema {
         thumbnail: string;
         full: string;
     };
+    userID: Mongo.ObjectId;
 }
 
 export function Baord(db: Mongo.Database): Model<BoardSchema> {

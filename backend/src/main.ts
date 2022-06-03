@@ -4,7 +4,7 @@ import { User } from './models/User.ts';
 import { Activity } from './models/Activity.ts';
 // import { crudFactory } from './util.ts';
 import { createActivity } from './handlers/ActivityHandler.ts';
-import { createBoard } from './handlers/BoardHandler.ts';
+import { createBoard, getBoards } from './handlers/BoardHandler.ts';
 import { createList } from './handlers/ListHandler.ts';
 import { createCard } from './handlers/CardHandler.ts';
 import { List } from './models/List.ts';
@@ -19,10 +19,10 @@ const client = new Mongo.MongoClient();
 
 await client.connect(connectString);
 
-const db = client.database(appName);
+export const db = client.database(appName);
 
 const app = new Oak.Application();
-const router = new Oak.Router();
+export const router = new Oak.Router();
 
 const board = Baord(db);
 const activity = Activity(db);
@@ -33,14 +33,23 @@ const user = User(db);
 router.get('/', (ctx) => {
     ctx.response.body = 'Server started :)';
 });
+router.get('/text', (ctx) => {
+    try {
+        ctx.throw(201, 'Whatsup my dud!');
+        ctx.response.body = 'Test';
+    } catch (error) {
+        ctx.response.body = error;
+    }
+});
 
 // crudFactory({ router, model: board });
-createBoard(router, board);
+createBoard(router, board, user);
 createList(router, list, board);
 createCard(router, card, board, list);
 createActivity(router, activity, board);
 registerUser(router, user);
 loginUser(router, user);
+getBoards(router, board);
 
 app.use(router.routes());
 app.use(router.allowedMethods());

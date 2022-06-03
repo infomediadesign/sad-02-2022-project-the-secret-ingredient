@@ -13,20 +13,19 @@ import {
     NotDraggingStyle,
 } from 'react-beautiful-dnd';
 import { getSystemErrorName } from 'util';
+import '../styles/Board.scss';
 
-const horizontalList: CSS.Properties = {
-    float: 'left',
-    padding: '0.8rem',
-    border: 'dotted',
-    margin: '0.2rem',
-};
-
-const issueStyle: CSS.Properties = {
-    padding: '0.2rem',
-    border: 'dotted',
-    margin: '0.1rem',
-};
-
+// const horizontalList: CSS.Properties = {
+//     float: 'left',
+//     padding: '0.8rem',
+//     border: 'dotted',
+//     margin: '0.2rem',
+// };
+// const issueStyle: CSS.Properties = {
+//     padding: '0.2rem',
+//     border: 'dotted',
+//     margin: '0.1rem',
+// };
 const dragReducer = produce((state: any, action: any) => {
     switch (action.type) {
         case 'MOVE': {
@@ -124,6 +123,7 @@ function App() {
     return (
         <div>
             <button
+                className="btn-primary"
                 onClick={() => {
                     issueListsNames.push('items' + issueListsNames.length);
                     dispatch({ type: 'UPDATELISTS', me: state });
@@ -155,10 +155,11 @@ function App() {
 
     function arrangeDragDropForIssueList(provided: any, state: any, mapItem: Issue[], index: any): JSX.Element {
         return (
-            <div style={horizontalList} ref={provided.innerRef} {...provided.droppableProps}>
+            <div className="horizontalList" ref={provided.innerRef} {...provided.droppableProps}>
                 {mapItem?.map((issue: Issue, IIndex: number) => arrangeIssueInList(issue, IIndex, index))}
                 {provided.placeholder}
                 <button
+                    className="btn-secondary"
                     onClick={() => {
                         issueIdIncrement++;
                         dispatch({
@@ -200,9 +201,10 @@ function App() {
     function arrangeIssue(provided: DraggableProvided, issue: Issue, index: number, IIndex: number) {
         return (
             <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                <div style={issueStyle}>
+                <div className="issueList">
                     <span>{issue.content + ' '}</span>
                     <button
+                        className="btn-primary"
                         onClick={() => {
                             dispatch({
                                 type: 'DELETEISSUE',
