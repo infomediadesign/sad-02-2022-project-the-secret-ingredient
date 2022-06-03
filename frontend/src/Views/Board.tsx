@@ -180,6 +180,7 @@ function App() {
                     Add Issue
                 </button>
                 <button
+                    className="btn-secondary"
                     onClick={() => {
                         dispatch({ type: 'DELETEISSUELIST', deleteMe: index });
                     }}
