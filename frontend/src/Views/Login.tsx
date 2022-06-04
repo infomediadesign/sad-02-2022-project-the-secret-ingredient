@@ -1,7 +1,6 @@
 import { authenticateMe } from '../ViewModels/Login';
 import '../styles/Login.scss';
 import { useNavigate } from 'react-router-dom';
-import Popup from 'reactjs-popup';
 
 export function App() {
     let navigate = useNavigate();
@@ -25,7 +24,7 @@ export function App() {
             </div>
             <div>
                 <label className="label">Password</label>
-                <input onChange={setPassValue}></input>
+                <input type={'password'} onChange={setPassValue}></input>
             </div>
             <button
                 className="btn-primary"
