@@ -1,6 +1,7 @@
 import { authenticateMe } from '../ViewModels/Login';
 import '../styles/Login.scss';
 import { useNavigate } from 'react-router-dom';
+import Popup from 'reactjs-popup';
 
 export function App() {
     let navigate = useNavigate();
@@ -31,11 +32,14 @@ export function App() {
                 onClick={(e) => {
                     if (authenticateMe(username, pass)) {
                         navigate('/Board');
+                    } else {
+                        alert('Wrong login info');
                     }
                 }}
             >
                 Login
             </button>
+            <button className="btn-primary">Sign Up</button>
         </div>
     );
 }
