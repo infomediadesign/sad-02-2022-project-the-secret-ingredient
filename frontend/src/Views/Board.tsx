@@ -14,7 +14,7 @@ import {
 } from 'react-beautiful-dnd';
 import { getSystemErrorName } from 'util';
 import '../styles/Board.scss';
-
+import { Modal } from '../components/Modal';
 // const horizontalList: CSS.Properties = {
 //     float: 'left',
 //     padding: '0.8rem',
@@ -128,9 +128,12 @@ function App() {
     }
 
     function arrangeIssue(provided: DraggableProvided, issue: Issue, index: number, IIndex: number) {
+        const [isModalOpen, setModalState] = React.useState(false);
+
+        const toggleModal = () => setModalState(!isModalOpen);
         return (
             <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                <div className="issueList">
+                <div className="issueList" onClick={toggleModal}>
                     <span>{issue.content + ' '}</span>
                     <button
                         className="btn-primary"
@@ -144,6 +147,9 @@ function App() {
                     >
                         Delete
                     </button>
+                    <Modal title={'This is my modal'} isOpen={isModalOpen} onClose={toggleModal}>
+                        I'm a wretched Englishman. I'm a horse soldier. I'm a Hun.
+                    </Modal>
                 </div>
             </div>
         );
@@ -175,3 +181,6 @@ let test: Issue[][] = new Array();
 export default App;
 
 ReactDOM.render(<App />, document.getElementById('root'));
+function setOpen(arg0: boolean) {
+    throw new Error('Function not implemented.');
+}
