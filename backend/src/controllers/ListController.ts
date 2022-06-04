@@ -1,5 +1,5 @@
 import { Mongo } from '../../deps.ts';
-import { authMiddleware } from '../middlewares/authMiddleware.ts';
+import { authMiddleware } from '../middlewares/auth.ts';
 import { Model, Router } from '../types.ts';
 
 export function createList<T, E>(router: Router, list: Model<T>, board: Model<E>) {
