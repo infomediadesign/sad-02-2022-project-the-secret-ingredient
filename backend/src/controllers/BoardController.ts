@@ -1,5 +1,5 @@
 import { Context, Model, Router } from '../types.ts';
-import { authMiddleware } from '../middlewares/authMiddleware.ts';
+import { authMiddleware } from '../middlewares/auth.ts';
 import { Mongo } from '../../deps.ts';
 
 //create board using userID

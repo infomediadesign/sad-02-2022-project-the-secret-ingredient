@@ -3,13 +3,13 @@ import { Baord } from './models/Board.ts';
 import { User } from './models/User.ts';
 import { Activity } from './models/Activity.ts';
 // import { crudFactory } from './util.ts';
-import { createActivity } from './handlers/ActivityHandler.ts';
-import { createBoard, getBoards } from './handlers/BoardHandler.ts';
-import { createList } from './handlers/ListHandler.ts';
-import { createCard } from './handlers/CardHandler.ts';
 import { List } from './models/List.ts';
 import { Card } from './models/Card.ts';
-import { registerUser, loginUser } from './handlers/userHandler.ts';
+import { createActivity } from './controllers/ActivityController.ts';
+import { createBoard, getBoards } from './controllers/BoardController.ts';
+import { createList } from './controllers/ListController.ts';
+import { createCard } from './controllers/CardController.ts';
+import { registerUser, loginUser } from './controllers/UserController.ts';
 
 const port = Number(Deno.env.get('APP_PORT')) || 3000;
 const connectString = Deno.env.get('MONGODB_CONNECT_STRING') || 'mongodb://127.0.0.1:27017';
