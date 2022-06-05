@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
-import { Issue, IssueListTemp, getIssues } from '../ViewModels/Board';
+import { Issue, IssueListTemp, getIssues, dragReducer, issueListsNames } from '../ViewModels/Board';
 import produce from 'immer';
 import {
     DragDropContext,
@@ -14,7 +14,7 @@ import {
 } from 'react-beautiful-dnd';
 import { getSystemErrorName } from 'util';
 import '../styles/Board.scss';
-
+import { Modal } from '../components/Modal';
 // const horizontalList: CSS.Properties = {
 //     float: 'left',
 //     padding: '0.8rem',
@@ -26,80 +26,8 @@ import '../styles/Board.scss';
 //     border: 'dotted',
 //     margin: '0.1rem',
 // };
-const dragReducer = produce((state: any, action: any) => {
-    switch (action.type) {
-        case 'MOVE': {
-            state[action.from] = state[action.from] || [];
-            state[action.to] = state[action.to] || [];
-            const [removed] = state[action.from].splice(action.fromIndex, 1);
-            state[action.to].splice(action.toIndex, 0, removed);
-            return;
-        }
-        case 'ADDITEM': {
-            state[issueListsNames[action.myIndex]].push(action.addThis);
 
-            return state;
-        }
-        case 'UPDATE': {
-            return state;
-        }
-        case 'DELETEISSUE': {
-            console.log('REEEEEEEEEEEE');
-            let newA: Issue[] = new Array();
-
-            state[issueListsNames[action.myIndex]].map((item: Issue, index: number) => {
-                if (item.id != action.deleteMe) {
-                    console.log(item.id);
-                    newA[index] = item;
-                }
-            });
-
-            state[issueListsNames[action.myIndex]] = newA;
-
-            return state;
-        }
-        case 'DELETEISSUELIST': {
-            let i = 0;
-
-            issueListsNames.map((item, index) => {
-                if (index === action.deleteMe) {
-                    console.log('not adding ' + index);
-                    state['items' + i.toString()] = null;
-                    return item;
-                } else {
-                    console.log('items' + i);
-                    console.log(issueListsNames.length);
-                    state['items' + i.toString()] = state[item];
-                    i++;
-                    return item;
-                }
-            });
-
-            issueListsNames.pop();
-
-            return state;
-        }
-        case 'UPDATELISTS': {
-            let i = 0;
-
-            issueListsNames.map((item, index) => {
-                if (i == issueListsNames.length - 1) {
-                    state[item] = new Array();
-                } else {
-                    state[item] = state[item];
-                    i++;
-                }
-            });
-
-            return state;
-        }
-        default:
-            throw new Error();
-    }
-});
-
-let issueIdIncrement = 6;
-let issueListsNames: string[] = ['items0', 'items1', 'items2'];
+export let issueIdIncrement = 6;
 
 function App() {
     const [issueStrings, setIssueStrings] = useState(issueListsNames);
@@ -145,7 +73,7 @@ function App() {
 
     function arrangeDataInDragDropList(state: any, item: string, index: number) {
         return (
-            <Droppable droppableId={'items' + index.toString()} type="PERSON">
+            <Droppable key={index} droppableId={'items' + index.toString()} type="PERSON">
                 {(provided, snapshot) => {
                     return arrangeDragDropForIssueList(provided, state, state[item], index);
                 }}
@@ -200,9 +128,12 @@ function App() {
     }
 
     function arrangeIssue(provided: DraggableProvided, issue: Issue, index: number, IIndex: number) {
+        const [isModalOpen, setModalState] = React.useState(false);
+
+        const toggleModal = () => setModalState(!isModalOpen);
         return (
             <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                <div className="issueList">
+                <div className="issueList" onClick={toggleModal}>
                     <span>{issue.content + ' '}</span>
                     <button
                         className="btn-primary"
@@ -216,6 +147,9 @@ function App() {
                     >
                         Delete
                     </button>
+                    <Modal title={'This is my modal'} isOpen={isModalOpen} onClose={toggleModal}>
+                        I'm a wretched Englishman. I'm a horse soldier. I'm a Hun.
+                    </Modal>
                 </div>
             </div>
         );
@@ -247,3 +181,6 @@ let test: Issue[][] = new Array();
 export default App;
 
 ReactDOM.render(<App />, document.getElementById('root'));
+function setOpen(arg0: boolean) {
+    throw new Error('Function not implemented.');
+}

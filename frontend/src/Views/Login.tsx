@@ -24,18 +24,21 @@ export function App() {
             </div>
             <div>
                 <label className="label">Password</label>
-                <input onChange={setPassValue}></input>
+                <input type={'password'} onChange={setPassValue}></input>
             </div>
             <button
                 className="btn-primary"
                 onClick={(e) => {
                     if (authenticateMe(username, pass)) {
                         navigate('/Board');
+                    } else {
+                        alert('Wrong login info');
                     }
                 }}
             >
                 Login
             </button>
+            <button className="btn-primary">Sign Up</button>
         </div>
     );
 }

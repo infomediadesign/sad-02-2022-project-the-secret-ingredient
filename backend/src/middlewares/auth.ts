@@ -1,6 +1,6 @@
 // deno-lint-ignore-file
 import { verify, Mongo, Oak } from '../../deps.ts';
-import { key } from '../handlers/userHandler.ts';
+import { key } from '../controllers/UserController.ts';
 import { User } from '../models/User.ts';
 import { Context, Model, Next, Router } from '../types.ts';
 import { router } from '../main.ts';
