@@ -16,7 +16,6 @@ jobs:
     - name: run npm
       run: |
          npm i
-         npm run test
          npm run build
 
       working-directory: ${{env.working-directory}}
