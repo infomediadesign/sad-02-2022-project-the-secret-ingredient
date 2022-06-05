@@ -46,7 +46,7 @@ jobs:
              ls -R
              deno --version
              #deno lint --unstable
-             deno run main.ts
+             deno run --allow-all main.ts
           working-directory: ./backend/src
              
 
