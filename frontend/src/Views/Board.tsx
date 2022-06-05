@@ -73,7 +73,7 @@ function App() {
 
     function arrangeDataInDragDropList(state: any, item: string, index: number) {
         return (
-            <Droppable droppableId={'items' + index.toString()} type="PERSON">
+            <Droppable key={index} droppableId={'items' + index.toString()} type="PERSON">
                 {(provided, snapshot) => {
                     return arrangeDragDropForIssueList(provided, state, state[item], index);
                 }}
