@@ -46,7 +46,8 @@ jobs:
              ls -R
              deno --version
              #deno lint --unstable
-             deno fmt --check
+             #deno fmt --check
+             deno test --allow-none
           working-directory: ./backend/src
              
 
