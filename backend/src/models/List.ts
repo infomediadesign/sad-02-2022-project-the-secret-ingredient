@@ -8,8 +8,11 @@ export interface ListSchema {
 }
 
 export function List(db: Mongo.Database): Model<ListSchema> {
+    const name = 'List';
+
     return {
-        name: 'list',
+        name,
+        lowerName: () => name.toLowerCase(),
         schema: db.collection<ListSchema>('list'),
     };
 }

@@ -1,11 +1,9 @@
 // deno-lint-ignore-file
-import { verify, Mongo, Oak } from '../../deps.ts';
+import { verify } from '../../deps.ts';
 import { key } from '../controllers/UserController.ts';
-import { User } from '../models/User.ts';
-import { Context, Model, Next, Router } from '../types.ts';
-import { router } from '../main.ts';
+import { Context, Next } from '../types.ts';
 
-export const authMiddleware = async (ctx: Context, _next: Next) => {
+export const authMiddleware = async (ctx: Context, next: Next) => {
     const Headers = ctx.request.headers;
     const authHeader = Headers.get('Authorization');
 
@@ -31,7 +29,7 @@ export const authMiddleware = async (ctx: Context, _next: Next) => {
         // const model = User(db);
         // const selectedUser = await selectUser(model, data);
         // ctx.state.user = selectedUser;
-        await _next();
+        await next();
         // const username = data.iss;
         // ctx.state.user = username;
 

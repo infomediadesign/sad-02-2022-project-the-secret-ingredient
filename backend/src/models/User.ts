@@ -1,15 +1,18 @@
 import { Mongo } from '../../deps.ts';
 import { Model } from '../types.ts';
 
-export interface userSchema {
+export interface UserSchema {
     username: string;
-    password: string;
     email: string;
+    password: string;
 }
 
-export function User(db: Mongo.Database): Model<userSchema> {
+export function User(db: Mongo.Database): Model<UserSchema> {
+    const name = 'User';
+
     return {
-        name: 'user',
-        schema: db.collection<userSchema>('user'),
+        name,
+        lowerName: () => name.toLowerCase(),
+        schema: db.collection<UserSchema>('user'),
     };
 }

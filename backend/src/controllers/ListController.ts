@@ -1,109 +1,110 @@
 import { Mongo } from '../../deps.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
+import { BoardSchema } from '../models/Board.ts';
+import { CardSchema } from '../models/Card.ts';
+import { ListSchema } from '../models/List.ts';
 import { Model, Router } from '../types.ts';
 
-export function createList<T, E>(router: Router, list: Model<T>, board: Model<E>) {
-    router.post(`/${list.name}`, authMiddleware, async (ctx) => {
+export function createList(router: Router, list: Model<ListSchema>, board: Model<BoardSchema>) {
+    router.post(`/${list.lowerName}`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
         const content = await body.value;
-        const name = content.name;
-        const order = content.order;
-        const boardId = content.boardId;
+        const { name, order, bId } = content;
+        const boardId = new Mongo.ObjectId(bId);
 
-        try {
-            await board.schema.findOne({ _id: new Mongo.ObjectId(boardId) });
-        } catch (error) {
-            ctx.response.body = { message: 'U fucekd up', error };
+        const b = board.schema.findOne({ _id: boardId });
+
+        if (b == null) {
+            ctx.response.status = 401;
+            ctx.response.body = { message: 'Board not found!' };
             return;
         }
 
-        const payload: any = { name, boardId: new Mongo.ObjectId(boardId), order };
+        const objectId = await list.schema.insertOne({ name, boardId, order });
 
-        const _objectId = await list.schema.insertOne(payload);
         ctx.response.body = {
             message: `${list.name} created!`,
-            _objectId,
+            objectId,
         };
     });
 }
 
-//get all lists based on boardId
-export function getListsByBoardId<T>(router: Router, list: Model<T>) {
-    router.get(`/${list.name}s/:boardId`, authMiddleware, async (ctx: any) => {
+// Get all lists based on boardId
+export function getListsByBoardId(router: Router, list: Model<ListSchema>) {
+    router.get(`/${list.lowerName}s/:boardId`, authMiddleware, async (ctx) => {
         const id = ctx.params.boardId;
-        const data = await list.schema.find({ boardId: new Mongo.ObjectId(id) }).toArray();
-        console.log(data);
+        const lists = await list.schema.find({ boardId: new Mongo.ObjectId(id) }).toArray();
+
         ctx.response.body = {
             message: `${list.name} retrieved!`,
-            data,
+            lists,
         };
     });
 }
 
-// get a list based on listId
-export function getList<T>(router: Router, list: Model<T>) {
-    router.get(`/${list.name}/:id`, authMiddleware, async (ctx: any) => {
+// Get a list based on listId
+export function getList(router: Router, list: Model<ListSchema>) {
+    router.get(`/${list.lowerName}/:id`, authMiddleware, async (ctx) => {
         const id = ctx.params.id;
-        try {
-            const List = await list.schema.findOne({
-                _id: new Mongo.ObjectId(id),
-            });
-            console.log(List);
-            ctx.response.body = {
-                message: `${list.name} retrieved`,
-                List,
-            };
-        } catch (e) {
-            ctx.response.body = {
-                message: `${e}`,
-            };
+        const l = await list.schema.findOne({
+            _id: new Mongo.ObjectId(id),
+        });
+        if (l == null) {
+            ctx.response.status = 401;
+            ctx.response.body = { message: 'List not found!' };
+            return;
         }
+
+        ctx.response.body = {
+            message: `${list.name} retrieved`,
+            list: l,
+        };
     });
 }
 
-// fetch cards based on list-id
-export function getCardsByListId<T, E>(router: Router, list: Model<T>, card: Model<E>) {
-    router.get(`/${list.name}/:id/cards`, authMiddleware, async (ctx: any) => {
-        const id = ctx.params.id;
-        try {
-            const List = await list.schema.findOne({ _id: new Mongo.ObjectId(id) });
-            if (!List) {
-                ctx.response.status = 400;
-                ctx.response.body = {
-                    msg: 'no boards found to fetch the cards.',
-                };
-            }
-            const Card = await card.schema.find({ listId: id });
+// Fetch cards based on list-id
+export function getCardsByListId(router: Router, list: Model<ListSchema>, card: Model<CardSchema>) {
+    router.get(`/${list.lowerName}/:id/cards`, authMiddleware, async (ctx) => {
+        const _id = new Mongo.ObjectId(ctx.params.id);
+
+        const l = await list.schema.findOne({ _id });
+        const cards = await card.schema.find({ listId: _id }).toArray();
+        if (l == null || cards == null) {
+            ctx.response.status = 400;
             ctx.response.body = {
-                msg: 'cards present in this board',
-                Card,
+                msg: 'No lists or Cards found (with that ObjectId)!',
             };
-        } catch (e) {
-            ctx.response.body = {
-                msg: e,
-            };
+            return;
         }
+
+        ctx.response.body = {
+            msg: 'Cards present in this board',
+            cards,
+        };
     });
 }
 
-// update list content based on id
-export function updateListContent<T>(router: Router, list: Model<T>) {
-    router.put(`/${list.name}/:id`, authMiddleware, async (ctx) => {
-        const id: string = ctx.params.id;
+// Update list content based on id
+export function updateListContent(router: Router, list: Model<ListSchema>) {
+    router.put(`/${list.lowerName}/:id`, authMiddleware, async (ctx) => {
+        const id = ctx.params.id;
         const body = ctx.request.body();
-        const value = await body.value;
+        const content = await body.value;
 
-        const List = await list.schema.updateOne({ _id: new Mongo.ObjectId(id) }, {
-            $set: { name: value.name, order: value.order },
-        } as any);
-        ctx.response.body = List;
-        console.log(List);
+        const l = await list.schema.updateOne(
+            { _id: new Mongo.ObjectId(id) },
+            {
+                $set: { name: content.name, order: content.order },
+            }
+        );
+
+        ctx.response.body = l;
     });
 }
 
-// delete list based on listid
-export function deleteList<T>(router: Router, list: Model<T>) {
-    router.delete(`/${list.name}/:id`, authMiddleware, async (ctx) => {
+// Delete list based on listId
+export function deleteList(router: Router, list: Model<ListSchema>) {
+    router.delete(`/${list.lowerName}/:id`, authMiddleware, async (ctx) => {
         const _data = await list.schema.deleteOne({
             _id: new Mongo.ObjectId(ctx.params.id),
         });

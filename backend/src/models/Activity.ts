@@ -9,8 +9,11 @@ export interface ActivitySchema {
 }
 
 export function Activity(db: Mongo.Database): Model<ActivitySchema> {
+    const name = 'Activity';
+
     return {
-        name: 'Activity',
+        name,
+        lowerName: () => name.toLowerCase(),
         schema: db.collection<ActivitySchema>('Activity'),
     };
 }

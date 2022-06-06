@@ -54,7 +54,8 @@ const user = User(db);
 router.get('/', (ctx) => {
     ctx.response.body = 'Server started :)';
 });
-router.get('/text', (ctx) => {
+
+router.get('/test', (ctx) => {
     try {
         ctx.throw(201, 'Whatsup my dud!');
         ctx.response.body = 'Test';
@@ -92,7 +93,7 @@ updateCardContent(router, card);
 deleteCard(router, card);
 
 //End Points for Activities
-createActivity(router, activity, board, card);
+createActivity({ router, activity, board, card });
 getActivitysByBoardId(router, board, activity);
 getActivitysBycardId(router, card, activity);
 deleteAcitivity(router, activity);

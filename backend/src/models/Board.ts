@@ -9,12 +9,15 @@ export interface BoardSchema {
         thumbnail: string;
         full: string;
     };
-    userID: Mongo.ObjectId;
+    userId: Mongo.ObjectId;
 }
 
 export function Baord(db: Mongo.Database): Model<BoardSchema> {
+    const name = 'Board';
+
     return {
-        name: 'Board',
+        name,
+        lowerName: () => name.toLowerCase(),
         schema: db.collection<BoardSchema>('Boards'),
     };
 }
