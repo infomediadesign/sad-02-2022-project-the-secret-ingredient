@@ -16,7 +16,6 @@ jobs:
     - name: run npm
       run: |
          npm i
-         npm run test
          npm run build
 
       working-directory: ${{env.working-directory}}
@@ -47,7 +46,8 @@ jobs:
              ls -R
              deno --version
              #deno lint --unstable
-             deno run main.ts
+             #deno fmt --check
+             deno test --allow-none
           working-directory: ./backend/src
              
 
