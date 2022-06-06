@@ -2,6 +2,7 @@ import { Mongo } from '../../deps.ts';
 import { Model } from '../types.ts';
 
 export interface CardSchema {
+    _id: Mongo.ObjectId;
     name: string;
     listId: Mongo.ObjectId;
     boardId: Mongo.ObjectId;
