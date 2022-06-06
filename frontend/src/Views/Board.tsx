@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import CSS from 'csstype';
 import { Issue, IssueListTemp, getIssues, dragReducer, issueListsNames } from '../ViewModels/Board';
 import {getGeneric, userID} from '../ViewModels/Get'
-import produce from 'immer';
 import {
     DragDropContext,
     Draggable,

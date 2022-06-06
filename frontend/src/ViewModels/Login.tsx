@@ -1,15 +1,14 @@
 import { useNavigate } from 'react-router-dom';
-interface loginData{
-    jsx: string
+interface loginData {
+    jsx: string;
 }
 
 export async function authenticateMe(userName: String, userPass: String, email: String) {
     var result = await getUsers(userName, userPass, email);
-    if(result.jwt == undefined){
+    if (result.jwt == undefined) {
         return false;
-    }
-    else{
-        localStorage.setItem('jwt',result.jwt);
+    } else {
+        localStorage.setItem('jwt', result.jwt);
         return true;
     }
 }
@@ -31,15 +30,15 @@ async function getUsers(userName: String, userPass: String, email: String) {
             return data.json();
         }));*/
 
-        
         const requestOptions = {
             method: 'POST',
             headers: new Headers({ 'Content-Type': 'application/json' }),
-            body: JSON.stringify({ 'username': userName, 'password': userPass, 'email': email }),
+            body: JSON.stringify({ username: userName, password: userPass, email: email }),
         };
 
         return await fetch(url, requestOptions).then((data) => {
-            return data.json()});
+            return data.json();
+        });
 
         /*
         let result = fetch(url, requestOptions).then((data) => {
