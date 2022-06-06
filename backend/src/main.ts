@@ -32,7 +32,7 @@ import {
 } from './controllers/CardController.ts';
 import { registerUser, loginUser } from './controllers/UserController.ts';
 
-const port = Number(Deno.env.get('APP_PORT')) || 3000;
+const port = Number(Deno.env.get('APP_PORT')) || 1234;
 const connectString = Deno.env.get('MONGODB_CONNECT_STRING') || 'mongodb://127.0.0.1:27017';
 
 const appName = 'the-secret-ingredient';

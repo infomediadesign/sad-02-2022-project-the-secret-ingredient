@@ -2,6 +2,7 @@ import React, { useCallback, useState, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
 import { Issue, IssueListTemp, getIssues, dragReducer, issueListsNames } from '../ViewModels/Board';
+import {getGeneric, userID} from '../ViewModels/Get'
 import produce from 'immer';
 import {
     DragDropContext,
@@ -32,6 +33,8 @@ export let issueIdIncrement = 6;
 function App() {
     const [issueStrings, setIssueStrings] = useState(issueListsNames);
     const [state, dispatch] = useReducer(dragReducer, initialState);
+
+    console.log(userID);
 
     function useCallback(result: any) {
         if (result.reason === 'DROP') {

@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 
 export function App() {
     let navigate = useNavigate();
-    let pass = '';
-    let username = '';
+    let pass = '123456789';
+    let username = 'test1';
+    let email = 'test@test.com';
 
     const getUserValue = (event: any) => {
         // show the user input value to console
@@ -15,21 +16,29 @@ export function App() {
         // show the user input value to console
         pass = event.target.value;
     };
+    const setEmail = (event: any) => {
+        // show the user input value to console
+        email = event.target.value;
+    };
 
     return (
         <div>
             <div>
                 <label className="label">User Name</label>
-                <input onChange={getUserValue}></input>
+                <input onChange={getUserValue} placeholder={username}></input>
+            </div>
+            <div>
+                <label className="label">Email</label>
+                <input onChange={setEmail} placeholder={email}></input>
             </div>
             <div>
                 <label className="label">Password</label>
-                <input type={'password'} onChange={setPassValue}></input>
+                <input type={'password'} onChange={setPassValue} placeholder={pass}></input>
             </div>
             <button
                 className="btn-primary"
-                onClick={(e) => {
-                    if (authenticateMe(username, pass)) {
+                onClick={async (e) => {
+                    if (await authenticateMe(username, pass, email)) {
                         navigate('/Board');
                     } else {
                         alert('Wrong login info');
