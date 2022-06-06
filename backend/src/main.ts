@@ -6,7 +6,7 @@ import { Activity } from './models/Activity.ts';
 import { List } from './models/List.ts';
 import { Card } from './models/Card.ts';
 import { createActivity } from './controllers/ActivityController.ts';
-import { createBoard, getBoards } from './controllers/BoardController.ts';
+import { createBoard, getBoards, updateBoardContent, deleteBoard } from './controllers/BoardController.ts';
 import { createList } from './controllers/ListController.ts';
 import { createCard } from './controllers/CardController.ts';
 import { registerUser, loginUser } from './controllers/UserController.ts';
@@ -43,6 +43,8 @@ router.get('/text', (ctx) => {
 });
 
 // crudFactory({ router, model: board });
+
+//End Points for Board
 createBoard(router, board, user);
 createList(router, list, board);
 createCard(router, card, board, list);
@@ -50,6 +52,8 @@ createActivity(router, activity, board);
 registerUser(router, user);
 loginUser(router, user);
 getBoards(router, board);
+updateBoardContent(router, board);
+deleteBoard(router, board);
 
 app.use(router.routes());
 app.use(router.allowedMethods());

@@ -139,37 +139,26 @@ export function getActivitysByBoardId<T, E>(router: Router, board: Model<T>, act
     });
 }
 
-// export function updateBoardContent<T>(router:Router,board:Model<T>){
-//     router.patch(`/${board.name}/:userID/:id`, authMiddleware, async (ctx: any) => {
-//         const id = ctx.params.id;
-//         const userid = ctx.params.userID;
-//         const updates=Object.keys(ctx.response.body);
-//         const allowedUpdates= ["name","image"];
-//         const isValidOperation = updates.every(
-//             (update)=>allowedUpdates.includes(update))
-//             if(!isValidOperation){
-//                 ctx.response.status=400
-//                 ctx.response.body ={msg:"invalid updates"};
-//             }
-//         try {
-//             const Board = await board.schema.updateOne()
-//             if (!Board) {
-//                 ctx.response.status = 400;
-//                 ctx.response.body = {
-//                     msg: 'no boards found to fetch the actvities.',
-//                 };
-//             }
-//             const Activity = await activity.schema.find({ boardId: id });
-//             ctx.response.body = {
-//                 msg: 'activities present in this board',
-//                 Activity,
-//             };
-//         } catch (e) {
-//             ctx.response.body = {
-//                 message: `${e}`,
-//             };
-//         }
-//     });
-// }
+export function updateBoardContent<T>(router: Router, board: Model<T>) {
+    router.put(`/${board.name}/:id`, authMiddleware, async (ctx) => {
+        const id: string = ctx.params.id;
+        const body = ctx.request.body();
+        const value = await body.value;
 
-// }
+        const Board = await board.schema.updateOne({ _id: new Mongo.ObjectId(id) }, {
+            $set: { name: value.name, image: value.image },
+        } as any);
+        ctx.response.body = Board;
+        console.log(Board);
+    });
+}
+export function deleteBoard<T>(router: Router, board: Model<T>) {
+    router.delete(`/${board.name}/:id`, authMiddleware, async (ctx) => {
+        const _data = await board.schema.deleteOne({
+            _id: new Mongo.ObjectId(ctx.params.id),
+        });
+        ctx.response.body = {
+            message: `${board.name} deleted!`,
+        };
+    });
+}
