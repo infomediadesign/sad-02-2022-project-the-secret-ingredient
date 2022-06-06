@@ -9,7 +9,7 @@ import { UserSchema } from '../models/User.ts';
 
 // Create board using userID
 export function createBoard(router: Router, board: Model<BoardSchema>, user: Model<UserSchema>) {
-    router.post(`/${board.lowerName}`, authMiddleware, async function (ctx) {
+    router.post(`/${board.lowerName}`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
         const content = await body.value;
 

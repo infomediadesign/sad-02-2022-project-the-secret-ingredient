@@ -2,7 +2,7 @@ import { Mongo, Oak } from '../deps.ts';
 
 export interface Model<T> {
     name: string;
-    lowerName: () => string;
+    lowerName: string;
     schema: Mongo.Collection<T>;
 }
 
