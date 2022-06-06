@@ -13,7 +13,7 @@ export function Activity(db: Mongo.Database): Model<ActivitySchema> {
 
     return {
         name,
-        lowerName: () => name.toLowerCase(),
+        lowerName: name.toLowerCase(),
         schema: db.collection<ActivitySchema>('Activity'),
     };
 }

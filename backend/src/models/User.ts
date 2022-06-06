@@ -12,7 +12,7 @@ export function User(db: Mongo.Database): Model<UserSchema> {
 
     return {
         name,
-        lowerName: () => name.toLowerCase(),
+        lowerName: name.toLowerCase(),
         schema: db.collection<UserSchema>('user'),
     };
 }

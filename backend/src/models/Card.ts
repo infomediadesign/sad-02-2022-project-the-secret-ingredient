@@ -14,7 +14,7 @@ export function Card(db: Mongo.Database): Model<CardSchema> {
 
     return {
         name,
-        lowerName: () => name.toLowerCase(),
+        lowerName: name.toLowerCase(),
         schema: db.collection<CardSchema>('card'),
     };
 }
