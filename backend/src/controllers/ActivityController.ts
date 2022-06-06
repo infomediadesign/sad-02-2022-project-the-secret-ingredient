@@ -1,5 +1,5 @@
-import { Mongo } from '../../deps.ts';
-import { Model, Router } from '../types.ts';
+import { Mongo, Status } from '../../deps.ts';
+import { Context, Model, Router } from '../types.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
 import { ActivitySchema } from '../models/Activity.ts';
 import { BoardSchema } from '../models/Board.ts';
@@ -16,25 +16,20 @@ export function createActivity({
     board: Model<BoardSchema>;
     card: Model<CardSchema>;
 }) {
-    router.post(`/${activity.lowerName}`, authMiddleware, async (ctx) => {
+    router.post(`/${activity.lowerName}`, authMiddleware, async (ctx: Context) => {
         const body = ctx.request.body();
         const content = await body.value;
 
-        const { text, boardId, cID } = content;
-        const cardId = new Mongo.ObjectId(cID);
+        const { text, bId, cId } = content;
+        const cardId = new Mongo.ObjectId(cId);
+        const boardId = new Mongo.ObjectId(bId);
 
         const b = await board.schema.findOne({ _id: new Mongo.ObjectId(boardId) });
         const c = await card.schema.findOne({ _id: cardId });
 
-        if (!b || !c) {
-            ctx.response.status = 401;
-            ctx.response.body = { message: 'Relationships unclear! [Board, Card]' };
-            return;
-        }
+        ctx.assert(!b || !c, Status.FailedDependency);
 
-        const payload = { text, boardId: new Mongo.ObjectId(boardId), cardId };
-
-        const _objectId = await activity.schema.insertOne(payload);
+        const _objectId = await activity.schema.insertOne({ text, boardId, cardId });
         ctx.response.body = {
             message: `${activity.name} created!`,
         };
