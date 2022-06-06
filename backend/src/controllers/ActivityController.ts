@@ -5,6 +5,7 @@ import { ActivitySchema } from '../models/Activity.ts';
 import { BoardSchema } from '../models/Board.ts';
 import { CardSchema } from '../models/Card.ts';
 
+// Creates activity based on given rquest body
 export function createActivity({
     router,
     activity,
@@ -35,7 +36,8 @@ export function createActivity({
         };
     });
 }
-//delete activity based on activityID
+
+// Deletes activity based on given activity ObjectId
 export function deleteAcitivity(router: Router, activity: Model<ActivitySchema>) {
     router.delete(`/${activity.lowerName}/:id`, authMiddleware, async (ctx) => {
         const _data = await activity.schema.deleteOne({
