@@ -4,6 +4,7 @@ import { Model } from '../types.ts';
 export interface ActivitySchema {
     _id: Mongo.ObjectId;
     text: string;
+    cardId: Mongo.ObjectId;
     boardId: Mongo.ObjectId;
 }
 
