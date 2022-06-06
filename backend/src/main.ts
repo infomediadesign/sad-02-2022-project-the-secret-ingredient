@@ -31,6 +31,8 @@ import {
     updateCardContent,
 } from './controllers/CardController.ts';
 import { registerUser, loginUser } from './controllers/UserController.ts';
+import { error } from './middlewares/error.ts';
+import { Context } from './types.ts';
 
 const port = Number(Deno.env.get('APP_PORT')) || 1234;
 const connectString = Deno.env.get('MONGODB_CONNECT_STRING') || 'mongodb://127.0.0.1:27017';
@@ -53,15 +55,6 @@ const user = User(db);
 
 router.get('/', (ctx) => {
     ctx.response.body = 'Server started :)';
-});
-
-router.get('/test', (ctx) => {
-    try {
-        ctx.throw(201, 'Whatsup my dud!');
-        ctx.response.body = 'Test';
-    } catch (error) {
-        ctx.response.body = error;
-    }
 });
 
 // crudFactory({ router, model: board });
@@ -98,6 +91,7 @@ getActivitysByBoardId(router, board, activity);
 getActivitysBycardId(router, card, activity);
 deleteAcitivity(router, activity);
 
+app.use(error);
 app.use(router.routes());
 app.use(router.allowedMethods());
 
