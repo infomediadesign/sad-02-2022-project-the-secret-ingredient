@@ -1,4 +1,4 @@
-import { Context, Model, Router } from '../types.ts';
+import { Model, Router } from '../types.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
 import { Mongo } from '../../deps.ts';
 
@@ -42,7 +42,7 @@ export function getBoards<T>(router: Router, board: Model<T>) {
     });
 }
 
-//get Board based on id of a user
+//get  a Board based on id of a user
 
 export function getBoard<T>(router: Router, board: Model<T>) {
     router.get(`/${board.name}/:id`, authMiddleware, async (ctx: any) => {
@@ -63,82 +63,81 @@ export function getBoard<T>(router: Router, board: Model<T>) {
 
 //get lists based on boardId
 export function getlistsByBoardId<T, E>(router: Router, board: Model<T>, list: Model<E>) {
-    router.get(`/${board.name}/:userID/:id/lists`, authMiddleware, async (ctx: any) => {
+    router.get(`/${board.name}/lists/:id`, authMiddleware, async (ctx: any) => {
         const id = ctx.params.id;
-        const userid = ctx.params.userID;
-        try {
-            const Board = await board.schema.findOne({
-                _id: new Mongo.ObjectId(id),
-                userID: new Mongo.ObjectId(userid),
-            });
-            if (!Board) {
-                ctx.response.status = 400;
-                ctx.response.body = {
-                    msg: 'no boards found to fetch the list.',
-                };
-            }
-            const List = await list.schema.find({ boardId: id });
+
+        const Board = await board.schema.findOne({
+            _id: new Mongo.ObjectId(id),
+        });
+        if (!Board) {
+            ctx.response.status = 400;
             ctx.response.body = {
-                msg: 'Lists present in this board',
-                List,
-            };
-        } catch (e) {
-            ctx.response.body = {
-                message: `${e}`,
+                msg: 'no boards found to fetch the list.',
             };
         }
+        const List = await list.schema.find({ boardId: new Mongo.ObjectId(id) }).toArray();
+        if (List.length === 0 || undefined) {
+            ctx.response.status = 400;
+            ctx.response.body = {
+                msg: 'no activities found to fetch.',
+            };
+        }
+        ctx.response.body = {
+            msg: 'Lists present in this board',
+            List,
+        };
     });
 }
 
+//getCards based on BoardID
 export function getCardsByBoardId<T, E>(router: Router, board: Model<T>, card: Model<E>) {
-    router.get(`/${board.name}/:userID/:id/cards`, authMiddleware, async (ctx: any) => {
+    router.get(`/${board.name}/cards/:id`, authMiddleware, async (ctx: any) => {
         const id = ctx.params.id;
         const userid = ctx.params.userID;
-        try {
-            const Board = await board.schema.findOne({ userID: new Mongo.ObjectId(userid), _id: id });
-            if (!Board) {
-                ctx.response.status = 400;
-                ctx.response.body = {
-                    msg: 'no boards found to fetch the cards.',
-                };
-            }
-            const Card = await card.schema.find({ boardId: id });
-            ctx.response.body = {
-                msg: 'cards present in this board',
-                Card,
-            };
-        } catch (e) {}
-    });
-}
 
-export function getActivitysByBoardId<T, E>(router: Router, board: Model<T>, activity: Model<E>) {
-    router.get(`/${board.name}/:userID/:id/activitys`, authMiddleware, async (ctx: any) => {
-        const id = ctx.params.id;
-        const userid = ctx.params.userID;
-        try {
-            const Board = await board.schema.findOne({
-                userID: new Mongo.ObjectId(userid),
-                _id: new Mongo.ObjectId(id),
-            });
-            if (!Board) {
-                ctx.response.status = 400;
-                ctx.response.body = {
-                    msg: 'no boards found to fetch the actvities.',
-                };
-            }
-            const Activity = await activity.schema.find({ boardId: id });
+        const Board = await board.schema.findOne({ userID: new Mongo.ObjectId(userid), _id: id });
+        if (!Board) {
+            ctx.response.status = 400;
             ctx.response.body = {
-                msg: 'activities present in this board',
-                Activity,
-            };
-        } catch (e) {
-            ctx.response.body = {
-                message: `${e}`,
+                msg: 'no boards found to fetch the cards.',
             };
         }
+        const Card = await card.schema.find({ boardId: id }).toArray;
+        ctx.response.body = {
+            msg: 'cards present in this board',
+            Card,
+        };
     });
 }
 
+//fetch all activities based on boardid
+export function getActivitysByBoardId<T, E>(router: Router, board: Model<T>, activity: Model<E>) {
+    router.get(`/${board.name}/activitys/:id`, authMiddleware, async (ctx: any) => {
+        const id = ctx.params.id;
+
+        const Board = await board.schema.findOne({
+            _id: new Mongo.ObjectId(id),
+        });
+        if (!Board) {
+            ctx.response.status = 400;
+            ctx.response.body = {
+                msg: 'no boards found to fetch the list.',
+            };
+        }
+        const Activity = await activity.schema.find({ boardId: new Mongo.ObjectId(id) }).toArray();
+        if (Activity === []) {
+            ctx.response.status = 400;
+            ctx.response.body = {
+                msg: 'no activities found to fetch.',
+            };
+        }
+        ctx.response.body = {
+            msg: 'Activities present in this board',
+            Activity,
+        };
+    });
+}
+//update board based on boardid
 export function updateBoardContent<T>(router: Router, board: Model<T>) {
     router.put(`/${board.name}/:id`, authMiddleware, async (ctx) => {
         const id: string = ctx.params.id;
@@ -152,6 +151,8 @@ export function updateBoardContent<T>(router: Router, board: Model<T>) {
         console.log(Board);
     });
 }
+
+//delete board based on boardId
 export function deleteBoard<T>(router: Router, board: Model<T>) {
     router.delete(`/${board.name}/:id`, authMiddleware, async (ctx) => {
         const _data = await board.schema.deleteOne({

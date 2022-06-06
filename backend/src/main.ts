@@ -5,10 +5,31 @@ import { Activity } from './models/Activity.ts';
 // import { crudFactory } from './util.ts';
 import { List } from './models/List.ts';
 import { Card } from './models/Card.ts';
-import { createActivity } from './controllers/ActivityController.ts';
-import { createBoard, getBoards, updateBoardContent, deleteBoard } from './controllers/BoardController.ts';
-import { createList } from './controllers/ListController.ts';
-import { createCard } from './controllers/CardController.ts';
+import { createActivity, deleteAcitivity } from './controllers/ActivityController.ts';
+import {
+    createBoard,
+    getBoards,
+    updateBoardContent,
+    deleteBoard,
+    getActivitysByBoardId,
+    getCardsByBoardId,
+    getlistsByBoardId,
+} from './controllers/BoardController.ts';
+import {
+    createList,
+    deleteList,
+    getCardsByListId,
+    getList,
+    getListsByBoardId,
+    updateListContent,
+} from './controllers/ListController.ts';
+import {
+    createCard,
+    deleteCard,
+    getActivitysBycardId,
+    getCard,
+    updateCardContent,
+} from './controllers/CardController.ts';
 import { registerUser, loginUser } from './controllers/UserController.ts';
 
 const port = Number(Deno.env.get('APP_PORT')) || 3000;
@@ -44,16 +65,37 @@ router.get('/text', (ctx) => {
 
 // crudFactory({ router, model: board });
 
-//End Points for Board
-createBoard(router, board, user);
-createList(router, list, board);
-createCard(router, card, board, list);
-createActivity(router, activity, board);
+//Auth End points
 registerUser(router, user);
 loginUser(router, user);
+
+//End Points for Board
+createBoard(router, board, user);
 getBoards(router, board);
 updateBoardContent(router, board);
 deleteBoard(router, board);
+
+//End points for List
+createList(router, list, board);
+getListsByBoardId(router, list);
+getList(router, list);
+getlistsByBoardId(router, board, list);
+updateListContent(router, list);
+deleteList(router, list);
+
+//End points for cards
+createCard(router, card, board, list);
+getCardsByBoardId(router, board, card);
+getCardsByListId(router, list, card);
+getCard(router, card);
+updateCardContent(router, card);
+deleteCard(router, card);
+
+//End Points for Activities
+createActivity(router, activity, board, card);
+getActivitysByBoardId(router, board, activity);
+getActivitysBycardId(router, card, activity);
+deleteAcitivity(router, activity);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
