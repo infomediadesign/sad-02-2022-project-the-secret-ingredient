@@ -1,12 +1,12 @@
-import { Mongo } from '../../deps.ts';
+import { Mongo, Status } from '../../deps.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
 import { BoardSchema } from '../models/Board.ts';
 import { CardSchema } from '../models/Card.ts';
 import { ListSchema } from '../models/List.ts';
-import { Model, Router } from '../types.ts';
+import { Context, Model, Router } from '../types.ts';
 
 export function createList(router: Router, list: Model<ListSchema>, board: Model<BoardSchema>) {
-    router.post(`/${list.lowerName}`, authMiddleware, async (ctx) => {
+    router.post(`/${list.lowerName}`, authMiddleware, async (ctx: Context) => {
         const body = ctx.request.body();
         const content = await body.value;
         const { name, order, bId } = content;
@@ -14,17 +14,13 @@ export function createList(router: Router, list: Model<ListSchema>, board: Model
 
         const b = board.schema.findOne({ _id: boardId });
 
-        if (b == null) {
-            ctx.response.status = 401;
-            ctx.response.body = { message: 'Board not found!' };
-            return;
-        }
+        ctx.assert(b != null, Status.BadRequest, 'Board not found!');
 
-        const objectId = await list.schema.insertOne({ name, boardId, order });
+        const _id = await list.schema.insertOne({ name, boardId, order });
 
         ctx.response.body = {
             message: `${list.name} created!`,
-            objectId,
+            list: { _id, name, order },
         };
     });
 }

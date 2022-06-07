@@ -2,6 +2,7 @@ import { Mongo } from '../../deps.ts';
 import { Model } from '../types.ts';
 
 export interface ListSchema {
+    _id: Mongo.ObjectId;
     name: string;
     boardId: Mongo.ObjectId;
     order: string;

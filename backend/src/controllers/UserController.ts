@@ -1,4 +1,4 @@
-import { create, bcrypt, getNumericDate, validate, required, isEmail, Status, decode } from '../../deps.ts';
+import { create, bcrypt, getNumericDate, validate, required, isEmail, Status, dayjs } from '../../deps.ts';
 import { UserSchema } from '../models/User.ts';
 import { Context, Model, Router } from '../types.ts';
 import { decodeJwtFromHeader } from '../util.ts';
@@ -48,19 +48,23 @@ export function loginUser(router: Router, user: Model<UserSchema>) {
 
         const body = ctx.request.body();
         const content = await body.value;
-        const { email, password } = content;
+        const { email, password, stayLoggedIn } = content;
 
         ctx.assert(email != null && password != null, Status.BadRequest, 'Please provide an email and a password!');
 
         const u = await user.schema.findOne({ email });
-        ctx.assert(u != null, Status.FailedDependency, 'Incorrect username!');
+        ctx.assert(u != null, Status.FailedDependency, `No User with E-Mail: ${email} found!`);
         ctx.assert(bcrypt.compareSync(password, u.password), Status.BadRequest, 'Incorrect password!');
+
+        const expDate = stayLoggedIn != null && stayLoggedIn === true ? dayjs().add(99, 'year') : dayjs().add(1, 'day');
+        const exp = getNumericDate(expDate.toDate());
+        const iat = getNumericDate(dayjs().toDate());
 
         const jwt =
             authHeader == null
                 ? await create(
                       { alg: 'HS512', typ: 'JWT' },
-                      { exp: getNumericDate(60 * 60), email: u.email, username: u.username },
+                      { exp, iss: { _id: u._id.toString(), email: u.email, username: u.username }, iat },
                       key
                   )
                 : authHeader;

@@ -30,9 +30,10 @@ export function createActivity({
 
         ctx.assert(!b || !c, Status.BadRequest);
 
-        const _objectId = await activity.schema.insertOne({ text, boardId, cardId });
+        const _id = await activity.schema.insertOne({ text, boardId, cardId });
         ctx.response.body = {
             message: `${activity.name} created!`,
+            activity: { _id, text },
         };
     });
 }

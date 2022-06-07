@@ -2,6 +2,7 @@ import { Mongo } from '../../deps.ts';
 import { Model } from '../types.ts';
 
 export interface UserSchema {
+    _id: Mongo.ObjectId;
     username: string;
     email: string;
     password: string;

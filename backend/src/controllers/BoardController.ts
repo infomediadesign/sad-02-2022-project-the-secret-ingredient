@@ -20,9 +20,10 @@ export function createBoard(router: Router, board: Model<BoardSchema>, user: Mod
         ctx.assert(u != null, Status.FailedDependency, 'User not found!');
 
         const payload = { name, image, userId };
-        const _objectId = await board.schema.insertOne(payload);
+        const _id = await board.schema.insertOne(payload);
 
         ctx.response.body = {
+            board: { _id, name, image },
             message: `${board.name} created!`,
         };
     });

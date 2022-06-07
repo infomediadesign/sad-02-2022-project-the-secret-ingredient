@@ -1,5 +1,5 @@
-import { Mongo } from '../../deps.ts';
-import { Model, Router } from '../types.ts';
+import { Mongo, Status } from '../../deps.ts';
+import { Context, Model, Router } from '../types.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
 import { CardSchema } from '../models/Card.ts';
 import { BoardSchema } from '../models/Board.ts';
@@ -12,22 +12,20 @@ export function createCard(
     board: Model<BoardSchema>,
     list: Model<ListSchema>
 ) {
-    router.post(`/${card.lowerName}`, authMiddleware, async (ctx) => {
+    router.post(`/${card.lowerName}`, authMiddleware, async (ctx: Context) => {
         const body = ctx.request.body();
         const content = await body.value;
 
-        const { name, boardId, listId, order } = content;
+        const { name, order } = content;
+        const boardId = new Mongo.ObjectId(content.boardId);
+        const listId = new Mongo.ObjectId(content.listId);
 
-        const b = await board.schema.findOne({ _id: new Mongo.ObjectId(boardId) });
-        const l = await list.schema.findOne({ _id: new Mongo.ObjectId(listId) });
+        const b = await board.schema.findOne({ _id: boardId });
+        const l = await list.schema.findOne({ _id: listId });
 
-        if (!b || !l) {
-            ctx.response.status = 400;
-            ctx.response.body = { message: 'Relationships unclear! [Board and List]' };
-            return;
-        }
+        ctx.assert(b != null && l != null, Status.FailedDependency, 'Relationships unclear! [Board and List]');
 
-        const _objectId = await card.schema.insertOne({
+        const _id = await card.schema.insertOne({
             name,
             boardId: new Mongo.ObjectId(boardId),
             listId: new Mongo.ObjectId(listId),
@@ -36,6 +34,7 @@ export function createCard(
 
         ctx.response.body = {
             message: `${card.name} created!`,
+            card: { _id, name, order },
         };
     });
 }
