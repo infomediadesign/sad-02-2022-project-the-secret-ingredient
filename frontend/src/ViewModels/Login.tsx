@@ -5,6 +5,7 @@ interface loginData {
 
 export async function authenticateMe(userName: String, userPass: String, email: String) {
     var result = await getUsers(userName, userPass, email);
+
     if (result.jwt == undefined) {
         return false;
     } else {
@@ -33,7 +34,7 @@ async function getUsers(userName: String, userPass: String, email: String) {
         const requestOptions = {
             method: 'POST',
             headers: new Headers({ 'Content-Type': 'application/json' }),
-            body: JSON.stringify({ username: userName, password: userPass, email: email }),
+            body: JSON.stringify({ 'username': userName, 'password': userPass, 'email': email }),
         };
 
         return await fetch(url, requestOptions).then((data) => {

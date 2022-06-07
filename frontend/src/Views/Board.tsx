@@ -2,7 +2,7 @@ import React, { useCallback, useState, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
 import { Issue, IssueListTemp, getIssues, dragReducer, issueListsNames } from '../ViewModels/Board';
-import {getGeneric, userID} from '../ViewModels/Get'
+import {getGeneric} from '../ViewModels/Get'
 import {
     DragDropContext,
     Draggable,
@@ -33,7 +33,7 @@ function App() {
     const [issueStrings, setIssueStrings] = useState(issueListsNames);
     const [state, dispatch] = useReducer(dragReducer, initialState);
 
-    console.log(userID);
+    //console.log(userID);
 
     function useCallback(result: any) {
         if (result.reason === 'DROP') {
@@ -135,7 +135,7 @@ function App() {
         const toggleModal = () => setModalState(!isModalOpen);
         return (
             <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                <div className="issueList" onClick={toggleModal}>
+                <div className="issueList">
                     <span>{issue.content + ' '}</span>
                     <button
                         className="btn-primary"
@@ -149,8 +149,11 @@ function App() {
                     >
                         Delete
                     </button>
+                    <button className="btn-primary" onClick={toggleModal}>
+                        Edit
+                    </button>
                     <Modal title={'This is my modal'} isOpen={isModalOpen} onClose={toggleModal}>
-                        I'm a wretched Englishman. I'm a horse soldier. I'm a Hun.
+                        {issue.content}
                     </Modal>
                 </div>
             </div>
