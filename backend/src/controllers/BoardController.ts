@@ -1,6 +1,6 @@
-import { Model, Router } from '../types.ts';
+import { Context, Model, Router } from '../types.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
-import { Mongo } from '../../deps.ts';
+import { Mongo, Status } from '../../deps.ts';
 import { BoardSchema } from '../models/Board.ts';
 import { ActivitySchema } from '../models/Activity.ts';
 import { CardSchema } from '../models/Card.ts';
@@ -9,20 +9,17 @@ import { UserSchema } from '../models/User.ts';
 
 // Create board using userID
 export function createBoard(router: Router, board: Model<BoardSchema>, user: Model<UserSchema>) {
-    router.post(`/${board.lowerName}`, authMiddleware, async (ctx) => {
+    router.post(`/${board.lowerName}`, authMiddleware, async (ctx: Context) => {
         const body = ctx.request.body();
         const content = await body.value;
 
-        const { name, image, userid } = content;
+        const { name, image } = content;
+        const userId = new Mongo.ObjectId(content.userId);
 
-        const u = await user.schema.findOne({ _id: new Mongo.ObjectId(userid) });
-        if (u == null) {
-            ctx.response.status = 401;
-            ctx.response.body = { message: 'User not found!' };
-            return;
-        }
+        const u = await user.schema.findOne({ _id: userId });
+        ctx.assert(u != null, Status.FailedDependency, 'User not found!');
 
-        const payload = { name, image, userId: new Mongo.ObjectId(userid) };
+        const payload = { name, image, userId };
         const _objectId = await board.schema.insertOne(payload);
 
         ctx.response.body = {
@@ -80,7 +77,7 @@ export function getlistsByBoardId(router: Router, board: Model<BoardSchema>, lis
             };
         }
 
-        const l = await list.schema.find({ boardId: new Mongo.ObjectId(_id) }).toArray();
+        const l = await list.schema.find({ boardId: _id }).toArray();
         if (l.length === 0) {
             ctx.response.status = 400;
             ctx.response.body = {

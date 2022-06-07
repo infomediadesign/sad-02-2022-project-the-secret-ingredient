@@ -10,11 +10,12 @@ export interface CardSchema {
 }
 
 export function Card(db: Mongo.Database): Model<CardSchema> {
-    const name = 'card';
+    const name = 'Card';
+    const lowerName = name.toLowerCase();
 
     return {
         name,
-        lowerName: name.toLowerCase(),
-        schema: db.collection<CardSchema>('card'),
+        lowerName,
+        schema: db.collection<CardSchema>(name),
     };
 }

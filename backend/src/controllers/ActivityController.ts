@@ -28,7 +28,7 @@ export function createActivity({
         const b = await board.schema.findOne({ _id: new Mongo.ObjectId(boardId) });
         const c = await card.schema.findOne({ _id: cardId });
 
-        ctx.assert(!b || !c, Status.FailedDependency);
+        ctx.assert(!b || !c, Status.BadRequest);
 
         const _objectId = await activity.schema.insertOne({ text, boardId, cardId });
         ctx.response.body = {

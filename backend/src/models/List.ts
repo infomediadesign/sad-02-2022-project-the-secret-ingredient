@@ -9,11 +9,11 @@ export interface ListSchema {
 
 export function List(db: Mongo.Database): Model<ListSchema> {
     const name = 'List';
+    const lowerName = name.toLowerCase();
 
     return {
         name,
-        lowerName: name.toLowerCase(),
-        schema: db.collection<ListSchema>('list'),
+        lowerName,
+        schema: db.collection<ListSchema>(name),
     };
 }
-// 62923e24f734ac8cff838c20

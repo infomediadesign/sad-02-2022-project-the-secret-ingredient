@@ -1,4 +1,4 @@
-import { Mongo, Oak } from '../deps.ts';
+import { decode, Mongo, Oak } from '../deps.ts';
 import { Model } from './types.ts';
 
 type CrudOperation = 'create' | 'retrieveAll' | 'retrieveOne' | 'update' | 'delete';
@@ -88,4 +88,11 @@ export function crudFactory<T>({ router, model, only }: Options<T>) {
         update();
         deletes();
     }
+}
+
+export function decodeJwtFromHeader(authHeader: string): Record<string, number | string> {
+    const token = authHeader.split(' ')[1];
+
+    const decoded = decode(token);
+    return decoded[1] as Record<string, number | string>;
 }

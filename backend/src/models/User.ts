@@ -9,10 +9,11 @@ export interface UserSchema {
 
 export function User(db: Mongo.Database): Model<UserSchema> {
     const name = 'User';
+    const lowerName = name.toLowerCase();
 
     return {
         name,
-        lowerName: name.toLowerCase(),
-        schema: db.collection<UserSchema>('user'),
+        lowerName,
+        schema: db.collection<UserSchema>(name),
     };
 }

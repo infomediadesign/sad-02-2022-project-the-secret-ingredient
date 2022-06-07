@@ -30,7 +30,7 @@ import {
     getCard,
     updateCardContent,
 } from './controllers/CardController.ts';
-import { registerUser, loginUser } from './controllers/UserController.ts';
+import { registerUser, loginUser, me } from './controllers/UserController.ts';
 import { error } from './middlewares/error.ts';
 import { Context } from './types.ts';
 
@@ -62,6 +62,7 @@ router.get('/', (ctx) => {
 //Auth End points
 registerUser(router, user);
 loginUser(router, user);
+me(router, user);
 
 //End Points for Board
 createBoard(router, board, user);

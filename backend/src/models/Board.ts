@@ -14,10 +14,11 @@ export interface BoardSchema {
 
 export function Baord(db: Mongo.Database): Model<BoardSchema> {
     const name = 'Board';
+    const lowerName = name.toLowerCase();
 
     return {
         name,
-        lowerName: name.toLowerCase(),
-        schema: db.collection<BoardSchema>('Boards'),
+        lowerName,
+        schema: db.collection<BoardSchema>(name),
     };
 }

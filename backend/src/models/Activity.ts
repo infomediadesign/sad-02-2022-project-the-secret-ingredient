@@ -10,10 +10,11 @@ export interface ActivitySchema {
 
 export function Activity(db: Mongo.Database): Model<ActivitySchema> {
     const name = 'Activity';
+    const lowerName = name.toLowerCase();
 
     return {
         name,
-        lowerName: name.toLowerCase(),
-        schema: db.collection<ActivitySchema>('Activity'),
+        lowerName,
+        schema: db.collection<ActivitySchema>(name),
     };
 }
