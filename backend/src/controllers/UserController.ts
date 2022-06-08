@@ -1,4 +1,4 @@
-import { create, bcrypt, getNumericDate, validate, required, isEmail, Status, dayjs } from '../../deps.ts';
+import { create, bcrypt, getNumericDate, Status, dayjs, V } from '../../deps.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
 import { UserSchema } from '../models/User.ts';
 import { Context, Model, Router } from '../types.ts';
@@ -23,21 +23,15 @@ export function registerUser(router: Router, user: Model<UserSchema>) {
         const content = await body.value;
         const { password, passwordCheck, username, email } = content;
 
-        const [passes, errors] = await validate(content, {
-            username: required,
-            password: required,
-            passwordCheck: required,
-            email: isEmail,
+        const [passes, errors] = await V.validate(content, {
+            username: V.required,
+            password: [V.required, V.minLength(5)],
+            passwordCheck: V.required,
+            email: [V.required, V.isEmail],
         });
-        console.log({ passes, errors });
 
-        ctx.assert(
-            password && passwordCheck && username && email,
-            Status.BadRequest,
-            `Don't be lazy 🦥, enter all fields value`
-        );
+        ctx.assert(passes, Status.BadRequest, undefined, { details: errors });
         ctx.assert(password === passwordCheck, Status.BadRequest, `Password don't match 👿`);
-        ctx.assert(password.length > 5, Status.BadRequest, 'Password is too small, try harder 🤪');
 
         const existingUser = await user.schema.findOne({ email });
 
