@@ -17,7 +17,7 @@ export function createList(router: Router, list: Model<ListSchema>, board: Model
             order: V.required,
             bId: V.required,
         });
-        oakAssert(ctx, passes, Status.BadRequest, undefined, errors);
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const boardId = new Mongo.ObjectId(bId);
 
@@ -99,7 +99,7 @@ export function updateListContent(router: Router, list: Model<ListSchema>) {
             name: V.required,
             order: V.required,
         });
-        oakAssert(ctx, passes, Status.BadRequest, undefined, errors);
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const _l = await list.schema.updateOne(
             { _id },

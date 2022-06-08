@@ -25,7 +25,7 @@ export function createCard(
             bId: V.required,
             lId: V.required,
         });
-        oakAssert(ctx, passes, Status.BadRequest, undefined, errors);
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const boardId = new Mongo.ObjectId(bId);
         const listId = new Mongo.ObjectId(lId);
@@ -100,7 +100,7 @@ export function updateCardContent(router: Router, card: Model<CardSchema>) {
             name: V.required,
             order: V.required,
         });
-        oakAssert(ctx, passes, Status.BadRequest, undefined, errors);
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const _c = await card.schema.updateOne(
             { _id },

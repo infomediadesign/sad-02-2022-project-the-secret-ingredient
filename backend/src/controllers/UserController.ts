@@ -29,7 +29,6 @@ export function registerUser(router: Router, user: Model<UserSchema>) {
             passwordCheck: V.required,
             email: [V.required, V.isEmail],
         });
-
         ctx.assert(passes, Status.BadRequest, undefined, { details: errors });
         ctx.assert(password === passwordCheck, Status.BadRequest, `Password don't match 👿`);
 

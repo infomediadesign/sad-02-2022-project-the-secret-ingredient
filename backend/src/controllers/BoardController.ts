@@ -21,7 +21,7 @@ export function createBoard(router: Router, board: Model<BoardSchema>, user: Mod
             image: V.required,
             uId: V.required,
         });
-        oakAssert(ctx, passes, Status.BadRequest, undefined, errors);
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const userId = new Mongo.ObjectId(content.userId);
 
@@ -146,7 +146,7 @@ export function updateBoardContent(router: Router, board: Model<BoardSchema>) {
             name: V.required,
             image: V.required,
         });
-        oakAssert(ctx, passes, Status.BadRequest, undefined, errors);
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const _b = await board.schema.updateOne(
             { _id },
