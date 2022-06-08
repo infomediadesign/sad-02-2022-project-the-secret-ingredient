@@ -11,6 +11,13 @@ export function createList(router: Router, list: Model<ListSchema>, board: Model
         const body = ctx.request.body();
         const content = await body.value;
         const { name, order, bId } = content;
+
+        oakAssert(
+            ctx,
+            name != null && order != null && bId != null,
+            Status.BadRequest,
+            'Please provide name, order and bId in the request-body!'
+        );
         const boardId = new Mongo.ObjectId(bId);
 
         const b = board.schema.findOne({ _id: boardId });
