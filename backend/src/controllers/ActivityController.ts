@@ -34,10 +34,10 @@ export function createActivity({
         const cardId = new Mongo.ObjectId(cId);
         const boardId = new Mongo.ObjectId(bId);
 
-        const b = await board.schema.findOne({ _id: new Mongo.ObjectId(boardId) });
+        const b = await board.schema.findOne({ _id: boardId });
         const c = await card.schema.findOne({ _id: cardId });
 
-        ctx.assert(!b || !c, Status.BadRequest);
+        ctx.assert(b != null && c != null, Status.BadRequest, 'Supplied board or card not found!');
 
         const _id = await activity.schema.insertOne({ text, boardId, cardId });
         ctx.response.body = {
