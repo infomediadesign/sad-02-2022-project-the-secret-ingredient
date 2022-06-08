@@ -17,9 +17,17 @@ export function createCard(
         const body = ctx.request.body();
         const content = await body.value;
 
-        const { name, order } = content;
-        const boardId = new Mongo.ObjectId(content.boardId);
-        const listId = new Mongo.ObjectId(content.listId);
+        const { name, order, bId, lId } = content;
+
+        oakAssert(
+            ctx,
+            name != null && order != null && bId != null && lId != null,
+            Status.BadRequest,
+            'Please provide the parameters: name, order, bId and lId in the request-body!'
+        );
+
+        const boardId = new Mongo.ObjectId(bId);
+        const listId = new Mongo.ObjectId(lId);
 
         const b = await board.schema.findOne({ _id: boardId });
         const l = await list.schema.findOne({ _id: listId });

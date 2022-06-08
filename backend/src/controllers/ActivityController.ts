@@ -4,6 +4,7 @@ import { authMiddleware } from '../middlewares/auth.ts';
 import { ActivitySchema } from '../models/Activity.ts';
 import { BoardSchema } from '../models/Board.ts';
 import { CardSchema } from '../models/Card.ts';
+import { oakAssert } from '../util.ts';
 
 // Creates activity based on given rquest body
 export function createActivity({
@@ -22,6 +23,14 @@ export function createActivity({
         const content = await body.value;
 
         const { text, bId, cId } = content;
+
+        oakAssert(
+            ctx,
+            text != null && bId != null && cId != null,
+            Status.BadRequest,
+            'Please provide the parameters: text, bId and cId in the request-body!'
+        );
+
         const cardId = new Mongo.ObjectId(cId);
         const boardId = new Mongo.ObjectId(bId);
 

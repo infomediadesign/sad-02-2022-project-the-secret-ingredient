@@ -14,7 +14,15 @@ export function createBoard(router: Router, board: Model<BoardSchema>, user: Mod
         const body = ctx.request.body();
         const content = await body.value;
 
-        const { name, image } = content;
+        const { name, image, uId } = content;
+
+        oakAssert(
+            ctx,
+            name != null && image != null && uId != null,
+            Status.BadRequest,
+            'Please provide the parameters: name, image and uId in the request-body!'
+        );
+
         const userId = new Mongo.ObjectId(content.userId);
 
         const u = await user.schema.findOne({ _id: userId });
