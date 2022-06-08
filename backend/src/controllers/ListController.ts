@@ -73,7 +73,7 @@ export function getCardsByListId(router: Router, list: Model<ListSchema>, card: 
         );
 
         ctx.response.body = {
-            message: 'Cards present in this board retrieved',
+            message: 'Cards present in this list retrieved',
             cards,
         };
     });
