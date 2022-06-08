@@ -4,7 +4,18 @@ import { UserSchema } from '../models/User.ts';
 import { Context, Model, Router } from '../types.ts';
 import { decodeJwtFromHeader } from '../util.ts';
 
-export const key = await crypto.subtle.generateKey({ name: 'HMAC', hash: 'SHA-512' }, true, ['sign', 'verify']);
+const exported = Deno.env.get('JWK');
+
+export const key =
+    exported === undefined
+        ? await crypto.subtle.generateKey({ name: 'HMAC', hash: 'SHA-512' }, true, ['sign', 'verify'])
+        : await crypto.subtle.importKey(
+              'jwk',
+              JSON.parse(exported.replaceAll(`'`, '')),
+              { name: 'HMAC', hash: 'SHA-512' },
+              true,
+              ['sign', 'verify']
+          );
 
 export function registerUser(router: Router, user: Model<UserSchema>) {
     router.post('/register', async (ctx: Context) => {
