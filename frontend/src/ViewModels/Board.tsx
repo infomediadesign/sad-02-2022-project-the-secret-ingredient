@@ -61,7 +61,8 @@ export const dragReducer = produce((state: any, action: any) => {
             return state;
         }
         case 'DELETEISSUE': {
-            console.log('REEEEEEEEEEEE');
+
+            deleteCardFromIssueList(action.deleteMe);
             let newA: Issue[] = new Array();
 
             state[issueListsNames[action.myIndex]].map((item: Issue, index: number) => {
@@ -129,11 +130,19 @@ export async function bordMainSetup(boardNum: number){
     const listResponse = await getGeneric('http://localhost:1234/lists/' + boardID, 'GET')
     issueListsNames = listResponse.lists.map((item : any, index : number) => {return ("items" + index)});
     issueListsMIds = listResponse.lists.map((item : any, index : number) => {return (item._id)});
-
+    
     initialState.items0 = [{
         id: '1',
         content: "I'm a hussar",
     }]
+
+      
+    let listsCards = await getGeneric('http://localhost:1234/list/' + issueListsMIds[0] + '/cards', 'GET');
+
+    initialState.items0 = await listsCards.cards.map((cardItem : any) => {
+        return {id: cardItem._id, content: "Wowee"}
+    });
+
     //initialState = await intialStateVaribleSetup();
 
 
@@ -198,6 +207,8 @@ export async function removeFromIssueListNames(indexValue: number){
     waitingForDb = false;
 }
 
+var currentCardId : string;
+
 async function addIssue(name: string, index: number, content: string, order: number){
     if(waitingForDb){
         alert("calme bitte!");
@@ -205,10 +216,14 @@ async function addIssue(name: string, index: number, content: string, order: num
     console.log("first...");
     const response = await postGeneric("http://localhost:1234/card", {"name" : name, "lId" : issueListsMIds[index], "bId" : currentBoardId, "order" : order});
     console.log(response.message);
-    const currentCardId = response.card._id;
+    currentCardId = response.card._id;
     console.log(currentCardId);
     const responseNew = await postGeneric("http://localhost:1234/Activity", {"text" : content, "cId" : currentCardId, "bId" : currentBoardId}); 
     console.log(responseNew.message);
+}
+
+export async function deleteCardFromIssueList(Cid: number){
+    const response = await getGeneric("http://localhost:1234/card/" + Cid, 'DELETE');
 }
 
 async function addActivity(name: string, index: number, content: string, order: number){
