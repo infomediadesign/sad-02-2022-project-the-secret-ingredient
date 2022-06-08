@@ -21,7 +21,6 @@ export const authMiddleware = async (ctx: Context, next: Next) => {
     }
     const data = await verify(jwt, key);
 
-    console.log(data);
     if (data) {
         // async function selectUser<T>(user: Model<T>, data: any) {
         //     (await user.schema.findOne({ username: data.iss })) as any;
