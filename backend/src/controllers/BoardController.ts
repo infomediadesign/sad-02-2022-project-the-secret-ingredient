@@ -23,7 +23,7 @@ export function createBoard(router: Router, board: Model<BoardSchema>, user: Mod
         });
         oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
-        const userId = new Mongo.ObjectId(content.userId);
+        const userId = new Mongo.ObjectId(uId);
 
         const u = await user.schema.findOne({ _id: userId });
         ctx.assert(u != null, Status.FailedDependency, 'User not found!');
