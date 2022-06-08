@@ -41,17 +41,16 @@ export function createCard(
 
 // Get a card based on ID
 export function getCard(router: Router, card: Model<CardSchema>) {
-    router.get(`/${card.lowerName}/:id`, authMiddleware, async (ctx) => {
-        const id = ctx.params.id;
+    router.get(`/${card.lowerName}/:id`, authMiddleware, async (ctx: Context) => {
+        const body = ctx.request.body();
+        const content = await body.value;
+
+        const _id = new Mongo.ObjectId(content.id);
         const c = await card.schema.findOne({
-            _id: new Mongo.ObjectId(id),
+            _id,
         });
 
-        if (c == null) {
-            ctx.response.status = 400;
-            ctx.response.body = { message: 'Card not found!' };
-            return;
-        }
+        ctx.assert(c != null, Status.BadRequest, 'Card not found!');
 
         ctx.response.body = {
             message: `${card.name} retrieved`,
@@ -62,22 +61,19 @@ export function getCard(router: Router, card: Model<CardSchema>) {
 
 // Fetch activities based on card-id
 export function getActivitysBycardId(router: Router, card: Model<CardSchema>, activity: Model<ActivitySchema>) {
-    router.get(`/${card.lowerName}/:id/activitys`, authMiddleware, async (ctx) => {
-        const _id = new Mongo.ObjectId(ctx.params.id);
+    router.get(`/${card.lowerName}/:id/activitys`, authMiddleware, async (ctx: Context) => {
+        const body = ctx.request.body();
+        const content = await body.value;
+
+        const _id = new Mongo.ObjectId(content.id);
 
         const c = await card.schema.findOne({ _id });
         const activities = await activity.schema.find({ cardId: _id }).toArray();
 
-        if (!c || !activities) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                message: 'No cards found to fetch the activities!',
-            };
-            return;
-        }
+        ctx.assert(c != null && activities != null, Status.FailedDependency, 'No cards found to fetch the activities!');
 
         ctx.response.body = {
-            message: 'Activities present in this card.',
+            message: 'Activities present in this card retrieved.',
             activities,
         };
     });
@@ -86,19 +82,22 @@ export function getActivitysBycardId(router: Router, card: Model<CardSchema>, ac
 // Update card content based on id
 export function updateCardContent(router: Router, card: Model<CardSchema>) {
     router.put(`/${card.lowerName}/:id`, authMiddleware, async (ctx) => {
-        const id = ctx.params.id;
         const body = ctx.request.body();
         const content = await body.value;
+        const _id = new Mongo.ObjectId(content.id);
         const { name, order } = content;
 
-        const c = await card.schema.updateOne(
-            { _id: new Mongo.ObjectId(id) },
+        const _c = await card.schema.updateOne(
+            { _id },
             {
                 $set: { name, order },
             }
         );
 
-        ctx.response.body = c;
+        ctx.response.body = {
+            message: 'Card updated.',
+            list: { _id, name, order },
+        };
     });
 }
 

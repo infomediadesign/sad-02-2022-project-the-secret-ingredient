@@ -60,21 +60,23 @@ export function getList(router: Router, list: Model<ListSchema>) {
 
 // Fetch cards based on list-id
 export function getCardsByListId(router: Router, list: Model<ListSchema>, card: Model<CardSchema>) {
-    router.get(`/${list.lowerName}/:id/cards`, authMiddleware, async (ctx) => {
-        const _id = new Mongo.ObjectId(ctx.params.id);
+    router.get(`/${list.lowerName}/:id/cards`, authMiddleware, async (ctx: Context) => {
+        const body = ctx.request.body();
+        const content = await body.value;
+
+        const _id = new Mongo.ObjectId(content.id);
 
         const l = await list.schema.findOne({ _id });
         const cards = await card.schema.find({ listId: _id }).toArray();
-        if (l == null || cards == null) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                msg: 'No lists or Cards found (with that ObjectId)!',
-            };
-            return;
-        }
+
+        ctx.assert(
+            l != null && cards != null,
+            Status.FailedDependency,
+            'No lists or Cards found (with that ObjectId)!'
+        );
 
         ctx.response.body = {
-            msg: 'Cards present in this board',
+            message: 'Cards present in this board retrieved',
             cards,
         };
     });
@@ -83,18 +85,23 @@ export function getCardsByListId(router: Router, list: Model<ListSchema>, card: 
 // Update list content based on id
 export function updateListContent(router: Router, list: Model<ListSchema>) {
     router.put(`/${list.lowerName}/:id`, authMiddleware, async (ctx) => {
-        const id = ctx.params.id;
         const body = ctx.request.body();
         const content = await body.value;
 
+        const _id = new Mongo.ObjectId(content.id);
+        const { name, order } = content;
+
         const l = await list.schema.updateOne(
-            { _id: new Mongo.ObjectId(id) },
+            { _id },
             {
-                $set: { name: content.name, order: content.order },
+                $set: { name, order },
             }
         );
 
-        ctx.response.body = l;
+        ctx.response.body = {
+            message: 'List updated.',
+            list: { _id, name, order },
+        };
     });
 }
 

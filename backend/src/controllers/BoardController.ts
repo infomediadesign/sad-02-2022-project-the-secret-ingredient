@@ -7,7 +7,7 @@ import { CardSchema } from '../models/Card.ts';
 import { ListSchema } from '../models/List.ts';
 import { UserSchema } from '../models/User.ts';
 
-// Create board using userID
+// Create board using userId
 export function createBoard(router: Router, board: Model<BoardSchema>, user: Model<UserSchema>) {
     router.post(`/${board.lowerName}`, authMiddleware, async (ctx: Context) => {
         const body = ctx.request.body();
@@ -19,8 +19,7 @@ export function createBoard(router: Router, board: Model<BoardSchema>, user: Mod
         const u = await user.schema.findOne({ _id: userId });
         ctx.assert(u != null, Status.FailedDependency, 'User not found!');
 
-        const payload = { name, image, userId };
-        const _id = await board.schema.insertOne(payload);
+        const _id = await board.schema.insertOne({ name, image, userId });
 
         ctx.response.body = {
             board: { _id, name, image },
@@ -31,111 +30,103 @@ export function createBoard(router: Router, board: Model<BoardSchema>, user: Mod
 
 // Get all boards for a user
 export function getBoards(router: Router, board: Model<BoardSchema>) {
-    router.get(`/${board.lowerName}s/:userID`, authMiddleware, async (ctx) => {
-        const id = ctx.params.userID;
-        const data = await board.schema.find({ userId: new Mongo.ObjectId(id) }).toArray();
+    router.get(`/${board.lowerName}s/:userId`, authMiddleware, async (ctx) => {
+        const body = ctx.request.body();
+        const content = await body.value;
+
+        const id = content.userId;
+        const b = await board.schema.find({ userId: new Mongo.ObjectId(id) }).toArray();
 
         ctx.response.body = {
             message: `${board.name} retrieved!`,
-            data,
+            board: b,
         };
     });
 }
 
 // Get  a Board based on id of a user
 export function getBoard(router: Router, board: Model<BoardSchema>) {
-    router.get(`/${board.lowerName}/:id`, authMiddleware, async (ctx) => {
-        const id = ctx.params.id;
+    router.get(`/${board.lowerName}/:id`, authMiddleware, async (ctx: Context) => {
+        const body = ctx.request.body();
+        const content = await body.value;
+
+        const id = content.id;
         const b = await board.schema.findOne({ userID: new Mongo.ObjectId(id) });
 
-        if (b == null) {
-            ctx.response.status = 401;
-            ctx.response.body = {
-                message: 'Board not found!',
-            };
-        }
+        ctx.assert(b != null, Status.BadRequest, 'Board not found!');
 
         ctx.response.body = {
             message: `${board.name} retrieved!`,
-            b,
+            board: b,
         };
     });
 }
 
 // Get lists based on boardId
 export function getlistsByBoardId(router: Router, board: Model<BoardSchema>, list: Model<ListSchema>) {
-    router.get(`/${board.lowerName}/lists/:id`, authMiddleware, async (ctx) => {
-        const _id = new Mongo.ObjectId(ctx.params.id);
+    router.get(`/${board.lowerName}/lists/:id`, authMiddleware, async (ctx: Context) => {
+        const body = ctx.request.body();
+        const content = await body.value;
 
-        const Board = await board.schema.findOne({
+        const _id = new Mongo.ObjectId(content.id);
+
+        const b = await board.schema.findOne({
             _id,
         });
 
-        if (!Board) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                msg: 'No boards found to fetch the list!',
-            };
-        }
+        ctx.assert(b != null, Status.BadRequest, 'No boards found to fetch the list!');
 
-        const l = await list.schema.find({ boardId: _id }).toArray();
-        if (l.length === 0) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                msg: 'No activities found to fetch!',
-            };
-        }
+        const lists = await list.schema.find({ boardId: _id }).toArray();
+
+        ctx.assert(lists.length !== 0, Status.BadRequest, 'No activities found to fetch!');
+
         ctx.response.body = {
-            msg: 'Lists present in this board!',
-            lsit: l,
+            message: 'Lists present in this board!',
+            lists,
         };
     });
 }
 
 // GetCards based on BoardID
 export function getCardsByBoardId(router: Router, board: Model<BoardSchema>, card: Model<CardSchema>) {
-    router.get(`/${board.lowerName}/cards/:boardId`, authMiddleware, async (ctx) => {
-        const boardId = new Mongo.ObjectId(ctx.params.boardId);
-        const userId = new Mongo.ObjectId(ctx.params.userID);
+    router.get(`/${board.lowerName}/cards/:boardId`, authMiddleware, async (ctx: Context) => {
+        const body = ctx.request.body();
+        const content = await body.value;
 
-        const Board = await board.schema.findOne({ _id: boardId, userId });
-        if (!Board) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                msg: 'No boards found to fetch the cards!',
-            };
-        }
-        const Card = await card.schema.find({ boardId }).toArray();
+        const boardId = new Mongo.ObjectId(content.boardId);
+        const userId = new Mongo.ObjectId(content.userID);
+
+        const b = await board.schema.findOne({ _id: boardId, userId });
+
+        ctx.assert(b != null, Status.BadRequest, 'No boards found to fetch the cards!');
+
+        const cards = await card.schema.find({ boardId }).toArray();
+
         ctx.response.body = {
-            msg: 'Cards present in this board!',
-            Card,
+            message: 'Cards retrieved.',
+            cards,
         };
     });
 }
 
 // Fetch all activities based on boardid
 export function getActivitysByBoardId(router: Router, board: Model<BoardSchema>, activity: Model<ActivitySchema>) {
-    router.get(`/${board.lowerName}/activitys/:id`, authMiddleware, async (ctx) => {
-        const id = ctx.params.id;
+    router.get(`/${board.lowerName}/activitys/:id`, authMiddleware, async (ctx: Context) => {
+        const body = ctx.request.body();
+        const content = await body.value;
 
-        const Board = await board.schema.findOne({
-            _id: new Mongo.ObjectId(id),
+        const _id = new Mongo.ObjectId(content.id);
+
+        const b = await board.schema.findOne({
+            _id,
         });
-        if (!Board) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                msg: 'no boards found to fetch the list.',
-            };
-        }
-        const activities = await activity.schema.find({ boardId: new Mongo.ObjectId(id) }).toArray();
-        if (activities.length === 0) {
-            ctx.response.status = 400;
-            ctx.response.body = {
-                msg: 'no activities found to fetch.',
-            };
-        }
+        ctx.assert(b != null, Status.BadRequest, 'No boards found to fetch the list!');
+
+        const activities = await activity.schema.find({ boardId: _id }).toArray();
+        ctx.assert(activities.length !== 0, Status.BadRequest, 'No activities found to fetch!');
+
         ctx.response.body = {
-            msg: 'Activities present in this board',
+            message: 'Activities present in this board retrieved.',
             activities,
         };
     });
@@ -143,18 +134,25 @@ export function getActivitysByBoardId(router: Router, board: Model<BoardSchema>,
 
 // Update board based on boardid
 export function updateBoardContent(router: Router, board: Model<BoardSchema>) {
-    router.put(`/${board.lowerName}/:id`, authMiddleware, async (ctx) => {
-        const id: string = ctx.params.id;
+    router.put(`/${board.lowerName}/:id`, authMiddleware, async (ctx: Context) => {
         const body = ctx.request.body();
-        const value = await body.value;
+        const content = await body.value;
+        const { name, image } = content;
+        const _id = new Mongo.ObjectId(content.id);
 
-        const Board = await board.schema.updateOne(
-            { _id: new Mongo.ObjectId(id) },
+        ctx.assert(name != null && image != null, Status.BadRequest, 'Name and image must be provided!');
+
+        const b = await board.schema.updateOne(
+            { _id },
             {
-                $set: { name: value.name, image: value.image },
+                $set: { name, image },
             }
         );
-        ctx.response.body = Board;
+
+        ctx.response.body = {
+            message: 'Board updated.',
+            board: { _id, name, image },
+        };
     });
 }
 
