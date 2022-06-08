@@ -40,19 +40,18 @@ export function getListsByBoardId(router: Router, list: Model<ListSchema>) {
 
 // Get a list based on listId
 export function getList(router: Router, list: Model<ListSchema>) {
-    router.get(`/${list.lowerName}/:id`, authMiddleware, async (ctx) => {
-        const id = ctx.params.id;
+    router.get(`/${list.lowerName}/:id`, authMiddleware, async (ctx: Context) => {
+        const body = ctx.request.body();
+        const content = await body.value;
+
+        const _id = new Mongo.ObjectId(content.id);
         const l = await list.schema.findOne({
-            _id: new Mongo.ObjectId(id),
+            _id,
         });
-        if (l == null) {
-            ctx.response.status = 401;
-            ctx.response.body = { message: 'List not found!' };
-            return;
-        }
+        ctx.assert(l != null, Status.BadRequest, 'List not found!');
 
         ctx.response.body = {
-            message: `${list.name} retrieved`,
+            message: `"${list.name}" retrieved`,
             list: l,
         };
     });
@@ -91,7 +90,7 @@ export function updateListContent(router: Router, list: Model<ListSchema>) {
         const _id = new Mongo.ObjectId(content.id);
         const { name, order } = content;
 
-        const l = await list.schema.updateOne(
+        const _l = await list.schema.updateOne(
             { _id },
             {
                 $set: { name, order },
@@ -99,7 +98,7 @@ export function updateListContent(router: Router, list: Model<ListSchema>) {
         );
 
         ctx.response.body = {
-            message: 'List updated.',
+            message: `List "${name}" updated.`,
             list: { _id, name, order },
         };
     });
@@ -112,7 +111,7 @@ export function deleteList(router: Router, list: Model<ListSchema>) {
             _id: new Mongo.ObjectId(ctx.params.id),
         });
         ctx.response.body = {
-            message: `${list.name} deleted!`,
+            message: `"${list.name}" deleted!`,
         };
     });
 }

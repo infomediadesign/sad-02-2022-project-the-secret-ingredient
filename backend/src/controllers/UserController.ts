@@ -37,7 +37,13 @@ export function registerUser(router: Router, user: Model<UserSchema>) {
         const payload = { username, email, password: passwordHash };
         const newUserId = await user.schema.insertOne(payload);
 
-        ctx.response.body = { _id: newUserId, username, email, passwordHash };
+        ctx.response.body = {
+            message: `User "${username}" registered.`,
+            _id: newUserId,
+            username,
+            email,
+            passwordHash,
+        };
     });
 }
 
@@ -70,6 +76,7 @@ export function loginUser(router: Router, user: Model<UserSchema>) {
                 : authHeader;
 
         ctx.response.body = {
+            message: `Logged in as "${u.username}"`,
             ...u,
             jwt,
         };
@@ -87,7 +94,8 @@ export function me(router: Router, user: Model<UserSchema>) {
         ctx.assert(typeof email === 'string', Status.BadRequest, 'Wrong token-payload!');
 
         const u = await user.schema.findOne({ email });
+        ctx.assert(u != null, Status.BadRequest, 'User from token not found!');
 
-        ctx.response.body = u;
+        ctx.response.body = { message: `User "${u.username}" retrieved.`, ...u };
     });
 }
