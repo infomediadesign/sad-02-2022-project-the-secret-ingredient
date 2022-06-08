@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
-import { Issue, IssueListTemp, getIssues, dragReducer, issueListsNames, initialState, bordMainSetup, addToIssueListNames } from '../ViewModels/Board';
+import { Issue, IssueListTemp, getIssues, dragReducer, issueListsNames, initialState, removeFromIssueListNames, addToIssueListNames } from '../ViewModels/Board';
 import {getGeneric, userID} from '../ViewModels/Get'
 import produce from 'immer';
 import {
@@ -131,7 +131,8 @@ function App() {
                 </button>
                 <button
                     className="btn-secondary"
-                    onClick={() => {
+                    onClick={async() => {
+                        await removeFromIssueListNames(index);
                         dispatch({ type: 'DELETEISSUELIST', deleteMe: index });
                     }}
                 >

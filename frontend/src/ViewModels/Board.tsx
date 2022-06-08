@@ -76,22 +76,26 @@ export const dragReducer = produce((state: any, action: any) => {
         }
         case 'DELETEISSUELIST': {
             let i = 0;
+            var newIssueListsMIds = new Array();
 
             issueListsNames.map((item, index) => {
                 if (index === action.deleteMe) {
                     console.log('not adding ' + index);
+                    newIssueListsMIds[i] = issueListsMIds[index]
                     state['items' + i.toString()] = null;
                     return item;
                 } else {
                     console.log('items' + i);
                     console.log(issueListsNames.length);
                     state['items' + i.toString()] = state[item];
+                    newIssueListsMIds[i] = issueListsMIds[index]
                     i++;
                     return item;
                 }
             });
 
             issueListsNames.pop();
+            newIssueListsMIds.pop();
 
             return state;
         }
@@ -125,17 +129,28 @@ export async function bordMainSetup(boardNum: number){
     issueListsNames = listResponse.lists.map((item : any, index : number) => {return ("items" + index)});
     issueListsMIds = listResponse.lists.map((item : any, index : number) => {return (item._id)});
 
-    const initialStateResponse = await listResponse.lists.map(async(item: string, index : number) => {
-        let listsCards = await getGeneric('http://localhost:1234/list/' + issueListsMIds[index] + '/cards', 'GET');
-        let listsCardsArray = new Array(listsCards.cards.length);
-        listsCards.cards.map(async(cardItem : any) => {
-            listsCardsArray[cardItem.order] = {id: cardItem.name, content: "Wowee"}
-        });
-        console.log("here");
-        console.log(listsCardsArray);
-        return [item] = listsCardsArray;
-    })
-    initialState = initialStateResponse;
+    initialState.items0 = [{
+        id: '1',
+        content: "I'm a hussar",
+    }]
+    //initialState = await intialStateVaribleSetup();
+
+
+    //THIS IS SOME MAJOR SHIT....
+    function intialStateVaribleSetup(){
+        const initialStateResponse = listResponse.lists.map(async(item: string, index : number) => {
+            let listsCards = await getGeneric('http://localhost:1234/list/' + issueListsMIds[index] + '/cards', 'GET');
+            console.log("thats the true issue");
+            let listsCardsArray = new Array(listsCards.cards.length);
+            listsCards.cards.map(async(cardItem : any) => {
+                listsCardsArray[cardItem.order] = {id: cardItem.name, content: "Wowee"}
+            });
+            console.log("here");
+            console.log(listsCardsArray);
+            initialStateResponse[item] = listsCardsArray;
+        })
+        return initialStateResponse;
+    }
 
     console.log("AndSooWrong");
     console.log(initialState);
@@ -162,7 +177,7 @@ export const data: Issue[] = [
     },
 ];
 
-export var initialState : any;
+export var initialState = {items0: data};
 
 let waitingForDb = false;
 export let issueListsNames: string[] = ['items0', 'items1', 'items2'];
@@ -171,8 +186,14 @@ export let issueListsMIds: string[] = [];
 export async function addToIssueListNames(newValue: string){
     issueListsNames.push(newValue);
     waitingForDb = true;
-    const response = await postGeneric("http://localhost:1234/list", {"name" : newValue, "boardId" : currentBoardId, "order" : issueListsNames.length-1});
+    const response = await postGeneric("http://localhost:1234/list", {"name" : newValue, "bId" : currentBoardId, "order" : issueListsNames.length-1});
     issueListsMIds.push(response.list._id);
+    waitingForDb = false;
+}
+
+export async function removeFromIssueListNames(indexValue: number){
+    waitingForDb = true;
+    const response = await getGeneric("http://localhost:1234/list/" + issueListsMIds[indexValue], 'DELETE');
     waitingForDb = false;
 }
 
