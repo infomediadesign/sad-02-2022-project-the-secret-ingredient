@@ -5,6 +5,7 @@ import { CardSchema } from '../models/Card.ts';
 import { BoardSchema } from '../models/Board.ts';
 import { ListSchema } from '../models/List.ts';
 import { ActivitySchema } from '../models/Activity.ts';
+import { oakAssert } from '../util.ts';
 
 export function createCard(
     router: Router,
@@ -12,7 +13,7 @@ export function createCard(
     board: Model<BoardSchema>,
     list: Model<ListSchema>
 ) {
-    router.post(`/${card.lowerName}`, authMiddleware, async (ctx: Context) => {
+    router.post(`/${card.lowerName}`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
         const content = await body.value;
 
@@ -23,7 +24,7 @@ export function createCard(
         const b = await board.schema.findOne({ _id: boardId });
         const l = await list.schema.findOne({ _id: listId });
 
-        ctx.assert(b != null && l != null, Status.FailedDependency, 'Relationships unclear! [Board and List]');
+        oakAssert(ctx, b != null && l != null, Status.FailedDependency, 'Relationships unclear! [Board and List]');
 
         const _id = await card.schema.insertOne({
             name,
@@ -41,16 +42,13 @@ export function createCard(
 
 // Get a card based on ID
 export function getCard(router: Router, card: Model<CardSchema>) {
-    router.get(`/${card.lowerName}/:id`, authMiddleware, async (ctx: Context) => {
-        const body = ctx.request.body();
-        const content = await body.value;
-
-        const _id = new Mongo.ObjectId(content.id);
+    router.get(`/${card.lowerName}/:id`, authMiddleware, async (ctx) => {
+        const _id = new Mongo.ObjectId(ctx.params.id);
         const c = await card.schema.findOne({
             _id,
         });
 
-        ctx.assert(c != null, Status.BadRequest, 'Card not found!');
+        oakAssert(ctx, c != null, Status.BadRequest, 'Card not found!');
 
         ctx.response.body = {
             message: `${card.name} retrieved`,
@@ -61,16 +59,18 @@ export function getCard(router: Router, card: Model<CardSchema>) {
 
 // Fetch activities based on card-id
 export function getActivitysBycardId(router: Router, card: Model<CardSchema>, activity: Model<ActivitySchema>) {
-    router.get(`/${card.lowerName}/:id/activitys`, authMiddleware, async (ctx: Context) => {
-        const body = ctx.request.body();
-        const content = await body.value;
-
-        const _id = new Mongo.ObjectId(content.id);
+    router.get(`/${card.lowerName}/:id/activitys`, authMiddleware, async (ctx) => {
+        const _id = new Mongo.ObjectId(ctx.params.id);
 
         const c = await card.schema.findOne({ _id });
         const activities = await activity.schema.find({ cardId: _id }).toArray();
 
-        ctx.assert(c != null && activities != null, Status.FailedDependency, 'No cards found to fetch the activities!');
+        oakAssert(
+            ctx,
+            c != null && activities != null,
+            Status.FailedDependency,
+            'No cards found to fetch the activities!'
+        );
 
         ctx.response.body = {
             message: 'Activities present in this card retrieved.',
@@ -84,7 +84,7 @@ export function updateCardContent(router: Router, card: Model<CardSchema>) {
     router.put(`/${card.lowerName}/:id`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
         const content = await body.value;
-        const _id = new Mongo.ObjectId(content.id);
+        const _id = new Mongo.ObjectId(ctx.params.id);
         const { name, order } = content;
 
         const _c = await card.schema.updateOne(

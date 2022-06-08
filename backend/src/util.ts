@@ -1,5 +1,5 @@
 import { decode, Mongo, Oak } from '../deps.ts';
-import { Model } from './types.ts';
+import { Context, Model } from './types.ts';
 
 type CrudOperation = 'create' | 'retrieveAll' | 'retrieveOne' | 'update' | 'delete';
 
@@ -95,4 +95,14 @@ export function decodeJwtFromHeader(authHeader: string): Record<string, number |
 
     const decoded = decode(token);
     return decoded[1] as Record<string, number | string>;
+}
+
+export function oakAssert(
+    ctx: Context,
+    condition: any,
+    errorStatus: Oak.ErrorStatus = 500,
+    message?: string,
+    props?: Record<string, unknown>
+): asserts condition {
+    ctx.assert(condition, errorStatus, message, props);
 }

@@ -1,4 +1,5 @@
 import { create, bcrypt, getNumericDate, validate, required, isEmail, Status, dayjs } from '../../deps.ts';
+import { authMiddleware } from '../middlewares/auth.ts';
 import { UserSchema } from '../models/User.ts';
 import { Context, Model, Router } from '../types.ts';
 import { decodeJwtFromHeader } from '../util.ts';
@@ -84,7 +85,7 @@ export function loginUser(router: Router, user: Model<UserSchema>) {
 }
 
 export function me(router: Router, user: Model<UserSchema>) {
-    router.get('/me', async (ctx: Context) => {
+    router.get('/me', authMiddleware, async (ctx: Context) => {
         const Headers = ctx.request.headers;
         const authHeader = Headers.get('Authorization');
 

@@ -3,10 +3,11 @@ import { authMiddleware } from '../middlewares/auth.ts';
 import { BoardSchema } from '../models/Board.ts';
 import { CardSchema } from '../models/Card.ts';
 import { ListSchema } from '../models/List.ts';
-import { Context, Model, Router } from '../types.ts';
+import { Model, Router } from '../types.ts';
+import { oakAssert } from '../util.ts';
 
 export function createList(router: Router, list: Model<ListSchema>, board: Model<BoardSchema>) {
-    router.post(`/${list.lowerName}`, authMiddleware, async (ctx: Context) => {
+    router.post(`/${list.lowerName}`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
         const content = await body.value;
         const { name, order, bId } = content;
@@ -14,7 +15,7 @@ export function createList(router: Router, list: Model<ListSchema>, board: Model
 
         const b = board.schema.findOne({ _id: boardId });
 
-        ctx.assert(b != null, Status.BadRequest, 'Board not found!');
+        oakAssert(ctx, b != null, Status.BadRequest, 'Board not found!');
 
         const _id = await list.schema.insertOne({ name, boardId, order });
 
@@ -40,15 +41,13 @@ export function getListsByBoardId(router: Router, list: Model<ListSchema>) {
 
 // Get a list based on listId
 export function getList(router: Router, list: Model<ListSchema>) {
-    router.get(`/${list.lowerName}/:id`, authMiddleware, async (ctx: Context) => {
-        const body = ctx.request.body();
-        const content = await body.value;
-
-        const _id = new Mongo.ObjectId(content.id);
+    router.get(`/${list.lowerName}/:id`, authMiddleware, async (ctx) => {
+        const _id = new Mongo.ObjectId(ctx.params.id);
         const l = await list.schema.findOne({
             _id,
         });
-        ctx.assert(l != null, Status.BadRequest, 'List not found!');
+
+        oakAssert(ctx, l != null, Status.BadRequest, 'List not found!');
 
         ctx.response.body = {
             message: `"${list.name}" retrieved`,
@@ -59,15 +58,14 @@ export function getList(router: Router, list: Model<ListSchema>) {
 
 // Fetch cards based on list-id
 export function getCardsByListId(router: Router, list: Model<ListSchema>, card: Model<CardSchema>) {
-    router.get(`/${list.lowerName}/:id/cards`, authMiddleware, async (ctx: Context) => {
-        const body = ctx.request.body();
-        const content = await body.value;
-
-        const _id = new Mongo.ObjectId(content.id);
+    router.get(`/${list.lowerName}/:id/cards`, authMiddleware, async (ctx) => {
+        const _id = new Mongo.ObjectId(ctx.params.id);
 
         const l = await list.schema.findOne({ _id });
         const cards = await card.schema.find({ listId: _id }).toArray();
 
+        // deno-lint-ignore ban-ts-comment
+        // @ts-ignore
         ctx.assert(
             l != null && cards != null,
             Status.FailedDependency,
@@ -87,7 +85,7 @@ export function updateListContent(router: Router, list: Model<ListSchema>) {
         const body = ctx.request.body();
         const content = await body.value;
 
-        const _id = new Mongo.ObjectId(content.id);
+        const _id = new Mongo.ObjectId(ctx.params.id);
         const { name, order } = content;
 
         const _l = await list.schema.updateOne(

@@ -6,6 +6,7 @@ import { ActivitySchema } from '../models/Activity.ts';
 import { CardSchema } from '../models/Card.ts';
 import { ListSchema } from '../models/List.ts';
 import { UserSchema } from '../models/User.ts';
+import { decodeJwtFromHeader, oakAssert } from '../util.ts';
 
 // Create board using userId
 export function createBoard(router: Router, board: Model<BoardSchema>, user: Model<UserSchema>) {
@@ -31,11 +32,8 @@ export function createBoard(router: Router, board: Model<BoardSchema>, user: Mod
 // Get all boards for a user
 export function getBoards(router: Router, board: Model<BoardSchema>) {
     router.get(`/${board.lowerName}s/:userId`, authMiddleware, async (ctx) => {
-        const body = ctx.request.body();
-        const content = await body.value;
-
-        const id = content.userId;
-        const b = await board.schema.find({ userId: new Mongo.ObjectId(id) }).toArray();
+        const userId = new Mongo.ObjectId(ctx.params.userId);
+        const b = await board.schema.find({ userId }).toArray();
 
         ctx.response.body = {
             message: `${board.name} retrieved!`,
@@ -46,14 +44,11 @@ export function getBoards(router: Router, board: Model<BoardSchema>) {
 
 // Get  a Board based on id of a user
 export function getBoard(router: Router, board: Model<BoardSchema>) {
-    router.get(`/${board.lowerName}/:id`, authMiddleware, async (ctx: Context) => {
-        const body = ctx.request.body();
-        const content = await body.value;
+    router.get(`/${board.lowerName}/:userId`, authMiddleware, async (ctx) => {
+        const userId = new Mongo.ObjectId(ctx.params.id);
+        const b = await board.schema.findOne({ userId });
 
-        const id = content.id;
-        const b = await board.schema.findOne({ userID: new Mongo.ObjectId(id) });
-
-        ctx.assert(b != null, Status.BadRequest, 'Board not found!');
+        oakAssert(ctx, b != null, Status.BadRequest, 'Board not found!');
 
         ctx.response.body = {
             message: `${board.name} retrieved!`,
@@ -64,21 +59,18 @@ export function getBoard(router: Router, board: Model<BoardSchema>) {
 
 // Get lists based on boardId
 export function getlistsByBoardId(router: Router, board: Model<BoardSchema>, list: Model<ListSchema>) {
-    router.get(`/${board.lowerName}/lists/:id`, authMiddleware, async (ctx: Context) => {
-        const body = ctx.request.body();
-        const content = await body.value;
-
-        const _id = new Mongo.ObjectId(content.id);
+    router.get(`/${board.lowerName}/lists/:bardId`, authMiddleware, async (ctx) => {
+        const _id = new Mongo.ObjectId(ctx.params.bardId);
 
         const b = await board.schema.findOne({
             _id,
         });
 
-        ctx.assert(b != null, Status.BadRequest, 'No boards found to fetch the list!');
+        oakAssert(ctx, b != null, Status.BadRequest, 'No boards found to fetch the list!');
 
         const lists = await list.schema.find({ boardId: _id }).toArray();
 
-        ctx.assert(lists.length !== 0, Status.BadRequest, 'No activities found to fetch!');
+        oakAssert(ctx, lists.length !== 0, Status.BadRequest, 'No activities found to fetch!');
 
         ctx.response.body = {
             message: 'Lists present in this board!',
@@ -89,16 +81,21 @@ export function getlistsByBoardId(router: Router, board: Model<BoardSchema>, lis
 
 // GetCards based on BoardID
 export function getCardsByBoardId(router: Router, board: Model<BoardSchema>, card: Model<CardSchema>) {
-    router.get(`/${board.lowerName}/cards/:boardId`, authMiddleware, async (ctx: Context) => {
-        const body = ctx.request.body();
-        const content = await body.value;
+    router.get(`/${board.lowerName}/cards/:boardId`, authMiddleware, async (ctx) => {
+        const Headers = ctx.request.headers;
+        const authHeader = Headers.get('Authorization');
 
-        const boardId = new Mongo.ObjectId(content.boardId);
-        const userId = new Mongo.ObjectId(content.userID);
+        oakAssert(ctx, authHeader != null, Status.BadRequest, 'No token supplied!');
+
+        const { _id } = decodeJwtFromHeader(authHeader);
+        oakAssert(ctx, typeof _id === 'string', Status.BadRequest, 'Wrong token-payload!');
+
+        const boardId = new Mongo.ObjectId(ctx.params.boardId);
+        const userId = new Mongo.ObjectId(_id);
 
         const b = await board.schema.findOne({ _id: boardId, userId });
 
-        ctx.assert(b != null, Status.BadRequest, 'No boards found to fetch the cards!');
+        oakAssert(ctx, b != null, Status.BadRequest, 'No boards found to fetch the cards!');
 
         const cards = await card.schema.find({ boardId }).toArray();
 
@@ -111,19 +108,16 @@ export function getCardsByBoardId(router: Router, board: Model<BoardSchema>, car
 
 // Fetch all activities based on boardid
 export function getActivitysByBoardId(router: Router, board: Model<BoardSchema>, activity: Model<ActivitySchema>) {
-    router.get(`/${board.lowerName}/activitys/:id`, authMiddleware, async (ctx: Context) => {
-        const body = ctx.request.body();
-        const content = await body.value;
-
-        const _id = new Mongo.ObjectId(content.id);
+    router.get(`/${board.lowerName}/activitys/:id`, authMiddleware, async (ctx) => {
+        const _id = new Mongo.ObjectId(ctx.params.id);
 
         const b = await board.schema.findOne({
             _id,
         });
-        ctx.assert(b != null, Status.BadRequest, 'No boards found to fetch the list!');
+        oakAssert(ctx, b != null, Status.BadRequest, 'No boards found to fetch the list!');
 
         const activities = await activity.schema.find({ boardId: _id }).toArray();
-        ctx.assert(activities.length !== 0, Status.BadRequest, 'No activities found to fetch!');
+        oakAssert(ctx, activities.length !== 0, Status.BadRequest, 'No activities found to fetch!');
 
         ctx.response.body = {
             message: 'Activities present in this board retrieved.',
@@ -134,13 +128,13 @@ export function getActivitysByBoardId(router: Router, board: Model<BoardSchema>,
 
 // Update board based on boardid
 export function updateBoardContent(router: Router, board: Model<BoardSchema>) {
-    router.put(`/${board.lowerName}/:id`, authMiddleware, async (ctx: Context) => {
+    router.put(`/${board.lowerName}/:id`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
         const content = await body.value;
         const { name, image } = content;
-        const _id = new Mongo.ObjectId(content.id);
+        const _id = new Mongo.ObjectId(ctx.params.id);
 
-        ctx.assert(name != null && image != null, Status.BadRequest, 'Name and image must be provided!');
+        oakAssert(ctx, name != null && image != null, Status.BadRequest, 'Name and image must be provided!');
 
         const _b = await board.schema.updateOne(
             { _id },
