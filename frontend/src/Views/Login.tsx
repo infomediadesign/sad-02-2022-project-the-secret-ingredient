@@ -1,12 +1,13 @@
 import { authenticateMe } from '../ViewModels/Login';
 import '../styles/Login.scss';
 import { useNavigate } from 'react-router-dom';
+import {bordMainSetup} from '../ViewModels/Board'
 
 export function App() {
     let navigate = useNavigate();
     let pass = '123456789';
     let username = 'test1';
-    let email = 'test@test.com';
+    let email = 'tes555t@test.com';
 
     const getUserValue = (event: any) => {
         // show the user input value to console
@@ -24,10 +25,6 @@ export function App() {
     return (
         <div>
             <div>
-                <label className="label">User Name</label>
-                <input onChange={getUserValue} placeholder={username}></input>
-            </div>
-            <div>
                 <label className="label">Email</label>
                 <input onChange={setEmail} placeholder={email}></input>
             </div>
@@ -39,7 +36,8 @@ export function App() {
                 className="btn-primary"
                 onClick={async (e) => {
                     if (await authenticateMe(username, pass, email)) {
-                        navigate('/Board');
+                        await bordMainSetup(0);
+                        await navigate('/Board');
                     } else {
                         alert('Wrong login info');
                     }
@@ -47,7 +45,7 @@ export function App() {
             >
                 Login
             </button>
-            <button className="btn-primary">Sign Up</button>
+            <button className="btn-primary" onClick={() => {navigate('/Signup');}}>Sign Up</button>
         </div>
     );
 }

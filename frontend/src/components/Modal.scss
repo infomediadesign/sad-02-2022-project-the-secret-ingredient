@@ -1,5 +1,5 @@
 .modal {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     display: flex;
@@ -7,6 +7,7 @@
     justify-content: center;
     width: 100vw;
     height: 100vh;
+    z-index: 2;
   }
   
   .modal__overlay {
@@ -26,18 +27,18 @@
     padding: 100px;
     box-sizing: border-box;
     border-radius: 10px;
-    background-color: white;
+    background-color: #4d504b;
     cursor: auto;
   }
   
   .modal__title {
-    color: #9E25FC;
+    color: white;
     font-size: 30px;
   }
   
   .modal__content {
     margin-top: 30px;
-    color: #6B6B6B;
+    color: white;
     font-size: 16px;
   }
   

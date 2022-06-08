@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
+import {getGeneric, userID} from '../ViewModels/Get'
+import {postGeneric} from "../ViewModels/Post"
 import {
     DragDropContext,
     Draggable,
@@ -9,6 +11,17 @@ import {
     NotDraggingStyle,
 } from 'react-beautiful-dnd';
 import produce from 'immer';
+import { useNavigate } from 'react-router-dom';
+
+export interface BoardViewModel {
+    _id: string;
+    name: string;
+    image: {
+        color: string;
+        thumbnail: string;
+        full: string;
+    };
+}
 
 export interface IssueListTemp {
     name: string;
@@ -39,6 +52,7 @@ export const dragReducer = produce((state: any, action: any) => {
         }
         case 'ADDITEM': {
             state[issueListsNames[action.myIndex]].push(action.addThis);
+            addIssue(action.addThis.id, action.myIndex, action.addThis.content, state[issueListsNames[action.myIndex]].length-1);
 
             return state;
         }
@@ -100,4 +114,74 @@ export const dragReducer = produce((state: any, action: any) => {
     }
 });
 
+var currentBoardId : string;
+
+export async function bordMainSetup(boardNum: number){
+    const boardResponse = await getGeneric('http://localhost:1234/boards/' + userID, 'GET');
+    const boardID = boardResponse.board[boardNum]._id;
+    currentBoardId = boardID;
+
+    const listResponse = await getGeneric('http://localhost:1234/lists/' + boardID, 'GET')
+    issueListsNames = listResponse.lists.map((item : any, index : number) => {return ("items" + index)});
+    issueListsMIds = listResponse.lists.map((item : any, index : number) => {return (item._id)});
+
+    const initialStateResponse = await listResponse.lists.map(async(item: string, index : number) => {
+        let listsCards = await getGeneric('http://localhost:1234/list/' + issueListsMIds[index] + '/cards', 'GET');
+        let listsCardsArray = new Array(listsCards.cards.length);
+        listsCards.cards.map(async(cardItem : any) => {
+            listsCardsArray[cardItem.order] = {id: cardItem.name, content: "Wowee"}
+        });
+        console.log("here");
+        console.log(listsCardsArray);
+        return [item] = listsCardsArray;
+    })
+    initialState = initialStateResponse;
+
+    console.log("AndSooWrong");
+    console.log(initialState);
+    
+    return;
+}
+
+export const data: Issue[] = [
+    {
+        id: '1',
+        content: "I'm a hussar",
+    },
+    {
+        id: '2',
+        content: "I'm a Hun",
+    },
+    {
+        id: '3',
+        content: "I'm a wretched Englishman",
+    },
+    {
+        id: '4',
+        content: "I'm a horse soldier",
+    },
+];
+
+export var initialState : any;
+
+let waitingForDb = false;
 export let issueListsNames: string[] = ['items0', 'items1', 'items2'];
+export let issueListsMIds: string[] = [];
+
+export async function addToIssueListNames(newValue: string){
+    issueListsNames.push(newValue);
+    waitingForDb = true;
+    const response = await postGeneric("http://localhost:1234/list", {"name" : newValue, "boardId" : currentBoardId, "order" : issueListsNames.length-1});
+    issueListsMIds.push(response.list._id);
+    waitingForDb = false;
+}
+
+async function addIssue(name: string, index: number, content: string, order: number){
+    if(waitingForDb){
+        alert("calme bitte!");
+    }
+    const response = await postGeneric("http://localhost:1234/card", {"name" : name, "listId" : issueListsMIds[index], "boardId" : currentBoardId, "order" : order});
+    const responseNew = await postGeneric("http://localhost:1234/Activity", {"text" : content, "cardId" : response, "boardId" : currentBoardId});
+}
+
+

@@ -1,8 +1,9 @@
 import React, { useCallback, useState, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
-import { Issue, IssueListTemp, getIssues, dragReducer, issueListsNames } from '../ViewModels/Board';
-import {getGeneric} from '../ViewModels/Get'
+import { Issue, IssueListTemp, getIssues, dragReducer, issueListsNames, initialState, bordMainSetup, addToIssueListNames } from '../ViewModels/Board';
+import {getGeneric, userID} from '../ViewModels/Get'
+import produce from 'immer';
 import {
     DragDropContext,
     Draggable,
@@ -15,6 +16,7 @@ import {
 import { getSystemErrorName } from 'util';
 import '../styles/Board.scss';
 import { Modal } from '../components/Modal';
+import { convertCompilerOptionsFromJson } from 'typescript';
 // const horizontalList: CSS.Properties = {
 //     float: 'left',
 //     padding: '0.8rem',
@@ -28,12 +30,20 @@ import { Modal } from '../components/Modal';
 // };
 
 export let issueIdIncrement = 6;
+let hasSetUp = false;
 
 function App() {
+
     const [issueStrings, setIssueStrings] = useState(issueListsNames);
     const [state, dispatch] = useReducer(dragReducer, initialState);
+    const [isModalOpen, setModalState] = React.useState(false);
+    const [issueObj, setIssueObj] = React.useState({id : "", content: "", list: 0, num : 0});
 
-    //console.log(userID);
+    
+    console.log("AndSooWrong");
+    console.log(initialState);
+
+    const toggleModal = () => setModalState(!isModalOpen);
 
     function useCallback(result: any) {
         if (result.reason === 'DROP') {
@@ -50,12 +60,22 @@ function App() {
         }
     }
 
+    const setText = (event: any) => {
+        console.log(issueObj.num);
+        console.log(issueObj.list);
+        console.log(state[issueListsNames[issueObj.num]])
+        state[issueListsNames[issueObj.num]][issueObj.list].content = event.target.value;
+    };
+
     return (
         <div>
+                                <Modal title={'Issue: ' + issueObj.id} isOpen={isModalOpen} onClose={toggleModal}>
+                        <input onChange={setText} placeholder={issueObj.content}></input>
+                    </Modal>
             <button
                 className="btn-primary"
                 onClick={() => {
-                    issueListsNames.push('items' + issueListsNames.length);
+                    addToIssueListNames('items' + issueListsNames.length);
                     dispatch({ type: 'UPDATELISTS', me: state });
                 }}
             >
@@ -130,9 +150,6 @@ function App() {
     }
 
     function arrangeIssue(provided: DraggableProvided, issue: Issue, index: number, IIndex: number) {
-        const [isModalOpen, setModalState] = React.useState(false);
-
-        const toggleModal = () => setModalState(!isModalOpen);
         return (
             <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                 <div className="issueList">
@@ -149,17 +166,20 @@ function App() {
                     >
                         Delete
                     </button>
-                    <button className="btn-primary" onClick={toggleModal}>
+                    <button className="btn-primary" onClick={async() => {
+                        setIssueObj({id: issue.id, content: issue.content, list: index, num: IIndex});
+                        toggleModal()
+                    }}>
                         Edit
                     </button>
-                    <Modal title={'This is my modal'} isOpen={isModalOpen} onClose={toggleModal}>
-                        {issue.content}
-                    </Modal>
                 </div>
             </div>
         );
     }
 }
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 
 export const data: Issue[] = [
     {
@@ -180,12 +200,6 @@ export const data: Issue[] = [
     },
 ];
 
-const initialState = { items0: data, items1: new Array(), items2: new Array() };
 let test: Issue[][] = new Array();
 
 export default App;
-
-ReactDOM.render(<App />, document.getElementById('root'));
-function setOpen(arg0: boolean) {
-    throw new Error('Function not implemented.');
-}

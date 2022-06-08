@@ -5,7 +5,7 @@
         "prettier"
     ],
     "rules": {
-        "prettier/prettier": 0 /*[
+        "prettier/prettier": 0/*[
             "error",
             {
                 "semi": true,
