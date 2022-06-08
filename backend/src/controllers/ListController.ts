@@ -32,7 +32,7 @@ export function getListsByBoardId(router: Router, list: Model<ListSchema>) {
         const lists = await list.schema.find({ boardId: new Mongo.ObjectId(id) }).toArray();
 
         ctx.response.body = {
-            message: `${list.name} retrieved!`,
+            message: `Lists retrieved!`,
             lists,
         };
     });
