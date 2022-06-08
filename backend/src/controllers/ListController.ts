@@ -29,8 +29,8 @@ export function createList(router: Router, list: Model<ListSchema>, board: Model
 // Get all lists based on boardId
 export function getListsByBoardId(router: Router, list: Model<ListSchema>) {
     router.get(`/${list.lowerName}s/:boardId`, authMiddleware, async (ctx) => {
-        const id = ctx.params.boardId;
-        const lists = await list.schema.find({ boardId: new Mongo.ObjectId(id) }).toArray();
+        const boardId = new Mongo.ObjectId(ctx.params.boardId);
+        const lists = await list.schema.find({ boardId }).toArray();
 
         ctx.response.body = {
             message: `Lists retrieved!`,
