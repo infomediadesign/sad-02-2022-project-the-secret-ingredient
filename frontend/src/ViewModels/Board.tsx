@@ -53,6 +53,7 @@ export const dragReducer = produce((state: any, action: any) => {
         case 'ADDITEM': {
             state[issueListsNames[action.myIndex]].push(action.addThis);
             addIssue(action.addThis.id, action.myIndex, action.addThis.content, state[issueListsNames[action.myIndex]].length-1);
+            addActivity(action.addThis.id, action.myIndex, action.addThis.content, state[issueListsNames[action.myIndex]].length-1);
 
             return state;
         }
@@ -201,8 +202,16 @@ async function addIssue(name: string, index: number, content: string, order: num
     if(waitingForDb){
         alert("calme bitte!");
     }
-    const response = await postGeneric("http://localhost:1234/card", {"name" : name, "listId" : issueListsMIds[index], "boardId" : currentBoardId, "order" : order});
-    const responseNew = await postGeneric("http://localhost:1234/Activity", {"text" : content, "cardId" : response, "boardId" : currentBoardId});
+    console.log("first...");
+    const response = await postGeneric("http://localhost:1234/card", {"name" : name, "lId" : issueListsMIds[index], "bId" : currentBoardId, "order" : order});
+    console.log(response.message);
+    const currentCardId = response.card._id;
+    console.log(currentCardId);
+    const responseNew = await postGeneric("http://localhost:1234/Activity", {"text" : content, "cId" : currentCardId, "bId" : currentBoardId}); 
+    console.log(responseNew.message);
+}
+
+async function addActivity(name: string, index: number, content: string, order: number){
 }
 
 
