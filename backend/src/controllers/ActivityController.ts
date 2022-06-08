@@ -1,4 +1,4 @@
-import { Mongo, Status } from '../../deps.ts';
+import { Mongo, Status, V } from '../../deps.ts';
 import { Context, Model, Router } from '../types.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
 import { ActivitySchema } from '../models/Activity.ts';
@@ -24,12 +24,12 @@ export function createActivity({
 
         const { text, bId, cId } = content;
 
-        oakAssert(
-            ctx,
-            text != null && bId != null && cId != null,
-            Status.BadRequest,
-            'Please provide the parameters: text, bId and cId in the request-body!'
-        );
+        const [passes, errors] = await V.validate(content, {
+            text: V.required,
+            bId: V.required,
+            cId: V.required,
+        });
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const cardId = new Mongo.ObjectId(cId);
         const boardId = new Mongo.ObjectId(bId);

@@ -1,4 +1,4 @@
-import { Mongo, Status } from '../../deps.ts';
+import { Mongo, Status, V } from '../../deps.ts';
 import { Context, Model, Router } from '../types.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
 import { CardSchema } from '../models/Card.ts';
@@ -19,12 +19,13 @@ export function createCard(
 
         const { name, order, bId, lId } = content;
 
-        oakAssert(
-            ctx,
-            name != null && order != null && bId != null && lId != null,
-            Status.BadRequest,
-            'Please provide the parameters: name, order, bId and lId in the request-body!'
-        );
+        const [passes, errors] = await V.validate(content, {
+            name: V.required,
+            order: V.required,
+            bId: V.required,
+            lId: V.required,
+        });
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const boardId = new Mongo.ObjectId(bId);
         const listId = new Mongo.ObjectId(lId);
@@ -94,6 +95,12 @@ export function updateCardContent(router: Router, card: Model<CardSchema>) {
         const content = await body.value;
         const _id = new Mongo.ObjectId(ctx.params.id);
         const { name, order } = content;
+
+        const [passes, errors] = await V.validate(content, {
+            name: V.required,
+            order: V.required,
+        });
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const _c = await card.schema.updateOne(
             { _id },

@@ -1,4 +1,4 @@
-import { Mongo, Status } from '../../deps.ts';
+import { Mongo, Status, V } from '../../deps.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
 import { BoardSchema } from '../models/Board.ts';
 import { CardSchema } from '../models/Card.ts';
@@ -12,12 +12,13 @@ export function createList(router: Router, list: Model<ListSchema>, board: Model
         const content = await body.value;
         const { name, order, bId } = content;
 
-        oakAssert(
-            ctx,
-            name != null && order != null && bId != null,
-            Status.BadRequest,
-            'Please provide name, order and bId in the request-body!'
-        );
+        const [passes, errors] = await V.validate(content, {
+            name: V.required,
+            order: V.required,
+            bId: V.required,
+        });
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
+
         const boardId = new Mongo.ObjectId(bId);
 
         const b = board.schema.findOne({ _id: boardId });
@@ -91,9 +92,14 @@ export function updateListContent(router: Router, list: Model<ListSchema>) {
     router.put(`/${list.lowerName}/:id`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
         const content = await body.value;
-
-        const _id = new Mongo.ObjectId(ctx.params.id);
         const { name, order } = content;
+        const _id = new Mongo.ObjectId(ctx.params.id);
+
+        const [passes, errors] = await V.validate(content, {
+            name: V.required,
+            order: V.required,
+        });
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const _l = await list.schema.updateOne(
             { _id },

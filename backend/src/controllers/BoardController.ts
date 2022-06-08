@@ -1,6 +1,6 @@
 import { Context, Model, Router } from '../types.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
-import { Mongo, Status } from '../../deps.ts';
+import { Mongo, Status, V } from '../../deps.ts';
 import { BoardSchema } from '../models/Board.ts';
 import { ActivitySchema } from '../models/Activity.ts';
 import { CardSchema } from '../models/Card.ts';
@@ -16,14 +16,14 @@ export function createBoard(router: Router, board: Model<BoardSchema>, user: Mod
 
         const { name, image, uId } = content;
 
-        oakAssert(
-            ctx,
-            name != null && image != null && uId != null,
-            Status.BadRequest,
-            'Please provide the parameters: name, image and uId in the request-body!'
-        );
+        const [passes, errors] = await V.validate(content, {
+            name: V.required,
+            image: V.required,
+            uId: V.required,
+        });
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
-        const userId = new Mongo.ObjectId(content.userId);
+        const userId = new Mongo.ObjectId(uId);
 
         const u = await user.schema.findOne({ _id: userId });
         ctx.assert(u != null, Status.FailedDependency, 'User not found!');
@@ -142,7 +142,11 @@ export function updateBoardContent(router: Router, board: Model<BoardSchema>) {
         const { name, image } = content;
         const _id = new Mongo.ObjectId(ctx.params.id);
 
-        oakAssert(ctx, name != null && image != null, Status.BadRequest, 'Name and image must be provided!');
+        const [passes, errors] = await V.validate(content, {
+            name: V.required,
+            image: V.required,
+        });
+        oakAssert(ctx, passes, Status.BadRequest, undefined, { details: errors });
 
         const _b = await board.schema.updateOne(
             { _id },
