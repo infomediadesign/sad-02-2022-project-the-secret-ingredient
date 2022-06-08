@@ -142,7 +142,7 @@ export function updateBoardContent(router: Router, board: Model<BoardSchema>) {
 
         ctx.assert(name != null && image != null, Status.BadRequest, 'Name and image must be provided!');
 
-        const b = await board.schema.updateOne(
+        const _b = await board.schema.updateOne(
             { _id },
             {
                 $set: { name, image },

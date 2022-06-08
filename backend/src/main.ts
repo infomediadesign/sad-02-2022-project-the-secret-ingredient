@@ -36,8 +36,6 @@ import { error } from './middlewares/error.ts';
 const port = Number(Deno.env.get('APP_PORT')) || 1234;
 const connectString = Deno.env.get('MONGODB_CONNECT_STRING') || 'mongodb://127.0.0.1:27017';
 
-console.log(connectString);
-
 const appName = 'the-secret-ingredient';
 const client = new Mongo.MongoClient();
 
