@@ -1,4 +1,4 @@
-import { create, bcrypt, getNumericDate, Status, dayjs, V } from '../../deps.ts';
+import { create, getNumericDate, Status, dayjs, V, crypt } from '../../deps.ts';
 import { authMiddleware } from '../middlewares/auth.ts';
 import { UserSchema } from '../models/User.ts';
 import { Context, Model, Router } from '../types.ts';
@@ -36,11 +36,8 @@ export function registerUser(router: Router, user: Model<UserSchema>) {
 
         ctx.assert(existingUser == null, Status.FailedDependency, 'User already exists, think of something unique 🦄');
 
-        const salt = await bcrypt.genSalt();
-        const passwordHash = await bcrypt.hash(password, salt);
-
-        const payload = { username, email, password: passwordHash };
-        const newUserId = await user.schema.insertOne(payload);
+        const passwordHash = await crypt.hash(password);
+        const newUserId = await user.schema.insertOne({ username, email, password: passwordHash });
 
         ctx.response.body = {
             message: `User "${username}" registered.`,
@@ -65,7 +62,7 @@ export function loginUser(router: Router, user: Model<UserSchema>) {
 
         const u = await user.schema.findOne({ email });
         ctx.assert(u != null, Status.FailedDependency, `No User with E-Mail: ${email} found!`);
-        ctx.assert(bcrypt.compareSync(password, u.password), Status.BadRequest, 'Incorrect password!');
+        ctx.assert(crypt.verify(password, u.password), Status.BadRequest, 'Incorrect password!');
 
         const expDate = stayLoggedIn != null && stayLoggedIn === true ? dayjs().add(99, 'year') : dayjs().add(1, 'day');
         const exp = getNumericDate(expDate.toDate());
