@@ -1,4 +1,5 @@
 import { decode, Mongo, Oak } from '../deps.ts';
+import { UserSchema } from './models/User.ts';
 import { Context, Model } from './types.ts';
 
 type CrudOperation = 'create' | 'retrieveAll' | 'retrieveOne' | 'update' | 'delete';
@@ -90,11 +91,12 @@ export function crudFactory<T>({ router, model, only }: Options<T>) {
     }
 }
 
-export function decodeJwtFromHeader(authHeader: string): Record<string, number | string> {
+export function decodeJwtFromHeader(authHeader: string): UserSchema {
     const token = authHeader.split(' ')[1];
 
     const decoded = decode(token);
-    return decoded[1] as Record<string, number | string>;
+    const payload = decoded[1] as any as { exp: number; iat: number; iss: UserSchema };
+    return payload.iss;
 }
 
 export function oakAssert(

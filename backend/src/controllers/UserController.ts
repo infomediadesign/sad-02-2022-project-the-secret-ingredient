@@ -96,11 +96,12 @@ export function me(router: Router, user: Model<UserSchema>) {
         ctx.assert(authHeader != null, Status.BadRequest, 'No token supplied!');
 
         const { email } = decodeJwtFromHeader(authHeader);
+
         ctx.assert(typeof email === 'string', Status.BadRequest, 'Wrong token-payload!');
 
         const u = await user.schema.findOne({ email });
         ctx.assert(u != null, Status.BadRequest, 'User from token not found!');
 
-        ctx.response.body = { message: `User "${u.username}" retrieved.`, ...u };
+        ctx.response.body = { message: `User "${u.username}" retrieved.`, me: u };
     });
 }
