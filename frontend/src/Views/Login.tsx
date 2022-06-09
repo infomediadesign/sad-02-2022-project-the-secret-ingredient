@@ -1,7 +1,8 @@
 import { authenticateMe } from '../ViewModels/Login';
-import '../styles/Login.scss';
+import  '../styles/Login.scss';
 import { useNavigate } from 'react-router-dom';
 import {bordMainSetup} from '../ViewModels/Board'
+import { format } from 'path';
 
 export function App() {
     let navigate = useNavigate();
@@ -23,30 +24,26 @@ export function App() {
     };
 
     return (
-        <div>
-            <div>
-                <label className="label">Email</label>
-                <input onChange={setEmail} placeholder={email}></input>
-            </div>
-            <div>
-                <label className="label">Password</label>
-                <input type={'password'} onChange={setPassValue} placeholder={pass}></input>
-            </div>
-            <button
-                className="btn-primary"
-                onClick={async (e) => {
-                    if (await authenticateMe(username, pass, email)) {
-                        await bordMainSetup(0);
-                        await navigate('/Board');
-                    } else {
-                        alert('Wrong login info');
-                    }
-                }}
-            >
-                Login
-            </button>
-            <button className="btn-primary" onClick={() => {navigate('/Signup');}}>Sign Up</button>
-        </div>
+      <div className="login-box">
+        <h2>Login</h2>
+        <form>
+          <div className="user-box">
+            <input type="text" />
+            <label>Username</label>
+          </div>
+          <div className="user-box">
+            <input type="password" />
+            <label>Password</label>
+          </div>
+          <button type='submit'>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            submit
+          </button>
+        </form>
+      </div>
     );
 }
 
