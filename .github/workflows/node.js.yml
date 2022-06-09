@@ -69,7 +69,8 @@ jobs:
           with:
            collection: Board_tests.json
            environment: prodEnv.json
-
+           run: |
+              newman run Board_tests.json -e prodEnv.json
       
 
  
