@@ -50,7 +50,29 @@ jobs:
              #deno fmt --check
              deno test --allow-none
           working-directory: ./backend/src
-             
+          
+          
+
+  Backend_API_tests:
+      runs-on: ubuntu-latest
+      env:
+        working-directory: ./Postman Tests
+
+      steps:
+        - name: Checkout repo
+          uses: actions/checkout@master
+        - name: working dir
+          run : ls -R   
+          working-directory: ${{env.working-directory}}
+        - name: Run Newman Backend API tests
+          uses: matt-ball/newman-action@master
+          with:
+           collection: Board_tests.json
+           environment: prodEnv.json
+           run: |
+              newman run Board_tests.json -e prodEnv.json
+           working_directory: ./Postman Tests
+      
 
  
  
