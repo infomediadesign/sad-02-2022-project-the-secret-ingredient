@@ -28,19 +28,34 @@ export function App() {
         <h2>Login</h2>
         <form>
           <div className="user-box">
-            <input type="text" />
+            <input type="text" onChange={setEmail} placeholder={email}/>
             <label>Username</label>
           </div>
-          <div className="user-box">
-            <input type="password" />
+          <div className="user-box" >
+            <input type="password" onChange={setPassValue} placeholder={pass}/>
             <label>Password</label>
-          </div>
-          <button type='submit'>
+            </div>
+          
+          <button type='submit' onClick={async (e) => {
+                    if (await authenticateMe(username, pass, email)) {
+                        await bordMainSetup(0);
+                        await navigate('/Board');
+                    } else {
+                        alert('Wrong login info');
+                    }
+                }}>
             <span></span>
             <span></span>
             <span></span>
             <span></span>
-            submit
+            Login
+          </button>
+          <button type='submit' onClick={() => {navigate('/Signup');}}>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            Signup
           </button>
         </form>
       </div>
