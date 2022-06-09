@@ -51,12 +51,6 @@ jobs:
              deno test --allow-none
           working-directory: ./backend/src
           
-        - name: Run Newman Backend API tests
-          run: |
-             npm install -g newman
-             newman --version
-             newman run Board_tests.json -e prodEnv.json
-          working-directory: ./Postman tests
           
 
   Backend_API_tests:
@@ -72,12 +66,12 @@ jobs:
           working-directory: ${{env.working-directory}}
           
         - name: Run Newman Backend API tests
-          run: |
-             npm install -g newman
-             newman --version
-             newman run Board_tests.json -e prodEnv.json
-          working-directory: ./Postman tests
-             
+        - uses: actions/checkout@master
+        - uses: matt-ball/newman-action@master
+          with:
+           collection: Board_tests.json
+           environment: prodEnv.json
+      
 
  
  
