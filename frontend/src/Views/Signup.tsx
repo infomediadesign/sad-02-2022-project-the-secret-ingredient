@@ -13,7 +13,9 @@ export function App() {
     let email = 'test@test.com';
 
     useEffect(() => {
-        jwtSet() ? navigate('/board') : navigate('/');
+        if (jwtSet()) {
+            navigate('/board');
+        }
     }, []);
 
     const getUserValue = (event: any) => {
