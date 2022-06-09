@@ -16,7 +16,7 @@ jobs:
     - name: run npm
       run: |
          pwd
-         npm i
+         npm i --force
          npm run build
 
       working-directory: ${{env.working-directory}}
