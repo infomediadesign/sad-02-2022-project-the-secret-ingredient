@@ -1,5 +1,5 @@
 import { signupUser } from '../ViewModels/Signup';
-import '../styles/Login.scss';
+import '../styles/Signup.scss';
 import { useNavigate } from 'react-router-dom';
 import {bordMainSetup} from '../ViewModels/Board'
 
@@ -28,32 +28,37 @@ export function App() {
     };
 
     return (
-        <div>
-            <div>
-                <label className="label">User Name</label>
+        <div className='signup-box'>
+            <h2>SignUP</h2>
+            <form>
+            <div className='signup-form'> 
                 <input onChange={getUserValue} placeholder={username}></input>
+                <label className="label">User Name</label>
             </div>
-            <div>
-                <label className="label">Email</label>
+            <div className='signup-form'>
                 <input onChange={setEmail} placeholder={email}></input>
+                <label className="label">Email</label>
             </div>
-            <div>
-                <label className="label">Password</label>
+            <div className='signup-form'>
                 <input type={'password'} onChange={setPassValue} placeholder={pass}></input>
+                <label className="label">Password</label>
             </div>
-            <div>
-                <label className="label">Confirm Password</label>
+            <div className='signup-form'>
                 <input type={'password'} onChange={setPassConValue} placeholder={passCon}></input>
+                <label className="label">Confirm Password</label>
             </div>
             <button
-                className="btn-primary"
                 onClick={() => {
                     navigate('/');
                 }}
             >
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
                 Cancel
             </button>
-            <button className="btn-primary" onClick={async(e) =>{
+            <button onClick={async(e) =>{
                                     if(pass != passCon){
                                         alert("password and confirmation dosn't match");
                                     }
@@ -63,7 +68,14 @@ export function App() {
                                     } else {
                                         alert('improper login info');
                                     }
-                                }}>Sign Up</button>
+                                }}>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                    Sign Up</button>
+            </form>
+          
         </div>
     );
 }
