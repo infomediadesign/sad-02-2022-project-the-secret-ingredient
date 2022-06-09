@@ -17,6 +17,7 @@ jobs:
       run: |
          pwd
          npm i --force
+         npm run test
          npm run build
 
       working-directory: ${{env.working-directory}}
