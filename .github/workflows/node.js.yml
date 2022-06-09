@@ -80,7 +80,10 @@ jobs:
           working-directory: ${{env.working-directory}}
           
         - name: Run collection
-          run: newman run Board_tests.json -e prodEnv.json
+          run: |
+           pwd
+           newman --version
+           newman run Board_tests.json -e prodEnv.json
           working-directory: ${{env.working-directory}}
           
 
