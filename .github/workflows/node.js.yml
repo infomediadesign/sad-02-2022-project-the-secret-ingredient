@@ -69,9 +69,12 @@ jobs:
           with:
            node-version: "12.x"
            working_directory: ./Postman Tests
+           
+           
         - name: Install newman
           run: |
               npm install -g newman
+              working_directory: ./Postman Tests
           
 
 
