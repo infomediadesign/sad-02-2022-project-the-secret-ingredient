@@ -64,7 +64,12 @@ jobs:
         - name: working dir
           run : ls -R   
           working-directory: ${{env.working-directory}}
-          
+        - name: Run Newman Backend API tests
+        - uses: actions/checkout@master
+        - uses: matt-ball/newman-action@master
+          with:
+           collection: Board_tests.json
+           environment: prodEnv.json
 
       
 
