@@ -8,7 +8,7 @@ export async function postGeneric(url: string, Jbody: any) {
         method: 'POST',
         headers: new Headers({
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
         }),
         body: JSON.stringify(Jbody),
     };
