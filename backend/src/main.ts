@@ -1,4 +1,4 @@
-import { Oak, Mongo } from '../deps.ts';
+import { Oak, Mongo, oakCors } from '../deps.ts';
 import { Baord } from './models/Board.ts';
 import { User } from './models/User.ts';
 import { Activity } from './models/Activity.ts';
@@ -92,6 +92,7 @@ getActivitysBycardId(router, card, activity);
 deleteAcitivity(router, activity);
 
 app.use(error);
+app.use(oakCors());
 app.use(router.routes());
 app.use(router.allowedMethods());
 

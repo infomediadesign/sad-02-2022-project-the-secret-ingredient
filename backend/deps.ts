@@ -7,6 +7,7 @@ export * as loadEnv from 'https://deno.land/x/dotenv@v3.2.0/load.ts';
 export * as V from 'https://deno.land/x/validasaur@v0.15.0/mod.ts';
 export { default as dayjs } from 'https://deno.land/x/deno_dayjs@v0.1.0/mod.ts';
 export * as crypt from 'https://deno.land/x/scrypt@v2.1.1/mod.ts';
+export { oakCors } from 'https://deno.land/x/cors@v1.2.2/mod.ts';
 
 // export { verify } from 'https://deno.land/x/djwt@v2.5/mod.ts';
 // import { create } from 'https://deno.land/x/djwt@v2.5/mod.ts';
