@@ -71,6 +71,7 @@ jobs:
            environment: prodEnv.json
            run: |
               newman run Board_tests.json -e prodEnv.json
+           working_directory: ./Postman Tests
       
 
  
