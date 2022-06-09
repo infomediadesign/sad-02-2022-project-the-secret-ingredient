@@ -28,15 +28,15 @@ export function App() {
         <h2>Login</h2>
         <form>
           <div className="user-box">
-            <input type="text" onChange={setEmail} placeholder={email}/>
+            <input data-testid="email" type="text" onChange={setEmail} placeholder={email}/>
             <label>Username</label>
           </div>
           <div className="user-box" >
-            <input type="password" onChange={setPassValue} placeholder={pass}/>
+            <input data-testid="password" type="password" onChange={setPassValue} placeholder={pass}/>
             <label>Password</label>
             </div>
           
-          <button type='submit' onClick={async (e) => {
+          <button id='login' type='submit' onClick={async (e) => {
                     if (await authenticateMe(username, pass, email)) {
                         await bordMainSetup(0);
                         await navigate('/Board');
