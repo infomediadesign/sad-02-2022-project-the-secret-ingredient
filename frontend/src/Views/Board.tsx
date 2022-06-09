@@ -29,8 +29,8 @@ import { getSystemErrorName } from 'util';
 import '../styles/Board.scss';
 import { Modal } from '../components/Modal';
 import { convertCompilerOptionsFromJson } from 'typescript';
-import { jwtSet } from '..';
 import { useNavigate } from 'react-router-dom';
+import { jwtSet } from '../util';
 // const horizontalList: CSS.Properties = {
 //     float: 'left',
 //     padding: '0.8rem',

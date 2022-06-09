@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { bordMainSetup } from '../ViewModels/Board';
 import { format } from 'path';
 import { useEffect, useState } from 'react';
-import { jwtSet } from '..';
+import { jwtSet } from '../util';
 
 export function App() {
     let navigate = useNavigate();
@@ -13,7 +13,9 @@ export function App() {
     let email = 'test@test.com';
 
     useEffect(() => {
-        jwtSet() ? navigate('/board') : navigate('/');
+        if (jwtSet()) {
+            navigate('/board');
+        }
     }, []);
 
     const [error, setError] = useState(false);

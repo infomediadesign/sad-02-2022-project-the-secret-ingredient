@@ -2,8 +2,8 @@ import { signupUser } from '../ViewModels/Signup';
 import '../styles/Signup.scss';
 import { useNavigate } from 'react-router-dom';
 import { bordMainSetup } from '../ViewModels/Board';
-import { jwtSet } from '..';
 import { useEffect } from 'react';
+import { jwtSet } from '../util';
 
 export function App() {
     let navigate = useNavigate();
