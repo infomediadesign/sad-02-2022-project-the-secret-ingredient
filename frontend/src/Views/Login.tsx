@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { bordMainSetup } from '../ViewModels/Board';
 import { format } from 'path';
 import { useEffect, useState } from 'react';
-import { jwtSet } from '..';
+import { jwtSet } from '../util';
 
 export function App() {
     let navigate = useNavigate();
