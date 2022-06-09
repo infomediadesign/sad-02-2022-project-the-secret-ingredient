@@ -116,7 +116,7 @@ export function updateCardContent(router: Router, card: Model<CardSchema>) {
     });
 }
 
-// Celete card based on cardid
+// Delete card based on cardid
 export function deleteCard(router: Router, card: Model<CardSchema>) {
     router.delete(`/${card.lowerName}/:id`, authMiddleware, async (ctx) => {
         const _data = await card.schema.deleteOne({

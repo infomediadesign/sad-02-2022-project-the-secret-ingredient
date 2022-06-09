@@ -52,9 +52,9 @@ export function getBoards(router: Router, board: Model<BoardSchema>) {
 
 // Get a Board based on id of a user
 export function getBoard(router: Router, board: Model<BoardSchema>) {
-    router.get(`/${board.lowerName}/:userId`, authMiddleware, async (ctx) => {
-        const userId = new Mongo.ObjectId(ctx.params.id);
-        const b = await board.schema.findOne({ userId });
+    router.get(`/${board.lowerName}/:boardId`, authMiddleware, async (ctx) => {
+        const boardId = new Mongo.ObjectId(ctx.params.boardId);
+        const b = await board.schema.findOne({ boardId });
 
         oakAssert(ctx, b != null, Status.BadRequest, 'Board not found!');
 
@@ -67,8 +67,8 @@ export function getBoard(router: Router, board: Model<BoardSchema>) {
 
 // Get lists based on boardId
 export function getlistsByBoardId(router: Router, board: Model<BoardSchema>, list: Model<ListSchema>) {
-    router.get(`/${board.lowerName}/lists/:bardId`, authMiddleware, async (ctx) => {
-        const _id = new Mongo.ObjectId(ctx.params.bardId);
+    router.get(`/${board.lowerName}/lists/:boardId`, authMiddleware, async (ctx) => {
+        const _id = new Mongo.ObjectId(ctx.params.boardId);
 
         const b = await board.schema.findOne({
             _id,
@@ -78,7 +78,7 @@ export function getlistsByBoardId(router: Router, board: Model<BoardSchema>, lis
 
         const lists = await list.schema.find({ boardId: _id }).toArray();
 
-        oakAssert(ctx, lists.length !== 0, Status.BadRequest, 'No activities found to fetch!');
+        oakAssert(ctx, lists.length !== 0, Status.BadRequest, 'No lists found to fetch!');
 
         ctx.response.body = {
             message: 'Lists present in this board!',
