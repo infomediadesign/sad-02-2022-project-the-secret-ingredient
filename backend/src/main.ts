@@ -92,7 +92,7 @@ getActivitysBycardId(router, card, activity);
 deleteAcitivity(router, activity);
 
 app.use(error);
-app.use(oakCors({ origin: '*' }));
+app.use(oakCors());
 app.use(router.routes());
 app.use(router.allowedMethods());
 
