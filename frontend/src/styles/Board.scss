@@ -80,8 +80,7 @@ body{
     border-style:hidden;
     font-family: 'Nunito';
     background-color: #414440;
-    color: #fff;
-   
+    color: #fff;   
     
 }
 
@@ -131,4 +130,12 @@ body{
     // set-background:lighten($secondary-color, 10%);
     // color: $primary-color;
     // border: none;
+}
+
+.divScroll {
+    margin: 4px, 4px;
+    padding: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
 }

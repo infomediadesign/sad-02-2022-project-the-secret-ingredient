@@ -12,6 +12,7 @@ import {
 } from 'react-beautiful-dnd';
 import produce from 'immer';
 import { useNavigate } from 'react-router-dom';
+import { idText } from 'typescript';
 
 export interface BoardViewModel {
     _id: string;
@@ -51,11 +52,16 @@ export const dragReducer = produce((state: any, action: any) => {
             return;
         }
         case 'ADDITEM': {
-            state[issueListsNames[action.myIndex]].push(action.addThis);
-            addIssue(action.addThis.id, action.myIndex, action.addThis.content, state[issueListsNames[action.myIndex]].length-1);
-            addActivity(action.addThis.id, action.myIndex, action.addThis.content, state[issueListsNames[action.myIndex]].length-1);
+            return async() =>{
+                console.log("adding.....");
 
-            return state;
+                console.log(currentCardId);
+                action.myIndex.id = await currentCardId;
+                state[issueListsNames[action.myIndex]].push(action.addThis);
+    
+                console.log("DONE!");
+                return state;
+            }
         }
         case 'UPDATE': {
             return state;
@@ -98,6 +104,7 @@ export const dragReducer = produce((state: any, action: any) => {
 
             issueListsNames.pop();
             newIssueListsMIds.pop();
+            issueListsMIds = newIssueListsMIds;
 
             return state;
         }
@@ -123,27 +130,43 @@ export const dragReducer = produce((state: any, action: any) => {
 var currentBoardId : string;
 
 export async function bordMainSetup(boardNum: number){
-    const boardResponse = await getGeneric('http://localhost:1234/boards/' + userID, 'GET');
-    const boardID = boardResponse.board[boardNum]._id;
+    var boardResponse = await getGeneric('http://localhost:1234/boards/' + userID, 'GET');
+    var boardID : string;
+
+    if(boardResponse.board.length == 0){
+        boardResponse = await postGeneric("http://localhost:1234/Board", {"name": "testBoard", "image" : {"color" : "green", "thumb" : "one.jpg", "full" : "true"}, "uId" : userID } )
+        boardID = boardResponse.board._id;
+    }
+    else{
+        boardID = boardResponse.board[boardNum]._id;
+    }
+    
     currentBoardId = boardID;
 
     const listResponse = await getGeneric('http://localhost:1234/lists/' + boardID, 'GET')
     issueListsNames = listResponse.lists.map((item : any, index : number) => {return ("items" + index)});
     issueListsMIds = listResponse.lists.map((item : any, index : number) => {return (item._id)});
     
+    if(issueListsMIds.length == 0){
+        return;
+    }
+
+    /*
     initialState.items0 = [{
         id: '1',
         content: "I'm a hussar",
-    }]
+    }]*/
+    var intermidiateState: any = [];
 
-      
-    let listsCards = await getGeneric('http://localhost:1234/list/' + issueListsMIds[0] + '/cards', 'GET');
+    for(var i = 0; i < issueListsNames.length; i++){
+        let listsCards = await getGeneric('http://localhost:1234/list/' + issueListsMIds[i] + '/cards', 'GET');
 
-    initialState.items0 = await listsCards.cards.map((cardItem : any) => {
-        return {id: cardItem._id, content: "Wowee"}
+        intermidiateState[issueListsNames[i]] = await listsCards.cards.map((cardItem : any) => {
+            return {id: cardItem._id, content: "Wowee"}
     });
+    }
 
-    //initialState = await intialStateVaribleSetup();
+    initialState = intermidiateState;
 
 
     //THIS IS SOME MAJOR SHIT....
@@ -161,9 +184,6 @@ export async function bordMainSetup(boardNum: number){
         })
         return initialStateResponse;
     }
-
-    console.log("AndSooWrong");
-    console.log(initialState);
     
     return;
 }
@@ -187,7 +207,7 @@ export const data: Issue[] = [
     },
 ];
 
-export var initialState = {items0: data};
+export var initialState : any = [];
 
 let waitingForDb = false;
 export let issueListsNames: string[] = ['items0', 'items1', 'items2'];
@@ -207,26 +227,30 @@ export async function removeFromIssueListNames(indexValue: number){
     waitingForDb = false;
 }
 
-var currentCardId : string;
+export var currentCardId : string;
 
-async function addIssue(name: string, index: number, content: string, order: number){
+export async function addIssue(name: string, index: number, content: string, order: number){
     if(waitingForDb){
         alert("calme bitte!");
     }
     console.log("first...");
+    console.log(index);
     const response = await postGeneric("http://localhost:1234/card", {"name" : name, "lId" : issueListsMIds[index], "bId" : currentBoardId, "order" : order});
     console.log(response.message);
     currentCardId = response.card._id;
     console.log(currentCardId);
     const responseNew = await postGeneric("http://localhost:1234/Activity", {"text" : content, "cId" : currentCardId, "bId" : currentBoardId}); 
     console.log(responseNew.message);
+    console.log("i made a new issue");
+
+    return response.card._id;
 }
 
 export async function deleteCardFromIssueList(Cid: number){
     const response = await getGeneric("http://localhost:1234/card/" + Cid, 'DELETE');
 }
 
-async function addActivity(name: string, index: number, content: string, order: number){
+export async function addActivity(name: string, index: number, content: string, order: number){
 }
 
 

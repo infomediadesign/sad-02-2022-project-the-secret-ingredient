@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
-import { Issue, IssueListTemp, getIssues, dragReducer, issueListsNames, initialState, removeFromIssueListNames, addToIssueListNames } from '../ViewModels/Board';
+import { Issue, IssueListTemp, getIssues, currentCardId, addIssue, addActivity, dragReducer, issueListsNames, initialState, removeFromIssueListNames, addToIssueListNames } from '../ViewModels/Board';
 import {getGeneric, userID} from '../ViewModels/Get'
 import produce from 'immer';
 import {
@@ -39,10 +39,6 @@ function App() {
     const [isModalOpen, setModalState] = React.useState(false);
     const [issueObj, setIssueObj] = React.useState({id : "", content: "", list: 0, num : 0});
 
-    
-    console.log("AndSooWrong");
-    console.log(initialState);
-
     const toggleModal = () => setModalState(!isModalOpen);
 
     function useCallback(result: any) {
@@ -68,7 +64,7 @@ function App() {
     };
 
     return (
-        <div>
+        <div className='divScroll'>
                                 <Modal title={'Issue: ' + issueObj.id} isOpen={isModalOpen} onClose={toggleModal}>
                         <input onChange={setText} placeholder={issueObj.content}></input>
                     </Modal>
@@ -110,19 +106,23 @@ function App() {
                 {provided.placeholder}
                 <button
                     className="btn-secondary"
-                    onClick={() => {
+                    onClick={async() => {
                         issueIdIncrement++;
-                        dispatch({
+                        /*await dispatch({
                             type: 'UPDATE',
-                        });
-                        dispatch({
+                        });*/
+                        console.log("comms with backend...");
+                        await addIssue(issueIdIncrement.toString(), index, "oh well", state[issueListsNames[index]].length-1);
+                        //await addActivity(issueIdIncrement.toString(), index, "oh well", state[issueListsNames[index]].length-1);
+                        console.log("comms with frontend...");
+                        await dispatch({
                             type: 'ADDITEM',
                             pass: 'items',
                             myIndex: index,
                             myData: state.items,
                             addThis: {
-                                id: issueIdIncrement.toString(),
-                                content: 'timeless, through and through',
+                                id: currentCardId,
+                                content: "oh well",
                             },
                         });
                     }}

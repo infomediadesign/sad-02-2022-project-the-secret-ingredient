@@ -6,8 +6,8 @@ import {bordMainSetup} from '../ViewModels/Board'
 export function App() {
     let navigate = useNavigate();
     let pass = '123456789';
-    let username = 'test1';
-    let email = 'tes555t@test.com';
+    let username = 'test12';
+    let email = 'test@test.com';
 
     const getUserValue = (event: any) => {
         // show the user input value to console
