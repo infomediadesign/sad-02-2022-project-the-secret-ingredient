@@ -61,20 +61,23 @@ jobs:
       steps:
         - name: Checkout repo
           uses: actions/checkout@master
+          
+          
         - name: working dir
           run : ls -R   
           working-directory: ${{env.working-directory}}
+          
+          
         - name: Install node
           uses: actions/setup-node@v1
           with:
            node-version: "12.x"
-           working_directory: ./Postman Tests
+           working-directory: ./Postman Tests
            
            
         - name: Install newman
-          run: |
-              npm install -g newman
-              working_directory: ./Postman Tests
+          run: npm install -g newman
+          working-directory: ${{env.working-directory}}
           
 
 
