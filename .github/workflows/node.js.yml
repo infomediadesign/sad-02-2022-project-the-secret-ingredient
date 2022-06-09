@@ -64,15 +64,16 @@ jobs:
         - name: working dir
           run : ls -R   
           working-directory: ${{env.working-directory}}
-        - name: Run Newman Backend API tests
-          uses: matt-ball/newman-action@master
+        - name: Install node
+          uses: actions/setup-node@v1
           with:
-           collection: Board_tests.json
-           environment: prodEnv.json
-           run: |
-              newman run Board_tests.json -e prodEnv.json
+           node-version: "12.x"
            working_directory: ./Postman Tests
-      
+        - name: Install newman
+          run: |
+              npm install -g newman
+          
+
 
  
  
