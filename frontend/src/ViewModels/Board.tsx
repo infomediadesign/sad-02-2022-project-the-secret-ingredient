@@ -52,16 +52,13 @@ export const dragReducer = produce((state: any, action: any) => {
             return;
         }
         case 'ADDITEM': {
-            return async() =>{
-                console.log("adding.....");
+            console.log("adding.....");
 
-                console.log(currentCardId);
-                action.myIndex.id = await currentCardId;
-                state[issueListsNames[action.myIndex]].push(action.addThis);
+            console.log(currentCardId);
+            state[issueListsNames[action.myIndex]].push(action.addThis);
     
-                console.log("DONE!");
-                return state;
-            }
+            console.log("DONE!");
+            return state;
         }
         case 'UPDATE': {
             return state;
@@ -156,7 +153,7 @@ export async function bordMainSetup(boardNum: number){
         id: '1',
         content: "I'm a hussar",
     }]*/
-    var intermidiateState: any = [];
+    var intermidiateState: any = {};
 
     for(var i = 0; i < issueListsNames.length; i++){
         let listsCards = await getGeneric('http://localhost:1234/list/' + issueListsMIds[i] + '/cards', 'GET');
@@ -207,7 +204,7 @@ export const data: Issue[] = [
     },
 ];
 
-export var initialState : any = [];
+export var initialState : any = {items0 : data};
 
 let waitingForDb = false;
 export let issueListsNames: string[] = ['items0', 'items1', 'items2'];

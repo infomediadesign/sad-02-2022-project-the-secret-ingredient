@@ -108,9 +108,9 @@ function App() {
                     className="btn-secondary"
                     onClick={async() => {
                         issueIdIncrement++;
-                        /*await dispatch({
+                        await dispatch({
                             type: 'UPDATE',
-                        });*/
+                        });
                         console.log("comms with backend...");
                         await addIssue(issueIdIncrement.toString(), index, "oh well", state[issueListsNames[index]].length-1);
                         //await addActivity(issueIdIncrement.toString(), index, "oh well", state[issueListsNames[index]].length-1);
