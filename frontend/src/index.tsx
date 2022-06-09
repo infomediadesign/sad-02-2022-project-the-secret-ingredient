@@ -10,10 +10,6 @@ import reportWebVitals from './reportWebVitals';
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
-export function jwtSet() {
-    return window.localStorage.getItem('jwt') != null;
-}
-
 root.render(
     <div>
         <BrowserRouter>
