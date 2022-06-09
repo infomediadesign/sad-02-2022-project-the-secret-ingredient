@@ -57,6 +57,26 @@ jobs:
              newman --version
              newman run Board_tests.json -e prodEnv.json
           working-directory: ./Postman tests
+          
+
+  Backend_API_tests:
+      runs-on: ubuntu-latest
+      env:
+        working-directory: ./Postman Tests
+
+      steps:
+        - name: Checkout repo
+          uses: actions/checkout@master
+        - name: working dir
+          run : ls -R   
+          working-directory: ${{env.working-directory}}
+          
+        - name: Run Newman Backend API tests
+          run: |
+             npm install -g newman
+             newman --version
+             newman run Board_tests.json -e prodEnv.json
+          working-directory: ./Postman tests
              
 
  
