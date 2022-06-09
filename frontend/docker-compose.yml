@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-    backend:
+    the-secret-ingredient-frontend:
         build:
             context: .
         container_name: the-secret-ingredient-frontend
