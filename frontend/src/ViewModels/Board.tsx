@@ -125,12 +125,12 @@ export const dragReducer = produce((state: any, action: any) => {
 var currentBoardId: string;
 
 export async function bordMainSetup(boardNum: number) {
-    var boardResponse = await getGeneric('http://localhost:1234/boards/' + userID, 'GET');
+    var boardResponse = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/boards/` + userID, 'GET');
     var boardID: string;
 
     if (boardResponse.board.length == 0) {
         boardResponse = await postGeneric(
-            'http://localhost:1234/Board',
+            `${process.env.REACT_APP_BASE_API_URI}/Board/`,
             { name: 'testBoard', image: { color: 'green', thumb: 'one.jpg', full: 'true' }, uId: userID },
             'POST'
         );
@@ -141,7 +141,7 @@ export async function bordMainSetup(boardNum: number) {
 
     currentBoardId = boardID;
 
-    const listResponse = await getGeneric('http://localhost:1234/lists/' + boardID, 'GET');
+    const listResponse = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/lists/` + boardID, 'GET');
     issueListsNames = listResponse.lists.map((item: any, index: number) => {
         return 'items' + index;
     });
@@ -161,12 +161,15 @@ export async function bordMainSetup(boardNum: number) {
     var intermidiateState: any = {};
 
     for (var i = 0; i < issueListsNames.length; i++) {
-        let listsCards = await getGeneric('http://localhost:1234/list/' + issueListsMIds[i] + '/cards', 'GET');
+        let listsCards = await getGeneric(
+            `${process.env.REACT_APP_BASE_API_URI}/list/` + issueListsMIds[i] + `/cards`,
+            'GET'
+        );
 
         var listArray = new Array();
         for (var j = 0; j < listsCards.cards.length; j++) {
             let listsActiv = await getGeneric(
-                'http://localhost:1234/card/' + listsCards.cards[j]._id + '/activitys',
+                `${process.env.REACT_APP_BASE_API_URI}/card/` + listsCards.cards[j]._id + `/activitys`,
                 'GET'
             );
             let pos = listsCards.cards[j].order;
@@ -177,22 +180,6 @@ export async function bordMainSetup(boardNum: number) {
     }
 
     initialState = intermidiateState;
-
-    //THIS IS SOME MAJOR SHIT....
-    function intialStateVaribleSetup() {
-        const initialStateResponse = listResponse.lists.map(async (item: string, index: number) => {
-            let listsCards = await getGeneric('http://localhost:1234/list/' + issueListsMIds[index] + '/cards', 'GET');
-            console.log('thats the true issue');
-            let listsCardsArray = new Array(listsCards.cards.length);
-            listsCards.cards.map(async (cardItem: any) => {
-                listsCardsArray[cardItem.order] = { id: cardItem.name, content: 'Wowee' };
-            });
-            console.log('here');
-            console.log(listsCardsArray);
-            initialStateResponse[item] = listsCardsArray;
-        });
-        return initialStateResponse;
-    }
 
     return;
 }
@@ -226,7 +213,7 @@ export async function addToIssueListNames(newValue: string) {
     issueListsNames.push(newValue);
     waitingForDb = true;
     const response = await postGeneric(
-        'http://localhost:1234/list',
+        `${process.env.REACT_APP_BASE_API_URI}/list/`,
         { name: newValue, bId: currentBoardId, order: issueListsNames.length - 1 },
         'POST'
     );
@@ -236,7 +223,10 @@ export async function addToIssueListNames(newValue: string) {
 
 export async function removeFromIssueListNames(indexValue: number) {
     waitingForDb = true;
-    const response = await getGeneric('http://localhost:1234/list/' + issueListsMIds[indexValue], 'DELETE');
+    const response = await getGeneric(
+        `${process.env.REACT_APP_BASE_API_URI}/list/` + issueListsMIds[indexValue],
+        'DELETE'
+    );
     waitingForDb = false;
 }
 
@@ -247,7 +237,7 @@ export async function addIssue(name: string, index: number, content: string, ord
         alert('calme bitte!');
     }
     const response = await postGeneric(
-        'http://localhost:1234/card',
+        `${process.env.REACT_APP_BASE_API_URI}/card/`,
         { name: name, lId: issueListsMIds[index], bId: currentBoardId, order: order },
         'POST'
     );
@@ -257,7 +247,7 @@ export async function addIssue(name: string, index: number, content: string, ord
     console.log(currentCardId);
     console.log(currentBoardId);
     const responseNew = await postGeneric(
-        'http://localhost:1234/Activity',
+        `${process.env.REACT_APP_BASE_API_URI}/Activity/`,
         { text: content, cId: currentCardId, bId: currentBoardId },
         'POST'
     );
@@ -265,27 +255,25 @@ export async function addIssue(name: string, index: number, content: string, ord
 }
 
 export async function deleteCardFromIssueList(Cid: number, issueListID: string, lastIndex: number) {
-    const response = await getGeneric('http://localhost:1234/card/' + Cid, 'GET');
+    const response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/card/` + Cid, 'GET');
 
     await moveIssues(issueListID, lastIndex, -1, response.card.order, false);
-    await getGeneric('http://localhost:1234/card/' + Cid, 'DELETE');
+    await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/card/` + Cid, 'DELETE');
 }
 
 export async function addActivity(name: string, index: number, content: string, order: number) {}
 
 export async function editIssue(listIndex: string, newText: string) {
-    const response = await getGeneric('http://localhost:1234/card/' + listIndex + '/activitys', 'GET');
-    await getGeneric('http://localhost:1234/activity/' + response.activities[0]._id, 'DELETE');
+    const response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/card/` + listIndex + `/activitys`, 'GET');
+    await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/Activity/` + response.activities[0]._id, 'DELETE');
     const responseNew = await postGeneric(
-        'http://localhost:1234/Activity',
+        `${process.env.REACT_APP_BASE_API_URI}/Activity/`,
         { text: newText, cId: listIndex, bId: currentBoardId },
         'POST'
     );
 }
 
 export async function moveIssueInernalList(oldPos: number, newPos: number, listId: string) {
-    //const response = await getGeneric('http://localhost:1234/list/'+ listId +'/cards', 'GET');
-
     var moveDirect = 1;
     if (oldPos < newPos) {
         moveDirect = -1;
@@ -300,13 +288,16 @@ export async function moveIssueExternalList(
     oldList: string,
     newListIndex: number
 ) {
-    var response = await getGeneric('http://localhost:1234/list/' + newList + '/cards', 'GET');
+    var response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/list/` + newList + `/cards`, 'GET');
     moveIssues(newList, newPos, 1, response.cards.length, false);
 
-    response = await getGeneric('http://localhost:1234/list/' + oldList + '/cards', 'GET');
+    response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/list/` + oldList + `/cards`, 'GET');
     response.cards.map(async (item: any) => {
         if (item.order == oldPos) {
-            const active = await getGeneric('http://localhost:1234/Card/' + item._id + '/activitys', 'GET');
+            const active = await getGeneric(
+                `${process.env.REACT_APP_BASE_API_URI}/Card/` + item._id + `/activitys`,
+                'GET'
+            );
             addIssue(item.name, newListIndex, active.activities[0].text, newPos);
         }
     });
@@ -314,18 +305,22 @@ export async function moveIssueExternalList(
 }
 
 async function moveIssues(issueListId: string, moveAt: number, moveDirect: number, me: number, adding: boolean) {
-    const response = await getGeneric('http://localhost:1234/list/' + issueListId + '/cards', 'GET');
+    const response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/list/` + issueListId + `/cards`, 'GET');
     response.cards.map(async (item: any) => {
         if (item.order == me) {
             if (adding) {
-                await postGeneric('http://localhost:1234/Card/' + item._id, { name: item.name, order: moveAt }, 'PUT');
+                await postGeneric(
+                    `${process.env.REACT_APP_BASE_API_URI}/Card/` + item._id,
+                    { name: item.name, order: moveAt },
+                    'PUT'
+                );
             } else {
                 return;
             }
         }
         if (item.order * moveDirect >= moveAt * moveDirect && me * moveDirect > item.order * moveDirect) {
             await postGeneric(
-                'http://localhost:1234/Card/' + item._id,
+                `${process.env.REACT_APP_BASE_API_URI}/Card/` + item._id,
                 { name: item.name, order: item.order + moveDirect },
                 'PUT'
             );

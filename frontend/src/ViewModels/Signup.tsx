@@ -2,7 +2,7 @@ import { getUsers } from '../ViewModels/Login';
 import { userID, setUserID } from '../ViewModels/Get';
 
 export async function signupUser(userName: string, userPass: string, email: string) {
-    var url = 'http://localhost:1234/register';
+    var url = `${process.env.REACT_APP_BASE_API_URI}/register`;
     try {
         const requestOptions = {
             method: 'POST',

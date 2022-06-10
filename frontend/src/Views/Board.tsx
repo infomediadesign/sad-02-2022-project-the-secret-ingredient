@@ -1,19 +1,21 @@
-import React, { useCallback, useState, useReducer } from 'react';
+import React, { useCallback, useState, useReducer, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
 import {
     Issue,
-    editIssue,
-    moveIssueInernalList,
+    IssueListTemp,
+    getIssues,
     currentCardId,
     addIssue,
-    issueListsMIds,
+    addActivity,
     dragReducer,
     issueListsNames,
     initialState,
     removeFromIssueListNames,
     addToIssueListNames,
+    moveIssueInernalList,
     moveIssueExternalList,
+    issueListsMIds,
 } from '../ViewModels/Board';
 import { getGeneric, userID } from '../ViewModels/Get';
 import produce from 'immer';
@@ -30,6 +32,8 @@ import { getSystemErrorName } from 'util';
 import '../styles/Board.scss';
 import { Modal } from '../components/Modal';
 import { convertCompilerOptionsFromJson } from 'typescript';
+import { useNavigate } from 'react-router-dom';
+import { jwtSet } from '../util';
 // const horizontalList: CSS.Properties = {
 //     float: 'left',
 //     padding: '0.8rem',
@@ -48,10 +52,17 @@ let newText: string;
 let queTextUpdate = false;
 
 function App() {
+    const navigate = useNavigate();
     const [issueStrings, setIssueStrings] = useState(issueListsNames);
     const [state, dispatch] = useReducer(dragReducer, initialState);
     const [isModalOpen, setModalState] = React.useState(false);
     const [issueObj, setIssueObj] = React.useState({ id: '', content: '', list: 0, num: 0 });
+
+    useEffect(() => {
+        if (!jwtSet()) {
+            navigate('/');
+        }
+    }, []);
 
     const toggleModal = () => setModalState(!isModalOpen);
 
@@ -101,38 +112,51 @@ function App() {
     };
 
     return (
-        <div className="divScroll">
-            <Modal
-                title={'Issue: ' + issueObj.id}
-                isOpen={isModalOpen}
-                onClose={() => {
-                    setModalState(!isModalOpen);
-                    if (queTextUpdate) {
-                        editIssue(state[issueListsNames[issueObj.num]][issueObj.list].id, newText);
-                        queTextUpdate = false;
-                    }
+        <div>
+            <div
+                style={{
+                    width: '100%',
+                    height: '50px',
+                    backgroundColor: '#414440',
+                    display: 'flex',
+                    justifyContent: 'right',
+                    alignItems: 'center',
                 }}
             >
-                <input onChange={setText} placeholder={issueObj.content}></input>
-            </Modal>
-            <button
-                className="btn-primary"
-                onClick={() => {
-                    addToIssueListNames('items' + issueListsNames.length);
-                    dispatch({ type: 'UPDATELISTS', me: state });
-                }}
-            >
-                Add Issue List
-            </button>
-            <DragDropContext
-                onDragEnd={(e) => {
-                    useCallback(e);
-                }}
-            >
-                {issueListsNames.map((item, index) => {
-                    return arrangeDataInDragDropList(state, item, index);
-                })}
-            </DragDropContext>
+                <button
+                    onClick={async (e) => {
+                        e.preventDefault();
+                        localStorage.removeItem('jwt');
+                        navigate('/');
+                    }}
+                    style={{ height: '30px', marginRight: '10px' }}
+                >
+                    Logout
+                </button>
+            </div>
+            <div className="divScroll">
+                <Modal title={'Issue: ' + issueObj.id} isOpen={isModalOpen} onClose={toggleModal}>
+                    <input onChange={setText} placeholder={issueObj.content}></input>
+                </Modal>
+                <button
+                    className="btn-primary"
+                    onClick={() => {
+                        addToIssueListNames('items' + issueListsNames.length);
+                        dispatch({ type: 'UPDATELISTS', me: state });
+                    }}
+                >
+                    Add Issue List
+                </button>
+                <DragDropContext
+                    onDragEnd={(e) => {
+                        useCallback(e);
+                    }}
+                >
+                    {issueListsNames.map((item, index) => {
+                        return arrangeDataInDragDropList(state, item, index);
+                    })}
+                </DragDropContext>
+            </div>
         </div>
     );
 
