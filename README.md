@@ -21,3 +21,6 @@
 - Scss
 - React.js
 - Immutable.js
+
+
+API DOCUMENTATION FOR BACKEND : https://documenter.getpostman.com/view/16016035/Uz5MFtiF
