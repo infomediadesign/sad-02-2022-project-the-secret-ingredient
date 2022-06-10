@@ -1,21 +1,23 @@
 import { useNavigate } from 'react-router-dom';
-import { userID, setUserID } from '../ViewModels/Get';
-interface LoginData {
-    jsx: string;
+import {userID, setUserID} from '../ViewModels/Get'
+interface loginData{
+    jsx: string
 }
 
-export async function authenticateMe(userName: string, userPass: string, email: string) {
+export async function authenticateMe(userName: String, userPass: String, email: String) {
     var result = await getUsers(userName, userPass, email);
-    if (result.jwt === undefined) return false;
-
-    setUserID(result._id);
-    localStorage.setItem('jwt', result.jwt);
-    return true;
+    if(result.jwt == undefined){
+        return false;
+    }
+    else{
+        setUserID(result._id);
+        localStorage.setItem('jwt',result.jwt);
+        return true;
+    }
 }
 
-export async function getUsers(userName: string, userPass: string, email: string) {
-    var url = `${process.env.REACT_APP_BASE_API_URI}/login`;
-
+export async function getUsers(userName: String, userPass: String, email: String) {
+    var url = 'http://localhost:1234/login';
     var token =
         'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTQ1Mjg0NTMsImlzcyI6InRlc3QxIn0.9j-HhbqLVM38X489Y8uSNv2jSw6beIgzi1__5WJwWMvAstFj6jTS0Mz7cQwyW2P295vfJQ8dliY1jX_eCtpkFg';
 
@@ -31,17 +33,15 @@ export async function getUsers(userName: string, userPass: string, email: string
             return data.json();
         }));*/
 
+        
         const requestOptions = {
             method: 'POST',
             headers: new Headers({ 'Content-Type': 'application/json' }),
-            body: JSON.stringify({ email: email, password: userPass }),
+            body: JSON.stringify({'email': email, 'password': userPass }),
         };
 
-        return await fetch(url, requestOptions).then(async (data) => {
-            const res = await data.json();
-
-            return res;
-        });
+        return await fetch(url, requestOptions).then((data) => {
+            return data.json()});
 
         /*
         let result = fetch(url, requestOptions).then((data) => {

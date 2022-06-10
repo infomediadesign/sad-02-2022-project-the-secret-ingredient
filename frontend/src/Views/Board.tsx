@@ -1,20 +1,8 @@
-import React, { useCallback, useState, useReducer, useEffect } from 'react';
+import React, { useCallback, useState, useReducer } from 'react';
 import ReactDOM from 'react-dom';
 import CSS from 'csstype';
-import {
-    Issue,
-    IssueListTemp,
-    getIssues,
-    currentCardId,
-    addIssue,
-    addActivity,
-    dragReducer,
-    issueListsNames,
-    initialState,
-    removeFromIssueListNames,
-    addToIssueListNames,
-} from '../ViewModels/Board';
-import { getGeneric, userID } from '../ViewModels/Get';
+import { Issue, editIssue, moveIssueInernalList, currentCardId, addIssue, issueListsMIds, dragReducer, issueListsNames, initialState, removeFromIssueListNames, addToIssueListNames, moveIssueExternalList } from '../ViewModels/Board';
+import {getGeneric, userID} from '../ViewModels/Get'
 import produce from 'immer';
 import {
     DragDropContext,
@@ -29,8 +17,6 @@ import { getSystemErrorName } from 'util';
 import '../styles/Board.scss';
 import { Modal } from '../components/Modal';
 import { convertCompilerOptionsFromJson } from 'typescript';
-import { useNavigate } from 'react-router-dom';
-import { jwtSet } from '../util';
 // const horizontalList: CSS.Properties = {
 //     float: 'left',
 //     padding: '0.8rem',
@@ -45,19 +31,15 @@ import { jwtSet } from '../util';
 
 export let issueIdIncrement = 6;
 let hasSetUp = false;
+let newText : string;
+let queTextUpdate = false;
 
 function App() {
-    const navigate = useNavigate();
+
     const [issueStrings, setIssueStrings] = useState(issueListsNames);
     const [state, dispatch] = useReducer(dragReducer, initialState);
     const [isModalOpen, setModalState] = React.useState(false);
-    const [issueObj, setIssueObj] = React.useState({ id: '', content: '', list: 0, num: 0 });
-
-    useEffect(() => {
-        if (!jwtSet()) {
-            navigate('/');
-        }
-    }, []);
+    const [issueObj, setIssueObj] = React.useState({id : "", content: "", list: 0, num : 0});
 
     const toggleModal = () => setModalState(!isModalOpen);
 
@@ -74,61 +56,62 @@ function App() {
                 toIndex: result.destination.index,
             });
         }
+        var originalList = "";
+        var destinationList = "";
+        var destinationListNum = 0;
+
+        issueListsNames.map((item : string, index) => {
+            if(item == result.destination.droppableId){
+                destinationList = issueListsMIds[index];
+                destinationListNum = index;
+            }
+            if(item == result.source.droppableId){
+                originalList = issueListsMIds[index];
+            }
+        });
+        if(result.destination.droppableId == result.source.droppableId){
+            moveIssueInernalList(result.source.index, result.destination.index, originalList);
+        }
+        else{
+            moveIssueExternalList(result.source.index, result.destination.index, destinationList, originalList, destinationListNum);
+        }
     }
 
     const setText = (event: any) => {
-        console.log(issueObj.num);
-        console.log(issueObj.list);
-        console.log(state[issueListsNames[issueObj.num]]);
         state[issueListsNames[issueObj.num]][issueObj.list].content = event.target.value;
+        queTextUpdate = true;
+        newText = event.target.value;
     };
 
     return (
-        <div>
-            <div
-                style={{
-                    width: '100%',
-                    height: '50px',
-                    backgroundColor: '#414440',
-                    display: 'flex',
-                    justifyContent: 'right',
-                    alignItems: 'center',
+        <div className='divScroll'>
+                                <Modal title={'Issue: ' + issueObj.id} isOpen={isModalOpen} onClose={() => {
+                                    setModalState(!isModalOpen);
+                                    if(queTextUpdate){
+                                        editIssue(state[issueListsNames[issueObj.num]][issueObj.list].id, newText);
+                                        queTextUpdate = false;
+                                    }
+                                }}>
+                        <input onChange={setText} placeholder={issueObj.content}></input>
+                    </Modal>
+            <button
+                className="btn-primary"
+                onClick={() => {
+                    addToIssueListNames('items' + issueListsNames.length);
+                    dispatch({ type: 'UPDATELISTS', me: state });
                 }}
             >
-                <button
-                    onClick={async (e) => {
-                        e.preventDefault();
-                        localStorage.removeItem('jwt');
-                        navigate('/');
-                    }}
-                    style={{ height: '30px', marginRight: '10px' }}
-                >
-                    Logout
-                </button>
-            </div>
-            <div className="divScroll">
-                <Modal title={'Issue: ' + issueObj.id} isOpen={isModalOpen} onClose={toggleModal}>
-                    <input onChange={setText} placeholder={issueObj.content}></input>
-                </Modal>
-                <button
-                    className="btn-primary"
-                    onClick={() => {
-                        addToIssueListNames('items' + issueListsNames.length);
-                        dispatch({ type: 'UPDATELISTS', me: state });
-                    }}
-                >
-                    Add Issue List
-                </button>
-                <DragDropContext
-                    onDragEnd={(e) => {
-                        useCallback(e);
-                    }}
-                >
-                    {issueListsNames.map((item, index) => {
-                        return arrangeDataInDragDropList(state, item, index);
-                    })}
-                </DragDropContext>
-            </div>
+                Add Issue List
+            </button>
+            <DragDropContext
+                onDragEnd={(e) => {
+                    useCallback(e);
+                }}
+            >
+                {issueListsNames.map((item, index) => {
+                    return arrangeDataInDragDropList(state, item, index);
+                })}
+            </DragDropContext>
         </div>
     );
 
@@ -149,20 +132,15 @@ function App() {
                 {provided.placeholder}
                 <button
                     className="btn-secondary"
-                    onClick={async () => {
+                    onClick={async() => {
                         issueIdIncrement++;
                         await dispatch({
                             type: 'UPDATE',
                         });
-                        console.log('comms with backend...');
-                        await addIssue(
-                            issueIdIncrement.toString(),
-                            index,
-                            'oh well',
-                            state[issueListsNames[index]].length - 1
-                        );
+                        console.log("comms with backend...");
+                        await addIssue(issueIdIncrement.toString(), index, "oh well", state[issueListsNames[index]].length);
                         //await addActivity(issueIdIncrement.toString(), index, "oh well", state[issueListsNames[index]].length-1);
-                        console.log('comms with frontend...');
+                        console.log("comms with frontend...");
                         await dispatch({
                             type: 'ADDITEM',
                             pass: 'items',
@@ -170,7 +148,7 @@ function App() {
                             myData: state.items,
                             addThis: {
                                 id: currentCardId,
-                                content: 'oh well',
+                                content: "oh well",
                             },
                         });
                     }}
@@ -179,7 +157,7 @@ function App() {
                 </button>
                 <button
                     className="btn-secondary"
-                    onClick={async () => {
+                    onClick={async() => {
                         await removeFromIssueListNames(index);
                         dispatch({ type: 'DELETEISSUELIST', deleteMe: index });
                     }}
@@ -215,13 +193,10 @@ function App() {
                     >
                         Delete
                     </button>
-                    <button
-                        className="btn-primary"
-                        onClick={async () => {
-                            setIssueObj({ id: issue.id, content: issue.content, list: index, num: IIndex });
-                            toggleModal();
-                        }}
-                    >
+                    <button className="btn-primary" onClick={async() => {
+                        setIssueObj({id: issue.id, content: issue.content, list: index, num: IIndex});
+                        toggleModal()
+                    }}>
                         Edit
                     </button>
                 </div>
@@ -231,6 +206,7 @@ function App() {
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 
 export const data: Issue[] = [
     {

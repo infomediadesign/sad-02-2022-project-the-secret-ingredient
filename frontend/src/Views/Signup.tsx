@@ -1,9 +1,7 @@
 import { signupUser } from '../ViewModels/Signup';
-import '../styles/Signup.scss';
+import '../styles/Login.scss';
 import { useNavigate } from 'react-router-dom';
-import { bordMainSetup } from '../ViewModels/Board';
-import { useEffect } from 'react';
-import { jwtSet } from '../util';
+import {bordMainSetup} from '../ViewModels/Board'
 
 export function App() {
     let navigate = useNavigate();
@@ -11,12 +9,6 @@ export function App() {
     let passCon = '123456789';
     let username = 'test1';
     let email = 'test@test.com';
-
-    useEffect(() => {
-        if (jwtSet()) {
-            navigate('/board');
-        }
-    }, []);
 
     const getUserValue = (event: any) => {
         // show the user input value to console
@@ -36,56 +28,42 @@ export function App() {
     };
 
     return (
-        <div className="signup-box">
-            <h2>SignUP</h2>
-            <form>
-                <div className="signup-form">
-                    <input onChange={getUserValue} placeholder={username}></input>
-                    <label className="label">User Name</label>
-                </div>
-                <div className="signup-form">
-                    <input onChange={setEmail} placeholder={email}></input>
-                    <label className="label">Email</label>
-                </div>
-                <div className="signup-form">
-                    <input type={'password'} onChange={setPassValue} placeholder={pass}></input>
-                    <label className="label">Password</label>
-                </div>
-                <div className="signup-form">
-                    <input type={'password'} onChange={setPassConValue} placeholder={passCon}></input>
-                    <label className="label">Confirm Password</label>
-                </div>
-                <button
-                    onClick={() => {
-                        navigate('/');
-                    }}
-                >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    Cancel
-                </button>
-                <button
-                    onClick={async (e) => {
-                        e.preventDefault();
-                        if (pass != passCon) {
-                            alert("password and confirmation dosn't match");
-                        } else if (await signupUser(username, pass, email)) {
-                            await bordMainSetup(0);
-                            navigate('/board');
-                        } else {
-                            alert('improper login info');
-                        }
-                    }}
-                >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    Sign Up
-                </button>
-            </form>
+        <div>
+            <div>
+                <label className="label">User Name</label>
+                <input onChange={getUserValue} placeholder={username}></input>
+            </div>
+            <div>
+                <label className="label">Email</label>
+                <input onChange={setEmail} placeholder={email}></input>
+            </div>
+            <div>
+                <label className="label">Password</label>
+                <input type={'password'} onChange={setPassValue} placeholder={pass}></input>
+            </div>
+            <div>
+                <label className="label">Confirm Password</label>
+                <input type={'password'} onChange={setPassConValue} placeholder={passCon}></input>
+            </div>
+            <button
+                className="btn-primary"
+                onClick={() => {
+                    navigate('/');
+                }}
+            >
+                Cancel
+            </button>
+            <button className="btn-primary" onClick={async(e) =>{
+                                    if(pass != passCon){
+                                        alert("password and confirmation dosn't match");
+                                    }
+                                    else if (await signupUser(username, pass, email)) {
+                                        await bordMainSetup(0);
+                                        await navigate('/Board');
+                                    } else {
+                                        alert('improper login info');
+                                    }
+                                }}>Sign Up</button>
         </div>
     );
 }
