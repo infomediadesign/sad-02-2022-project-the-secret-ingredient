@@ -52,9 +52,9 @@ export function getBoards(router: Router, board: Model<BoardSchema>) {
 
 // Get a Board based on id of a user
 export function getBoard(router: Router, board: Model<BoardSchema>) {
-    router.get(`/${board.lowerName}/:boardId`, authMiddleware, async (ctx) => {
-        const boardId = new Mongo.ObjectId(ctx.params.boardId);
-        const b = await board.schema.findOne({ boardId });
+    router.get(`/${board.lowerName}/:id`, authMiddleware, async (ctx) => {
+        const _id = new Mongo.ObjectId(ctx.params.id);
+        const b = await board.schema.findOne({ _id });
 
         oakAssert(ctx, b != null, Status.BadRequest, 'Board not found!');
 
