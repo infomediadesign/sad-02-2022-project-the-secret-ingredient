@@ -1,7 +1,7 @@
 import { signupUser } from '../ViewModels/Signup';
 import '../styles/Login.scss';
 import { useNavigate } from 'react-router-dom';
-import {bordMainSetup} from '../ViewModels/Board'
+import { bordMainSetup } from '../ViewModels/Board';
 
 export function App() {
     let navigate = useNavigate();
@@ -53,17 +53,21 @@ export function App() {
             >
                 Cancel
             </button>
-            <button className="btn-primary" onClick={async(e) =>{
-                                    if(pass != passCon){
-                                        alert("password and confirmation dosn't match");
-                                    }
-                                    else if (await signupUser(username, pass, email)) {
-                                        await bordMainSetup(0);
-                                        await navigate('/Board');
-                                    } else {
-                                        alert('improper login info');
-                                    }
-                                }}>Sign Up</button>
+            <button
+                className="btn-primary"
+                onClick={async (e) => {
+                    if (pass != passCon) {
+                        alert("password and confirmation dosn't match");
+                    } else if (await signupUser(username, pass, email)) {
+                        await bordMainSetup(0);
+                        await navigate('/Board');
+                    } else {
+                        alert('improper login info');
+                    }
+                }}
+            >
+                Sign Up
+            </button>
         </div>
     );
 }

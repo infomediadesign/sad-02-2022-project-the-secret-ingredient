@@ -1,7 +1,7 @@
 import { authenticateMe } from '../ViewModels/Login';
 import '../styles/Login.scss';
 import { useNavigate } from 'react-router-dom';
-import {bordMainSetup} from '../ViewModels/Board'
+import { bordMainSetup } from '../ViewModels/Board';
 
 export function App() {
     let navigate = useNavigate();
@@ -45,7 +45,14 @@ export function App() {
             >
                 Login
             </button>
-            <button className="btn-primary" onClick={() => {navigate('/Signup');}}>Sign Up</button>
+            <button
+                className="btn-primary"
+                onClick={() => {
+                    navigate('/Signup');
+                }}
+            >
+                Sign Up
+            </button>
         </div>
     );
 }

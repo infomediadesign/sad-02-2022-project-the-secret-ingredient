@@ -1,17 +1,16 @@
 import { useNavigate } from 'react-router-dom';
-import {userID, setUserID} from '../ViewModels/Get'
-interface loginData{
-    jsx: string
+import { userID, setUserID } from '../ViewModels/Get';
+interface loginData {
+    jsx: string;
 }
 
 export async function authenticateMe(userName: String, userPass: String, email: String) {
     var result = await getUsers(userName, userPass, email);
-    if(result.jwt == undefined){
+    if (result.jwt == undefined) {
         return false;
-    }
-    else{
+    } else {
         setUserID(result._id);
-        localStorage.setItem('jwt',result.jwt);
+        localStorage.setItem('jwt', result.jwt);
         return true;
     }
 }
@@ -33,15 +32,15 @@ export async function getUsers(userName: String, userPass: String, email: String
             return data.json();
         }));*/
 
-        
         const requestOptions = {
             method: 'POST',
             headers: new Headers({ 'Content-Type': 'application/json' }),
-            body: JSON.stringify({'email': email, 'password': userPass }),
+            body: JSON.stringify({ email: email, password: userPass }),
         };
 
         return await fetch(url, requestOptions).then((data) => {
-            return data.json()});
+            return data.json();
+        });
 
         /*
         let result = fetch(url, requestOptions).then((data) => {
