@@ -124,12 +124,12 @@ function App() {
                 }}
             >
                 <button
+                    className="btn-primary"
                     onClick={async (e) => {
                         e.preventDefault();
                         localStorage.removeItem('jwt');
                         navigate('/');
                     }}
-                    style={{ height: '30px', marginRight: '10px' }}
                 >
                     Logout
                 </button>

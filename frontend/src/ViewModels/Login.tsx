@@ -15,10 +15,6 @@ export async function authenticateMe(userName: string, userPass: string, email: 
 
 export async function getUsers(userName: string, userPass: string, email: string) {
     var url = `${process.env.REACT_APP_BASE_API_URI}/login`;
-
-    var token =
-        'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTQ1Mjg0NTMsImlzcyI6InRlc3QxIn0.9j-HhbqLVM38X489Y8uSNv2jSw6beIgzi1__5WJwWMvAstFj6jTS0Mz7cQwyW2P295vfJQ8dliY1jX_eCtpkFg';
-
     try {
         /*const requestOptions = {
             method: 'GET',
@@ -36,6 +32,7 @@ export async function getUsers(userName: string, userPass: string, email: string
             headers: new Headers({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({ email: email, password: userPass }),
         };
+        console.log(requestOptions);
 
         return await fetch(url, requestOptions).then(async (data) => {
             const res = await data.json();
