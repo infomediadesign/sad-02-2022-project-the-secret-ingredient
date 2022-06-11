@@ -13,6 +13,7 @@ import {
 import produce from 'immer';
 import { useNavigate } from 'react-router-dom';
 import { idText } from 'typescript';
+import { parseJwt } from '../util';
 
 export interface BoardViewModel {
     _id: string;
@@ -125,13 +126,17 @@ export const dragReducer = produce((state: any, action: any) => {
 var currentBoardId: string;
 
 export async function bordMainSetup(boardNum: number) {
-    var boardResponse = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/boards/` + userID, 'GET');
+    const jwt = localStorage.getItem('jwt');
+    const parsedJwt = parseJwt(jwt!);
+    const userId = parsedJwt.iss._id;
+
+    var boardResponse = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/boards/` + userId, 'GET');
     var boardID: string;
 
     if (boardResponse.board.length == 0) {
         boardResponse = await postGeneric(
-            `${process.env.REACT_APP_BASE_API_URI}/Board/`,
-            { name: 'testBoard', image: { color: 'green', thumb: 'one.jpg', full: 'true' }, uId: userID },
+            `${process.env.REACT_APP_BASE_API_URI}/board/`,
+            { name: 'testBoard', image: { color: 'green', thumb: 'one.jpg', full: 'true' }, uId: userId },
             'POST'
         );
         boardID = boardResponse.board._id;
@@ -142,14 +147,10 @@ export async function bordMainSetup(boardNum: number) {
     currentBoardId = boardID;
 
     const listResponse = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/lists/` + boardID, 'GET');
-    issueListsNames = listResponse.lists.map((item: any, index: number) => {
-        return 'items' + index;
-    });
-    issueListsMIds = listResponse.lists.map((item: any, index: number) => {
-        return item._id;
-    });
+    issueListsNames = listResponse.lists.map((item: any, index: number) => 'items' + index);
+    issueListsMIds = listResponse.lists.map((item: any, index: number) => item._id);
 
-    if (issueListsMIds.length == 0) {
+    if (issueListsMIds.length === 0) {
         return;
     }
 
@@ -158,7 +159,7 @@ export async function bordMainSetup(boardNum: number) {
         id: '1',
         content: "I'm a hussar",
     }]*/
-    var intermidiateState: any = {};
+    var intermidiateState: Record<string, any> = {};
 
     for (var i = 0; i < issueListsNames.length; i++) {
         let listsCards = await getGeneric(

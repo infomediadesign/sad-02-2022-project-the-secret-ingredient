@@ -85,6 +85,7 @@ jobs:
            pwd
            newman --version
            newman run Board_tests.json -e prodEnv.json
+           newman run API_testPack.json -e prodEnv.json
           working-directory: ${{env.working-directory}}
           
 
