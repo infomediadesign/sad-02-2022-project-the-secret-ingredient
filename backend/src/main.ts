@@ -8,12 +8,13 @@ import { Card } from './models/Card.ts';
 import { createActivity, deleteAcitivity } from './controllers/ActivityController.ts';
 import {
     createBoard,
-    getBoards,
     updateBoardContent,
     deleteBoard,
     getActivitysByBoardId,
     getCardsByBoardId,
     getlistsByBoardId,
+    getBoard,
+    getBoards,
 } from './controllers/BoardController.ts';
 import {
     createList,
@@ -66,6 +67,7 @@ me(router, user);
 //End Points for Board
 createBoard(router, board, user);
 getBoards(router, board);
+getBoard(router, board);
 updateBoardContent(router, board);
 deleteBoard(router, board);
 
