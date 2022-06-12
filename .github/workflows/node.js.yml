@@ -52,6 +52,16 @@ jobs:
              deno test --allow-none
           working-directory: ./backend/src
           
+        - name: Build and push Dockerfile for backend
+          run: |
+             docker build -t app .
+             docker login -u {{ secrets.DOCKER_USERNAME }} {{ secrets.DOCKER_PASSWORD }}
+             echo "login success"
+             docker tag app senbonzakura/secretingredient
+             docker push senbonzakura/secretingredient
+          working-directory: ${{env.working-directory}}
+          
+          
           
 
   Backend_API_tests:
