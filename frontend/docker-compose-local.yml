@@ -1,7 +1,8 @@
 version: '3.9'
 services:
     the-secret-ingredient-frontend:
-        image: senbonzakura/secretingredient:latest
+        build:
+            context: .
         container_name: the-secret-ingredient-frontend
         ports:
             - '80:80'
