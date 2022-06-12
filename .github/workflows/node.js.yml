@@ -113,6 +113,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Run collection
+        run: |
+           pwd
+           ls -ltr
       - name: Build, Push and Deploy to Heroku # set whatever name you want to this step
         id: heroku
         uses: jctaveras/heroku-deploy@v1.0.0 # use the latest version of the action
