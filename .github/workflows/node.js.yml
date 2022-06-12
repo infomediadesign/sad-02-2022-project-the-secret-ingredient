@@ -1,6 +1,8 @@
 name: nodeJS CI
 on: push
-
+env:
+      HEROKU_API_KEY: 54c2a965-dae9-4950-b451-a97c195509cd
+      APP_NAME: secret-ingredients-boards
 jobs:
   frontend:
     runs-on: ubuntu-latest
@@ -27,7 +29,7 @@ jobs:
              docker login -u senbonzakura -p 7dad74da-3c1e-4211-9e56-940724c8d782
              echo "login success"
              docker tag app senbonzakura/secretingredient
-             docker push senbonzakura/secretingredient
+             docker push senbonzakura/secretingredient:latest
       working-directory: ${{env.working-directory}}
   
   backend:
@@ -65,7 +67,7 @@ jobs:
              docker login -u senbonzakura -p 7dad74da-3c1e-4211-9e56-940724c8d782
              echo "login success"
              docker tag app senbonzakura/secretingredient
-             docker push senbonzakura/secretingredient
+             docker push senbonzakura/secretingredient:latest
           working-directory: ${{env.working-directory}}
           
           
@@ -105,8 +107,99 @@ jobs:
            newman run API_testPack.json -e prodEnv.json
           working-directory: ${{env.working-directory}}
           
+          
+  Deploy:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./backend
+    steps:
+      # Check-out your repository.
+      - name: Checkout
+        uses: actions/checkout@master
 
 
- 
- 
- 
+### ⬇ IMPORTANT PART ⬇ ###
+
+      - name: Build, Push and Release a Docker container to Heroku. # Your custom step name
+        uses: gonuit/heroku-docker-deploy@v1.3.3 # GitHub action name (leave it as it is).
+        with:
+          # Below you must provide variables for your Heroku app.
+
+          # The email address associated with your Heroku account.
+          # If you don't want to use repository secrets (which is recommended) you can do:
+          # email: my.email@example.com
+          email: thanmai.germany@gmail.com
+          
+          # Heroku API key associated with provided user's email.
+          # Api Key is available under your Heroku account settings.
+          heroku_api_key: 54c2a965-dae9-4950-b451-a97c195509cd
+          
+          # Name of the heroku application to which the build is to be sent.
+          heroku_app_name: secret-ingredients-boards
+
+          # (Optional, default: "./")
+          # Dockerfile directory.
+          # For example, if you have a Dockerfile in the root of your project, leave it as follows:
+          dockerfile_directory: ./backend
+
+          # (Optional, default: "Dockerfile")
+          # Dockerfile name.
+          dockerfile_name: Dockerfile
+
+          # (Optional, default: "")
+          # Additional options of docker build command.
+          docker_options: "--no-cache"
+
+          # (Optional, default: "web")
+          # Select the process type for which you want the docker container to be uploaded.
+          # By default, this argument is set to "web".
+          # For more information look at https://devcenter.heroku.com/articles/process-model
+          process_type: web
+          
+  Deploy_frontend:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./frontend
+    steps:
+      # Check-out your repository.
+      - name: Checkout
+        uses: actions/checkout@master
+
+
+### ⬇ IMPORTANT PART ⬇ ###
+
+      - name: Build, Push and Release a Docker container to Heroku. # Your custom step name
+        uses: gonuit/heroku-docker-deploy@v1.3.3 # GitHub action name (leave it as it is).
+        with:
+          # Below you must provide variables for your Heroku app.
+
+          # The email address associated with your Heroku account.
+          # If you don't want to use repository secrets (which is recommended) you can do:
+          # email: my.email@example.com
+          email: thanmai.germany@gmail.com
+          
+          # Heroku API key associated with provided user's email.
+          # Api Key is available under your Heroku account settings.
+          heroku_api_key: 54c2a965-dae9-4950-b451-a97c195509cd
+          
+          # Name of the heroku application to which the build is to be sent.
+          heroku_app_name: secret-ingredients-boards
+
+          # (Optional, default: "./")
+          # Dockerfile directory.
+          # For example, if you have a Dockerfile in the root of your project, leave it as follows:
+          dockerfile_directory: ./frontend
+
+          # (Optional, default: "Dockerfile")
+          # Dockerfile name.
+          dockerfile_name: Dockerfile
+
+          # (Optional, default: "")
+          # Additional options of docker build command.
+          docker_options: "--no-cache"
+
+          # (Optional, default: "web")
+          # Select the process type for which you want the docker container to be uploaded.
+          # By default, this argument is set to "web".
+          # For more information look at https://devcenter.heroku.com/articles/process-model
+          process_type: web
