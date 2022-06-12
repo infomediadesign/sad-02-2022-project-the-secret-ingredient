@@ -104,6 +104,19 @@ jobs:
            newman run Board_tests.json -e prodEnv.json
            newman run API_testPack.json -e prodEnv.json
           working-directory: ${{env.working-directory}}
-          
-          
+
+  Deploy_backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: CDNievas/heroku-action@v1.0 # This is the action
+        with:
+          heroku_email: "thanmai.germany@gmail.com"
+          heroku_api_key: 54c2a965-dae9-4950-b451-a97c195509cd
+          heroku_app_name: "backend-secret-ingredients"
+          useforce: true,
+          dynamicFiles: true,
+          appdir: ./backend
+          procfile: "worker: deno run -allow-all ./src/main.ts"
+          buildpacks: "['https://github.com/heroku/heroku-buildpack-nodejs.git','https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git']"          
 
