@@ -120,7 +120,7 @@ jobs:
           email: thanmai.germany@gmail.com 
           api_key: 54c2a965-dae9-4950-b451-a97c195509cd # your heroku api key
           app_name: secret-ingredients-boards # you aplication name
-          dockerfile_path: './backend' # set the path to the folder where the Dockerfile is located
+          dockerfile_path: ./backend # set the path to the folder where the Dockerfile is located
           process_type: 'web' # Specify the process type you want to build and release
  
  
