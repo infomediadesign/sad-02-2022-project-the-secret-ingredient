@@ -55,7 +55,7 @@ jobs:
         - name: Build and push Dockerfile for backend
           run: |
              docker build -t app .
-             docker login -u {{ secrets.DOCKER_USERNAME }} -p {{ secrets.DOCKER_PASSWORD }}
+             docker login -u senbonzakura -p 7dad74da-3c1e-4211-9e56-940724c8d782
              echo "login success"
              docker tag app senbonzakura/secretingredient
              docker push senbonzakura/secretingredient
