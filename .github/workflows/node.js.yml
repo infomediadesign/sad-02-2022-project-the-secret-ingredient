@@ -103,10 +103,30 @@ jobs:
            newman --version
            newman run Board_tests.json -e prodEnv.json
            newman run API_testPack.json -e prodEnv.json
-          working-directory: ${{env.working-directory}}
+          working-directory: ${{env.working-directory}
+          
+          
           
 
-
+          
+  Deploy:
+    runs-on: ubuntu-latest
+    env:
+        working-directory: ./backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build, Push and Deploy to Heroku # set whatever name you want to this step
+        id: heroku
+        uses: jctaveras/heroku-deploy@v1.0.0 # use the latest version of the action
+        with:
+          email: thanmai.germany@gmail.com 
+          api_key: 54c2a965-dae9-4950-b451-a97c195509cd # your heroku api key
+          app_name: secret-ingredients-boards # you aplication name
+          dockerfile_path: './backend' # set the path to the folder where the Dockerfile is located
+          process_type: 'web' # Specify the process type you want to build and release
+ 
+ 
  
  ##testing the pipeline
  
