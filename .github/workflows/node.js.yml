@@ -118,5 +118,6 @@ jobs:
           dynamicFiles: true,
           appdir: ./backend
           procfile: "worker: deno run -allow-all ./src/main.ts"
+          branch: main
                    
 
