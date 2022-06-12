@@ -113,11 +113,13 @@ jobs:
     env:
       working-directory: ./backend
     steps:
-      - uses: actions/checkout@master
-      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Build, Push and Deploy to Heroku #set the whatever name you want to this step
+        id: heroku
+        uses: snithyanantham/docker-compose-multiple-apps-heroku-deploy@v1.0  # use the latest version of the action
         with:
-          heroku_api_key: 54c2a965-dae9-4950-b451-a97c195509cd
-          heroku_app_name: secret-ingredients-boards #Must be unique in Heroku
-          heroku_email: thanmai.germany@gmail.com
-          appdir: "backend" # <- This will point to the api folder in your project
- 
+          email: thanmai.germany@gmail.com # your heroku email
+          api_key: 54c2a965-dae9-4950-b451-a97c195509cd # your  heroku api key
+          docker_compose_file: './backend/docker-compose.yml' # set the path to the folder where the docker-compose file is located
+          heroku_apps: '[{"imagename":"latest","appname":"secret-ingredients-boards","apptype":"web"}]'
