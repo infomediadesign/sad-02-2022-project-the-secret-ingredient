@@ -1,4 +1,4 @@
-name: nodeJS CI
+name: SecretIngredient CI/CD
 on: push
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
              docker push senbonzakura/secretingredient:latest
       working-directory: ${{env.working-directory}}
       
-    - name: curl
+    - name: POST webhook to portainer
       uses: wei/curl@v1
       with:
         args: -X POST https://portainer.lubcke.de/api/webhooks/e65d39ca-15ed-4e5c-a559-fc476f642102
@@ -114,18 +114,4 @@ jobs:
 
 
 
-  Deploy_fronted:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-        with:
-          heroku_api_key: 54c2a965-dae9-4950-b451-a97c195509cd
-          heroku_app_name: "secret-ingredients-frontend" #Must be unique in Heroku
-          heroku_email: "thanmai.germany@gmail.com"
-          buildpack: https://github.com/heroku/heroku-buildpack-static.git
-          branch: master
-          appdir: ./frontend
-          env_file: /.env
-          
-          
+  
