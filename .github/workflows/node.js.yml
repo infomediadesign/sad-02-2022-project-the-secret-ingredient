@@ -1,6 +1,8 @@
 name: nodeJS CI
 on: push
-
+env:
+      HEROKU_API_KEY: 54c2a965-dae9-4950-b451-a97c195509cd
+      APP_NAME: secret-ingredients-boards
 jobs:
   frontend:
     runs-on: ubuntu-latest
@@ -112,22 +114,14 @@ jobs:
       working-directory: ./backend
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Run collection
+        uses: actions/checkout@master
+        
+      - name: Docker build
+        run: docker login --username=thanmai.germany@gmail.com --password=$HEROKU_API_KEY registry.heroku.com
+ 
+      - name: Publish
         run: |
-           pwd
-           ls -ltr
-      - name: Build, Push and Deploy to Heroku # set whatever name you want to this step
-        id: heroku
-        uses: jctaveras/heroku-deploy@v1.0.0 # use the latest version of the action
-        with:
-          email: thanmai.germany@gmail.com 
-          api_key: 54c2a965-dae9-4950-b451-a97c195509cd # your heroku api key
-          app_name: secret-ingredients-boards # you aplication name
-          dockerfile_path: ./backend # set the path to the folder where the Dockerfile is located
-          process_type: 'web' # Specify the process type you want to build and release
- 
- 
- 
+          heroku container:push web -a $APP_NAME
+          heroku container:release web -a $APP_NAME
  ##testing the pipeline
  
