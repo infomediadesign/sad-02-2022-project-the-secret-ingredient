@@ -135,7 +135,7 @@ jobs:
           heroku_api_key: 54c2a965-dae9-4950-b451-a97c195509cd
           
           # Name of the heroku application to which the build is to be sent.
-          heroku_app_name: secret-ingredients-boards
+          heroku_app_name: backend-secret-ingredients
 
           # (Optional, default: "./")
           # Dockerfile directory.
