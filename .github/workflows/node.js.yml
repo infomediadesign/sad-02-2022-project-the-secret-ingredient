@@ -113,19 +113,11 @@ jobs:
     env:
       working-directory: ./backend
     steps:
-      - name: Checkout
-        uses: actions/checkout@master
-        
-        
-      - name: Docker build
-        run: |
-             docker build -t app .
-             docker login --username=thanmai.germany@gmail.com --password=$HEROKU_API_KEY registry.heroku.com
-             working-directory: ${{env.working-directory}}
-      - name: Publish
-        run: |
-          heroku container:push web -a $APP_NAME
-          heroku container:release web -a $APP_NAME
-          working-directory: ${{env.working-directory}}
- ##testing the pipeline
+      - uses: actions/checkout@master
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: 54c2a965-dae9-4950-b451-a97c195509cd
+          heroku_app_name: secret-ingredients-boards #Must be unique in Heroku
+          heroku_email: thanmai.germany@gmail.com
+          appdir: "backend" # <- This will point to the api folder in your project
  
