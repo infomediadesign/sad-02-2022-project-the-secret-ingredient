@@ -117,7 +117,9 @@ jobs:
         uses: actions/checkout@master
         
       - name: Docker build
-        run: docker login --username=thanmai.germany@gmail.com --password=$HEROKU_API_KEY registry.heroku.com
+        run: |
+             docker build -t app .
+             docker login --username=thanmai.germany@gmail.com --password=$HEROKU_API_KEY registry.heroku.com
  
       - name: Publish
         run: |
