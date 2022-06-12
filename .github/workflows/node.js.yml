@@ -21,7 +21,14 @@ jobs:
          npm run build
 
       working-directory: ${{env.working-directory}}
-      
+    - name: Build and push Dockerfile for frontend
+      run: |
+             docker build -t app .
+             docker login -u senbonzakura -p 7dad74da-3c1e-4211-9e56-940724c8d782
+             echo "login success"
+             docker tag app senbonzakura/secretingredient
+             docker push senbonzakura/secretingredient
+      working-directory: ${{env.working-directory}}
   
   backend:
       runs-on: ubuntu-latest
