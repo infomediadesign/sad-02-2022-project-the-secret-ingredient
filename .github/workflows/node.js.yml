@@ -27,7 +27,7 @@ jobs:
              docker login -u senbonzakura -p 7dad74da-3c1e-4211-9e56-940724c8d782
              echo "login success"
              docker tag app senbonzakura/secretingredient
-             docker push senbonzakura/secretingredient:frontend
+             docker push senbonzakura/secretingredient:latest
       working-directory: ${{env.working-directory}}
   
   backend:
@@ -65,7 +65,7 @@ jobs:
              docker login -u senbonzakura -p 7dad74da-3c1e-4211-9e56-940724c8d782
              echo "login success"
              docker tag app senbonzakura/secretingredient
-             docker push senbonzakura/secretingredient:backend
+             docker push senbonzakura/secretingredient:latest
           working-directory: ${{env.working-directory}}
           
           
