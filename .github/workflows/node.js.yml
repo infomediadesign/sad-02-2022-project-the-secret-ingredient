@@ -118,5 +118,5 @@ jobs:
           dynamicFiles: true,
           appdir: ./backend
           procfile: "worker: deno run -allow-all ./src/main.ts"
-          buildpacks: "['https://github.com/heroku/heroku-buildpack-nodejs.git','https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git']"          
+                   
 
