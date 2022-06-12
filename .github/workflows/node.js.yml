@@ -29,6 +29,11 @@ jobs:
              docker tag app senbonzakura/secretingredient
              docker push senbonzakura/secretingredient:latest
       working-directory: ${{env.working-directory}}
+      
+    - name: curl
+      uses: wei/curl@v1
+      with:
+        args: -X POST https://portainer.lubcke.de/api/webhooks/e65d39ca-15ed-4e5c-a559-fc476f642102
   
   backend:
       runs-on: ubuntu-latest
