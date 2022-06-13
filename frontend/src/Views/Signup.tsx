@@ -40,19 +40,19 @@ export function App() {
             <h2>SignUP</h2>
             <form>
                 <div className="signup-form">
-                    <input onChange={getUserValue} placeholder={username}></input>
+                    <input id="username" onChange={getUserValue} placeholder={username}></input>
                     <label className="label">User Name</label>
                 </div>
                 <div className="signup-form">
-                    <input onChange={setEmail} placeholder={email}></input>
+                    <input id="email" onChange={setEmail} placeholder={email}></input>
                     <label className="label">Email</label>
                 </div>
                 <div className="signup-form">
-                    <input type={'password'} onChange={setPassValue} placeholder={pass}></input>
+                    <input id="password" type={'password'} onChange={setPassValue} placeholder={pass}></input>
                     <label className="label">Password</label>
                 </div>
                 <div className="signup-form">
-                    <input type={'password'} onChange={setPassConValue} placeholder={passCon}></input>
+                    <input id="confirmpassword" type={'password'} onChange={setPassConValue} placeholder={passCon} />
                     <label className="label">Confirm Password</label>
                 </div>
                 <button
@@ -67,6 +67,7 @@ export function App() {
                     Cancel
                 </button>
                 <button
+                    id="signup"
                     onClick={async (e) => {
                         e.preventDefault();
                         if (pass != passCon) {
