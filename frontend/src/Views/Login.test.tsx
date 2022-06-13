@@ -44,14 +44,3 @@ test('renders Password text', () => {
     const pass = screen.getByText(/Password/i);
     expect(pass).toBeInTheDocument();
 });
-
-test('Login form parametre olarak doğru data gönderme testi', () => {
-    render(
-        <Router>
-            <App />,
-        </Router>
-    );
-    const email = screen.getByTestId('email');
-    const pass = screen.getByTestId('password');
-    expect(email).toBeInTheDocument();
-});
