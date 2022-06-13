@@ -15,6 +15,14 @@ import { useNavigate } from 'react-router-dom';
 import { idText } from 'typescript';
 import { parseJwt } from '../util';
 
+import axios from 'axios';
+
+
+const page = Math.floor(Math.random()*100)+1;
+const query= 'landscape'
+const BASE_URL= `https://api.unsplash.com/search/photos?page=${page}&query=${query}&client_id=${process.env.REACT_APP_CLIENT_KEY}`
+
+
 export interface BoardViewModel {
     _id: string;
     name: string;
@@ -135,19 +143,31 @@ export async function bordMainSetup(boardNum: number) {
     const jwt = localStorage.getItem('jwt');
     const parsedJwt = parseJwt(jwt!);
     const userId = parsedJwt.iss._id;
+    const Bkimages = axios.get(BASE_URL);
+    
+
+  
 
     var boardResponse = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/boards/` + userId, 'GET');
     var boardID: string;
+    var img:any;
 
     if (boardResponse.board.length == 0) {
         boardResponse = await postGeneric(
             `${process.env.REACT_APP_BASE_API_URI}/board/`,
-            { name: 'testBoard', image: { color: 'green', thumb: 'one.jpg', full: 'true' }, uId: userId },
+            { name: 'testBoard', image: { color:(await Bkimages).data.results[0].color, thumb:(await Bkimages).data.results[0].urls.thumb, full: (await Bkimages).data.results[0].urls.full }, uId: userId },
             'POST'
         );
         boardID = boardResponse.board._id;
+        img=boardResponse.board.image;
+        // console.log(img.color);
+        
     } else {
         boardID = boardResponse.board[boardNum]._id;
+        boardID = boardResponse.board._id;
+        img=boardResponse.board.image;
+        
+        
     }
 
     currentBoardId = boardID;
