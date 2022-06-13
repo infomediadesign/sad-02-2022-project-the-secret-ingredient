@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import CSS from 'csstype';
 import {
     Issue,
-    IssueListTemp,
+    editIssue,
     getIssues,
     currentCardId,
     addIssue,
@@ -106,7 +106,6 @@ function App() {
     }
 
     const setText = (event: any) => {
-        state[issueListsNames[issueObj.num]][issueObj.list].content = event.target.value;
         queTextUpdate = true;
         newText = event.target.value;
     };
@@ -135,7 +134,23 @@ function App() {
                 </button>
             </div>
             <div className="divScroll">
-                <Modal title={'Issue: ' + issueObj.id} isOpen={isModalOpen} onClose={toggleModal}>
+                <Modal
+                    title={'Issue: ' + issueObj.id}
+                    isOpen={isModalOpen}
+                    onClose={() => {
+                        setModalState(!isModalOpen);
+                        if (queTextUpdate) {
+                            editIssue(state[issueListsNames[issueObj.num]][issueObj.list].id, newText);
+                            queTextUpdate = false;
+                            dispatch({
+                                type: 'UPDATESTATETEXT',
+                                eventV: newText,
+                                numV: issueObj.num,
+                                listV: issueObj.list,
+                            });
+                        }
+                    }}
+                >
                     <input onChange={setText} placeholder={issueObj.content}></input>
                 </Modal>
                 <button

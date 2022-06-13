@@ -118,6 +118,12 @@ export const dragReducer = produce((state: any, action: any) => {
 
             return state;
         }
+        case 'UPDATESTATETEXT': {
+            console.log(action.numV);
+            console.log(action.listV);
+            state[issueListsNames[action.numV]][action.listV].content = action.eventV;
+            return state;
+        }
         default:
             throw new Error();
     }
