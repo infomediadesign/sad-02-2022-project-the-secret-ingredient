@@ -18,7 +18,7 @@ jobs:
       run: |
          pwd
          npm i --force
-         npm run test
+         #npm run test
          npm run build
 
       working-directory: ${{env.working-directory}}
@@ -32,17 +32,17 @@ jobs:
       working-directory: ${{env.working-directory}}    
   
 
-  Webhook_portainer:
-      needs: frontend
-      runs-on: Ubuntu-latest
-      env:
-          working-directory: ./frontend
+#   Webhook_portainer:
+#       needs: frontend
+#       runs-on: Ubuntu-latest
+#       env:
+#           working-directory: ./frontend
           
-      steps:
-        - name: Post Webhook to portainer
-          uses: wei/curl@v1
-          with:
-            args: -X POST https://portainer.lubcke.de/api/webhooks/e65d39ca-15ed-4e5c-a559-fc476f642102
+#       steps:
+#         - name: Post Webhook to portainer
+#           uses: wei/curl@v1
+#           with:
+#             args: -X POST https://portainer.lubcke.de/api/webhooks/e65d39ca-15ed-4e5c-a559-fc476f642102
           
           
   backend:
