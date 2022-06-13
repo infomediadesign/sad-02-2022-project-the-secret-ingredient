@@ -38,11 +38,11 @@ export function App() {
             <h2>Login</h2>
             <form>
                 <div className="user-box">
-                    <input data-testid="email" type="text" onChange={setEmail} placeholder={email} />
+                    <input id="email" type="text" onChange={setEmail} placeholder={email} />
                     <label>Username</label>
                 </div>
                 <div className="user-box">
-                    <input data-testid="password" type="password" onChange={setPassValue} placeholder={pass} />
+                    <input id="password" type="password" onChange={setPassValue} placeholder={pass} />
                     <label>Password</label>
                 </div>
 
@@ -70,6 +70,7 @@ export function App() {
                 </button>
                 <button
                     type="submit"
+                    id="signup"
                     onClick={() => {
                         navigate('/signup');
                     }}

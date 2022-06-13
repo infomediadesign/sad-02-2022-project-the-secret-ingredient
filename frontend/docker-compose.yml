@@ -4,7 +4,7 @@ services:
         image: senbonzakura/secretingredient:latest
         container_name: the-secret-ingredient-frontend
         ports:
-            - '80:80'
+            - '3000:3000'
         restart: unless-stopped
         networks:
             - the-secret-ingredient-frontend

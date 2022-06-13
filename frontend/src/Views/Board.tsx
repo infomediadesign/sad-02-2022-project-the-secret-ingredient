@@ -124,6 +124,7 @@ function App() {
             >
                 <button
                     className="btn-primary"
+                    id="logout"
                     onClick={async (e) => {
                         e.preventDefault();
                         localStorage.removeItem('jwt');
@@ -151,9 +152,10 @@ function App() {
                         }
                     }}
                 >
-                    <input onChange={setText} placeholder={issueObj.content}></input>
+                    <input id="inputModal" onChange={setText} placeholder={issueObj.content}></input>
                 </Modal>
                 <button
+                    id="AddIssueList"
                     className="btn-primary"
                     onClick={() => {
                         addToIssueListNames('items' + issueListsNames.length);
@@ -191,6 +193,7 @@ function App() {
                 {mapItem?.map((issue: Issue, IIndex: number) => arrangeIssueInList(issue, IIndex, index))}
                 {provided.placeholder}
                 <button
+                    id="addIssue"
                     className="btn-secondary"
                     onClick={async () => {
                         issueIdIncrement++;
@@ -221,6 +224,7 @@ function App() {
                     Add Issue
                 </button>
                 <button
+                    id="deleteList"
                     className="btn-secondary"
                     onClick={async () => {
                         await removeFromIssueListNames(index);
@@ -247,6 +251,7 @@ function App() {
                 <div className="issueList">
                     <span>{issue.content + ' '}</span>
                     <button
+                        id="deleteCard"
                         className="btn-primary"
                         onClick={() => {
                             dispatch({
@@ -259,6 +264,7 @@ function App() {
                         Delete
                     </button>
                     <button
+                        id="editCard"
                         className="btn-primary"
                         onClick={async () => {
                             setIssueObj({ id: issue.id, content: issue.content, list: index, num: IIndex });

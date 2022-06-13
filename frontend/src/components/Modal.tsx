@@ -23,7 +23,7 @@ export const Modal: React.FC<ModalProps> = ({ title, isOpen, onClose, children }
         <div className={'modal'}>
             <div ref={outsideRef} className={'modal__overlay'} onClick={handleCloseOnOverlay} />
             <div className={'modal__box'}>
-                <button className={'modal__close'} onClick={onClose}>
+                <button id="closeBtn" className={'modal__close'} onClick={onClose}>
                     <img src={iconX} alt={'close'} />
                 </button>
                 <div className={'modal__title'}>{title}</div>
