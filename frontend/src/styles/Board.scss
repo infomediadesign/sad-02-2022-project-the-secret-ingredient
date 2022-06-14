@@ -6,6 +6,8 @@ $secondary-color: #ff8700;
 
 body{
     background-color: #1a1919;
+    overflow-x: scroll;
+    overflow-y: hidden;
 }
 
 
@@ -84,6 +86,7 @@ body{
     font-family: 'Nunito';
     background-color: #414440;
     color: #fff;   
+ 
     
 }
 

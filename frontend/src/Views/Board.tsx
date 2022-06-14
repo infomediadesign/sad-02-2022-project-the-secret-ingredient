@@ -35,8 +35,9 @@ import { Modal } from '../components/Modal';
 import { convertCompilerOptionsFromJson } from 'typescript';
 import { useNavigate } from 'react-router-dom';
 import { jwtSet } from '../util';
-import { ImageTwoTone, NoEncryption } from '@material-ui/icons';
+import { DragHandleTwoTone, ImageTwoTone, NoEncryption } from '@material-ui/icons';
 import { url } from 'inspector';
+import { isEditableInput } from '@testing-library/user-event/dist/utils';
 // const horizontalList: CSS.Properties = {
 //     float: 'left',
 //     padding: '0.8rem',
@@ -48,6 +49,10 @@ import { url } from 'inspector';
 //     border: 'dotted',
 //     margin: '0.1rem',
 // };
+
+const handleInput = (event: any) => {
+    useState(event.target.value);
+};
 
 var loadingCount = 1;
 export let issueIdIncrement = 6;
@@ -69,6 +74,7 @@ function App() {
     const [isModalOpen, setModalState] = React.useState(false);
     const [issueObj, setIssueObj] = React.useState({ id: '', content: '', list: 0, num: 0 });
     const [loadingString, setLoadingString] = React.useState('Loading');
+    const [listName, setListName] = React.useState('ListName');
 
     useEffect(() => {
         if (!jwtSet()) {
@@ -190,7 +196,7 @@ function App() {
             </div>
             <div className="divScroll">
                 <Modal
-                    title={'Issue: ' + issueObj.id}
+                    title={'Issue: ' + issueObj.content}
                     isOpen={isModalOpen}
                     onClose={() => {
                         setModalState(!isModalOpen);
@@ -254,6 +260,7 @@ function App() {
     function arrangeDragDropForIssueList(provided: any, state: any, mapItem: Issue[], index: any): JSX.Element {
         return (
             <div className="horizontalList" ref={provided.innerRef} {...provided.droppableProps}>
+                <div contentEditable={true}>{listName}</div>
                 {mapItem?.map((issue: Issue, IIndex: number) => arrangeIssueInList(issue, IIndex, index))}
                 {provided.placeholder}
                 <button
