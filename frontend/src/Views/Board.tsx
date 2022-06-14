@@ -46,6 +46,7 @@ import { jwtSet } from '../util';
 //     margin: '0.1rem',
 // };
 
+var loadingCount = 1;
 export let issueIdIncrement = 6;
 export var settingUPDone = false;
 export function SetSettingUPDone(newV: boolean) {
@@ -64,6 +65,7 @@ function App() {
     const [state, dispatch] = useReducer(dragReducer, initialState);
     const [isModalOpen, setModalState] = React.useState(false);
     const [issueObj, setIssueObj] = React.useState({ id: '', content: '', list: 0, num: 0 });
+    const [loadingString, setLoadingString] = React.useState('Loading');
 
     useEffect(() => {
         if (!jwtSet()) {
@@ -122,19 +124,29 @@ function App() {
     }
 
     function preArrangeAll() {
+        var LocalloadingString = 'Loading';
+        for (var i = 0; i < loadingCount; i++) {
+            LocalloadingString = LocalloadingString + '.';
+        }
+
         //console.log('waiting');
         if (settingUPDone) {
             setloading(false);
             dispatch({ type: 'UPDATE' });
         } else {
+            loadingCount++;
+            if (loadingCount == 4) {
+                loadingCount = 0;
+            }
+
             setTimeout(() => {
-                preArrangeAll();
+                setLoadingString(LocalloadingString);
             }, 1000);
         }
 
         return (
             <div>
-                <p>Loading...</p>
+                <p style={{ color: 'white' }}>{loadingString}</p>
             </div>
         );
     }
