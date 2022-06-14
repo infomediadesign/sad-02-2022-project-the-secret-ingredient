@@ -43,13 +43,7 @@ export interface Issue {
     content: string;
 }
 
-// fake data generator
-export function getIssues(count: number): Issue[] {
-    return Array.from({ length: count }, (v, k) => k).map((k) => ({
-        id: `issue-${k}`,
-        content: `issue ${k}`,
-    }));
-}
+export var movementIdSwapFailed = false;
 
 export const dragReducer = produce((state: any, action: any) => {
     switch (action.type) {
@@ -59,6 +53,23 @@ export const dragReducer = produce((state: any, action: any) => {
             const [removed] = state[action.from].splice(action.fromIndex, 1);
             state[action.to].splice(action.toIndex, 0, removed);
             return;
+        }
+        case 'MOVEUPDATE': {
+            if (action.swapId) {
+                console.log('gotta switch');
+                console.log(state[action.to][action.toIndex].id);
+                console.log('with');
+                console.log(currentCardId);
+                console.log(action.deleteID);
+                if (currentCardId == undefined || currentCardId == null) {
+                    movementIdSwapFailed = true;
+                    return;
+                }
+                movementIdSwapFailed = false;
+
+                state[action.to][action.toIndex].id = currentCardId;
+            }
+            return state;
         }
         case 'ADDITEM': {
             console.log(action.addThis);
@@ -289,6 +300,7 @@ export async function addActivity(name: string, index: number, content: string, 
 
 export async function editIssue(listIndex: string, newText: string) {
     const response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/card/` + listIndex + `/activitys`, 'GET');
+
     await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/Activity/` + response.activities[0]._id, 'DELETE');
     const responseNew = await postGeneric(
         `${process.env.REACT_APP_BASE_API_URI}/Activity/`,
@@ -313,22 +325,24 @@ export async function moveIssueExternalList(
     newListIndex: number
 ) {
     var idToDelete;
+    var idToUpdate;
     var response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/list/` + newList + `/cards`, 'GET');
     moveIssues(newList, newPos, 1, response.cards.length, false);
 
     response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/list/` + oldList + `/cards`, 'GET');
-    response.cards.map(async (item: any) => {
+    await response.cards.map(async (item: any) => {
         if (item.order == oldPos) {
             idToDelete = item._id;
             const active = await getGeneric(
                 `${process.env.REACT_APP_BASE_API_URI}/Card/` + item._id + `/activitys`,
                 'GET'
             );
-            addIssue(item.name, newListIndex, active.activities[0].text, newPos);
+            idToUpdate = await addIssue(item.name, newListIndex, active.activities[0].text, newPos);
         }
     });
-    moveIssues(oldList, response.cards.length, -1, oldPos, false);
+    await moveIssues(oldList, response.cards.length, -1, oldPos, false);
     await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/Card/` + idToDelete, 'DELETE');
+    return idToUpdate;
 }
 
 async function moveIssues(issueListId: string, moveAt: number, moveDirect: number, me: number, adding: boolean) {

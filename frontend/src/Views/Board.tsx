@@ -7,7 +7,7 @@ import {
     bordMainSetup,
     currentCardId,
     addIssue,
-    addActivity,
+    movementIdSwapFailed,
     img,
     dragReducer,
     issueListsNames,
@@ -62,6 +62,8 @@ export function SetSettingUPDone(newV: boolean) {
 }
 let newText: string;
 let queTextUpdate = false;
+let isWaitingResponse = false;
+let keeptStatus: any = {};
 
 function App() {
     const navigate = useNavigate();
@@ -84,9 +86,18 @@ function App() {
 
     const toggleModal = () => setModalState(!isModalOpen);
 
+    if (movementIdSwapFailed) {
+        console.log('how about we dont mess up');
+        setTimeout(() => dispatch(keeptStatus), 50);
+    } else {
+        isWaitingResponse = false;
+    }
+
     function useCallback(result: any) {
+        isWaitingResponse = true;
         if (result.reason === 'DROP') {
             if (!result.destination) {
+                isWaitingResponse = false;
                 return;
             }
             dispatch({
@@ -95,31 +106,49 @@ function App() {
                 to: result.destination.droppableId,
                 fromIndex: result.source.index,
                 toIndex: result.destination.index,
+                swapId: false,
             });
-        }
-        var originalList = '';
-        var destinationList = '';
-        var destinationListNum = 0;
 
-        issueListsNames.map((item: string, index) => {
-            if (item == result.destination.droppableId) {
-                destinationList = issueListsMIds[index];
-                destinationListNum = index;
+            var originalList = '';
+            var destinationList = '';
+            var destinationListNum = 0;
+
+            issueListsNames.map((item: string, index) => {
+                if (item == result.destination.droppableId) {
+                    destinationList = issueListsMIds[index];
+                    destinationListNum = index;
+                }
+                if (item == result.source.droppableId) {
+                    originalList = issueListsMIds[index];
+                }
+            });
+            if (result.destination.droppableId == result.source.droppableId) {
+                moveIssueInernalList(result.source.index, result.destination.index, originalList);
+                isWaitingResponse = false;
+            } else {
+                handleAdvancedMoves();
             }
-            if (item == result.source.droppableId) {
-                originalList = issueListsMIds[index];
+
+            async function handleAdvancedMoves() {
+                const deleteID = await moveIssueExternalList(
+                    result.source.index,
+                    result.destination.index,
+                    destinationList,
+                    originalList,
+                    destinationListNum
+                );
+                await console.log('stop pls');
+                keeptStatus = {
+                    type: 'MOVEUPDATE',
+                    from: result.source.droppableId,
+                    to: result.destination.droppableId,
+                    fromIndex: result.source.index,
+                    toIndex: result.destination.index,
+                    swapId: true,
+                    deleteID: deleteID,
+                };
+                await dispatch(keeptStatus);
             }
-        });
-        if (result.destination.droppableId == result.source.droppableId) {
-            moveIssueInernalList(result.source.index, result.destination.index, originalList);
-        } else {
-            moveIssueExternalList(
-                result.source.index,
-                result.destination.index,
-                destinationList,
-                originalList,
-                destinationListNum
-            );
         }
     }
 
@@ -260,7 +289,7 @@ function App() {
     function arrangeDragDropForIssueList(provided: any, state: any, mapItem: Issue[], index: any): JSX.Element {
         return (
             <div className="horizontalList" ref={provided.innerRef} {...provided.droppableProps}>
-                <div contentEditable={true}>{listName}</div>
+                <div>{listName}</div>
                 {mapItem?.map((issue: Issue, IIndex: number) => arrangeIssueInList(issue, IIndex, index))}
                 {provided.placeholder}
                 <button
@@ -333,9 +362,11 @@ function App() {
                         Delete
                     </button>
                     <button
+                        disabled={isWaitingResponse}
                         id="editCard"
                         className="btn-primary"
                         onClick={async () => {
+                            console.log(issue.id, issue.content, index, IIndex);
                             setIssueObj({ id: issue.id, content: issue.content, list: index, num: IIndex });
                             toggleModal();
                         }}
@@ -347,28 +378,5 @@ function App() {
         );
     }
 }
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-export const data: Issue[] = [
-    {
-        id: '1',
-        content: "I'm a hussar",
-    },
-    {
-        id: '2',
-        content: "I'm a Hun",
-    },
-    {
-        id: '3',
-        content: "I'm a wretched Englishman",
-    },
-    {
-        id: '4',
-        content: "I'm a horse soldier",
-    },
-];
-
-let test: Issue[][] = new Array();
 
 export default App;
