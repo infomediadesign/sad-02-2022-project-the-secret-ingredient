@@ -17,7 +17,8 @@ import { parseJwt } from '../util';
 import { settingUPDone, SetSettingUPDone } from '../Views/Board';
 
 import axios from 'axios';
-
+import { setIn } from 'immutable';
+let k = Math.floor(Math.random() * 20);
 const page = Math.floor(Math.random() * 100) + 1;
 const query = 'landscape';
 const BASE_URL = `https://api.unsplash.com/search/photos?page=${page}&query=${query}&client_id=${process.env.REACT_APP_CLIENT_KEY}`;
@@ -145,6 +146,7 @@ export async function bordMainSetup(boardNum: number) {
     const parsedJwt = parseJwt(jwt!);
     const userId = parsedJwt.iss._id;
     const Bkimages = axios.get(BASE_URL);
+    k++;
 
     if (userId == undefined || userId == null) {
         console.log('fuck...');
@@ -161,9 +163,9 @@ export async function bordMainSetup(boardNum: number) {
             {
                 name: 'testBoard',
                 image: {
-                    color: (await Bkimages).data.results[0].color,
-                    thumb: (await Bkimages).data.results[0].urls.thumb,
-                    full: (await Bkimages).data.results[0].urls.full,
+                    color: (await Bkimages).data.results[k].color,
+                    thumb: (await Bkimages).data.results[k].urls.thumb,
+                    full: (await Bkimages).data.results[k].urls.full,
                 },
                 uId: userId,
             },
@@ -175,11 +177,10 @@ export async function bordMainSetup(boardNum: number) {
     } else {
         boardID = boardResponse.board[boardNum]._id;
         img = boardResponse.board[boardNum].image;
+        console.log(img);
     }
-
-    if ((img.full = undefined || img.full == 'true' || typeof img.full != 'string')) {
-        img.full =
-            'https://images.unsplash.com/photo-1466971060667-16467c7d04ee?crop=entropy&cs=tinysrgb&fm=jpg&ixid=MnwzMzU2NTR8MHwxfHNlYXJjaHw3NjF8fGxhbmRzY2FwZXxlbnwwfHx8fDE2NTUxOTYxNTM&ixlib=rb-1.2.1&q=80';
+    if (img.full == undefined || img.full == 'true' || typeof img.full != 'string') {
+        img.full = (await Bkimages).data.results[0].urls.full;
     }
 
     currentBoardId = boardID;

@@ -211,7 +211,14 @@ function App() {
                 >
                     <input id="inputModal" onChange={setText} placeholder={issueObj.content}></input>
                 </Modal>
-                <div style={{ backgroundImage: `url("${img.full}")`, height: window.innerHeight + 'px' }}>
+                <div
+                    style={{
+                        backgroundImage: `url("${img.full}")`,
+                        height: window.innerHeight + 'px',
+                        backgroundSize: 'cover',
+                        backgroundRepeat: 'no-repeat',
+                    }}
+                >
                     <button
                         id="AddIssueList"
                         className="btn-primary"
