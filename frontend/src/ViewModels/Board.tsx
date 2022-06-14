@@ -14,6 +14,7 @@ import produce from 'immer';
 import { useNavigate } from 'react-router-dom';
 import { idText } from 'typescript';
 import { parseJwt } from '../util';
+import { settingUPDone, SetSettingUPDone } from '../Views/Board';
 
 import axios from 'axios';
 
@@ -63,6 +64,7 @@ export const dragReducer = produce((state: any, action: any) => {
             return state;
         }
         case 'UPDATE': {
+            state = initialState;
             return state;
         }
         case 'DELETEISSUE': {
@@ -142,6 +144,12 @@ export async function bordMainSetup(boardNum: number) {
     const parsedJwt = parseJwt(jwt!);
     const userId = parsedJwt.iss._id;
     const Bkimages = axios.get(BASE_URL);
+
+    if (userId == undefined || userId == null) {
+        console.log('fuck...');
+    }
+    console.log(userId);
+
     var boardResponse = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/boards/` + userId, 'GET');
     var boardID: string;
     var img: any;
@@ -160,12 +168,11 @@ export async function bordMainSetup(boardNum: number) {
             },
             'POST'
         );
-        boardID = boardResponse.board._id;
+        boardID = boardResponse.board[boardNum]._id;
         img = boardResponse.board.image;
         // console.log(img.color);
     } else {
         boardID = boardResponse.board[boardNum]._id;
-        boardID = boardResponse.board._id;
         img = boardResponse.board.image;
     }
 
@@ -199,13 +206,22 @@ export async function bordMainSetup(boardNum: number) {
                 'GET'
             );
             let pos = listsCards.cards[j].order;
-            listArray[pos] = { id: listsCards.cards[j]._id, content: listsActiv.activities[0].text };
+            if (listsActiv.activities[0] == undefined || listsActiv.activities[0] == null) {
+                listArray[pos] = { id: listsCards.cards[j]._id, content: 'Error no text' };
+            } else {
+                listArray[pos] = { id: listsCards.cards[j]._id, content: listsActiv.activities[0].text };
+            }
         }
-
+        console.log(listsCards);
+        console.log(i);
         intermidiateState[issueListsNames[i]] = listArray;
+        if (i == issueListsNames.length) {
+            console.log('done!');
+        }
     }
 
     initialState = intermidiateState;
+    await SetSettingUPDone(true);
 
     return;
 }
@@ -232,7 +248,7 @@ export const data: Issue[] = [
 export var initialState: any = { items0: data };
 
 let waitingForDb = false;
-export let issueListsNames: string[] = ['items0', 'items1', 'items2'];
+export let issueListsNames: string[] = ['items0', 'items1'];
 export let issueListsMIds: string[] = [];
 
 export async function addToIssueListNames(newValue: string) {

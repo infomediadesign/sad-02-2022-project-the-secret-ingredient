@@ -4,7 +4,7 @@ import CSS from 'csstype';
 import {
     Issue,
     editIssue,
-    getIssues,
+    bordMainSetup,
     currentCardId,
     addIssue,
     addActivity,
@@ -47,13 +47,20 @@ import { jwtSet } from '../util';
 // };
 
 export let issueIdIncrement = 6;
-let hasSetUp = false;
+export var settingUPDone = false;
+export function SetSettingUPDone(newV: boolean) {
+    settingUPDone = newV;
+}
 let newText: string;
 let queTextUpdate = false;
 
 function App() {
     const navigate = useNavigate();
-    const [issueStrings, setIssueStrings] = useState(issueListsNames);
+    const [loading, setloading] = useState(() => {
+        settingUPDone = false;
+        bordMainSetup(0);
+        return true;
+    });
     const [state, dispatch] = useReducer(dragReducer, initialState);
     const [isModalOpen, setModalState] = React.useState(false);
     const [issueObj, setIssueObj] = React.useState({ id: '', content: '', list: 0, num: 0 });
@@ -109,6 +116,29 @@ function App() {
         queTextUpdate = true;
         newText = event.target.value;
     };
+
+    if (loading) {
+        return preArrangeAll();
+    }
+
+    function preArrangeAll() {
+        //console.log('waiting');
+        if (settingUPDone) {
+            setloading(false);
+            dispatch({ type: 'UPDATE' });
+        } else {
+            setTimeout(() => {
+                preArrangeAll();
+            }, 1000);
+        }
+
+        return (
+            <div>
+                <p>Loading...</p>
+            </div>
+        );
+    }
+    console.log(issueListsNames);
 
     return (
         <div>

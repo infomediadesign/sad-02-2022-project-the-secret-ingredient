@@ -4,7 +4,6 @@ import App from './Login';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-
 test('renders login text', () => {
     render(
         <Router>
