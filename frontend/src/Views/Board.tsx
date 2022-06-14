@@ -183,6 +183,16 @@ function App() {
                 }}
             >
                 <button
+                    id="AddIssueList"
+                    className="btn-primary"
+                    onClick={() => {
+                        addToIssueListNames('items' + issueListsNames.length);
+                        dispatch({ type: 'UPDATELISTS', me: state });
+                    }}
+                >
+                    Add Issue List
+                </button>
+                <button
                     className="btn-primary"
                     id="logout"
                     onClick={async (e) => {
@@ -223,16 +233,6 @@ function App() {
                         boxShadow: 'none',
                     }}
                 >
-                    <button
-                        id="AddIssueList"
-                        className="btn-primary"
-                        onClick={() => {
-                            addToIssueListNames('items' + issueListsNames.length);
-                            dispatch({ type: 'UPDATELISTS', me: state });
-                        }}
-                    >
-                        Add Issue List
-                    </button>
                     <DragDropContext
                         onDragEnd={(e) => {
                             useCallback(e);
