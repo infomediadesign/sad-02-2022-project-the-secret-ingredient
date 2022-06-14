@@ -35,7 +35,7 @@ import { Modal } from '../components/Modal';
 import { convertCompilerOptionsFromJson } from 'typescript';
 import { useNavigate } from 'react-router-dom';
 import { jwtSet } from '../util';
-import { ImageTwoTone } from '@material-ui/icons';
+import { ImageTwoTone, NoEncryption } from '@material-ui/icons';
 import { url } from 'inspector';
 // const horizontalList: CSS.Properties = {
 //     float: 'left',
@@ -214,9 +214,10 @@ function App() {
                 <div
                     style={{
                         backgroundImage: `url("${img.full}")`,
-                        height: window.innerHeight + 'px',
+                        height: 1261 + 'px',
                         backgroundSize: 'cover',
                         backgroundRepeat: 'no-repeat',
+                        boxShadow: 'none',
                     }}
                 >
                     <button
