@@ -9,8 +9,8 @@ import { jwtSet } from '../util';
 export function App() {
     let navigate = useNavigate();
     let pass = '123456789';
-    let username = 'test12';
-    let email = 'test@test.com';
+    let username = 'test12ME';
+    let email = 'test@testMe.com';
 
     useEffect(() => {
         if (jwtSet()) {

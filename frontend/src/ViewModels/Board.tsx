@@ -60,6 +60,7 @@ export const dragReducer = produce((state: any, action: any) => {
             return;
         }
         case 'ADDITEM': {
+            console.log(action.addThis);
             state[issueListsNames[action.myIndex]].push(action.addThis);
             return state;
         }
@@ -75,13 +76,17 @@ export const dragReducer = produce((state: any, action: any) => {
             );
             let newA: Issue[] = new Array();
 
+            var i = 0;
             state[issueListsNames[action.myIndex]].map((item: Issue, index: number) => {
                 if (item.id != action.deleteMe) {
-                    console.log(item.id);
-                    newA[index] = item;
+                    newA[i] = item;
                 }
+                i++;
             });
 
+            console.log(action.myIndex);
+            console.log(newA);
+            console.log(state[issueListsNames[action.myIndex]]);
             state[issueListsNames[action.myIndex]] = newA;
 
             return state;
@@ -92,13 +97,10 @@ export const dragReducer = produce((state: any, action: any) => {
 
             issueListsNames.map((item, index) => {
                 if (index === action.deleteMe) {
-                    console.log('not adding ' + index);
                     newIssueListsMIds[i] = issueListsMIds[index];
                     state['items' + i.toString()] = null;
                     return item;
                 } else {
-                    console.log('items' + i);
-                    console.log(issueListsNames.length);
                     state['items' + i.toString()] = state[item];
                     newIssueListsMIds[i] = issueListsMIds[index];
                     i++;
@@ -127,8 +129,6 @@ export const dragReducer = produce((state: any, action: any) => {
             return state;
         }
         case 'UPDATESTATETEXT': {
-            console.log(action.numV);
-            console.log(action.listV);
             state[issueListsNames[action.numV]][action.listV].content = action.eventV;
             return state;
         }
@@ -146,15 +146,9 @@ export async function bordMainSetup(boardNum: number) {
     const userId = parsedJwt.iss._id;
     const Bkimages = axios.get(BASE_URL);
 
-    if (userId == undefined || userId == null) {
-        console.log('fuck...');
-    }
-    console.log(userId);
-
     var boardResponse = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/boards/` + userId, 'GET');
     var boardID: string;
 
-    console.log(boardResponse.board);
     if (boardResponse.board.length == 0) {
         boardResponse = await postGeneric(
             `${process.env.REACT_APP_BASE_API_URI}/board/`,
@@ -171,7 +165,6 @@ export async function bordMainSetup(boardNum: number) {
         );
         boardID = boardResponse.board._id;
         img = boardResponse.board.image;
-        // console.log(img.color);
     } else {
         boardID = boardResponse.board[boardNum]._id;
         img = boardResponse.board[boardNum].image;
@@ -198,7 +191,7 @@ export async function bordMainSetup(boardNum: number) {
         id: '1',
         content: "I'm a hussar",
     }]*/
-    var intermidiateState: Record<string, any> = {};
+    var intermidiateState: any = {};
 
     for (var i = 0; i < issueListsNames.length; i++) {
         let listsCards = await getGeneric(
@@ -219,12 +212,7 @@ export async function bordMainSetup(boardNum: number) {
                 listArray[pos] = { id: listsCards.cards[j]._id, content: listsActiv.activities[0].text };
             }
         }
-        console.log(listsCards);
-        console.log(i);
         intermidiateState[issueListsNames[i]] = listArray;
-        if (i == issueListsNames.length) {
-            console.log('done!');
-        }
     }
 
     initialState = intermidiateState;
@@ -233,24 +221,7 @@ export async function bordMainSetup(boardNum: number) {
     return;
 }
 
-export const data: Issue[] = [
-    {
-        id: '1',
-        content: "I'm a hussar",
-    },
-    {
-        id: '2',
-        content: "I'm a Hun",
-    },
-    {
-        id: '3',
-        content: "I'm a wretched Englishman",
-    },
-    {
-        id: '4',
-        content: "I'm a horse soldier",
-    },
-];
+export const data: Issue[] = [];
 
 export var initialState: any = { items0: data };
 
@@ -285,22 +256,24 @@ export async function addIssue(name: string, index: number, content: string, ord
     if (waitingForDb) {
         alert('calme bitte!');
     }
-    const response = await postGeneric(
-        `${process.env.REACT_APP_BASE_API_URI}/card/`,
-        { name: name, lId: issueListsMIds[index], bId: currentBoardId, order: order },
-        'POST'
-    );
-    currentCardId = response.card._id;
-    console.log(response);
-    console.log(content);
-    console.log(currentCardId);
-    console.log(currentBoardId);
-    const responseNew = await postGeneric(
-        `${process.env.REACT_APP_BASE_API_URI}/Activity/`,
-        { text: content, cId: currentCardId, bId: currentBoardId },
-        'POST'
-    );
-    return response.card._id;
+    try {
+        const response = await postGeneric(
+            `${process.env.REACT_APP_BASE_API_URI}/card/`,
+            { name: name, lId: issueListsMIds[index], bId: currentBoardId, order: order },
+            'POST'
+        );
+        currentCardId = response.card._id;
+        const responseNew = await postGeneric(
+            `${process.env.REACT_APP_BASE_API_URI}/Activity/`,
+            { text: content, cId: currentCardId, bId: currentBoardId },
+            'POST'
+        );
+
+        console.log('success');
+        return response.card._id;
+    } catch (e) {
+        throw e;
+    }
 }
 
 export async function deleteCardFromIssueList(Cid: number, issueListID: string, lastIndex: number) {
@@ -308,6 +281,7 @@ export async function deleteCardFromIssueList(Cid: number, issueListID: string, 
 
     await moveIssues(issueListID, lastIndex, -1, response.card.order, false);
     await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/card/` + Cid, 'DELETE');
+    await console.log('done deleting');
 }
 
 export async function addActivity(name: string, index: number, content: string, order: number) {}
@@ -337,12 +311,14 @@ export async function moveIssueExternalList(
     oldList: string,
     newListIndex: number
 ) {
+    var idToDelete;
     var response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/list/` + newList + `/cards`, 'GET');
     moveIssues(newList, newPos, 1, response.cards.length, false);
 
     response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/list/` + oldList + `/cards`, 'GET');
     response.cards.map(async (item: any) => {
         if (item.order == oldPos) {
+            idToDelete = item._id;
             const active = await getGeneric(
                 `${process.env.REACT_APP_BASE_API_URI}/Card/` + item._id + `/activitys`,
                 'GET'
@@ -351,6 +327,7 @@ export async function moveIssueExternalList(
         }
     });
     moveIssues(oldList, response.cards.length, -1, oldPos, false);
+    await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/Card/` + idToDelete, 'DELETE');
 }
 
 async function moveIssues(issueListId: string, moveAt: number, moveDirect: number, me: number, adding: boolean) {

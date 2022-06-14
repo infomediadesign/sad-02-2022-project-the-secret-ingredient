@@ -132,7 +132,6 @@ function App() {
             LocalloadingString = LocalloadingString + '.';
         }
 
-        //console.log('waiting');
         if (settingUPDone) {
             setloading(false);
             dispatch({ type: 'UPDATE' });
@@ -164,8 +163,6 @@ function App() {
             </div>
         );
     }
-    console.log(issueListsNames);
-    console.log(img);
 
     return (
         <div>
@@ -256,10 +253,9 @@ function App() {
                     className="btn-secondary"
                     onClick={async () => {
                         issueIdIncrement++;
-                        await dispatch({
+                        /*await dispatch({
                             type: 'UPDATE',
-                        });
-                        console.log('comms with backend...');
+                        });*/
                         await addIssue(
                             issueIdIncrement.toString(),
                             index,
@@ -267,7 +263,6 @@ function App() {
                             state[issueListsNames[index]].length
                         );
                         //await addActivity(issueIdIncrement.toString(), index, "oh well", state[issueListsNames[index]].length-1);
-                        console.log('comms with frontend...');
                         await dispatch({
                             type: 'ADDITEM',
                             pass: 'items',
@@ -287,7 +282,7 @@ function App() {
                     className="btn-secondary"
                     onClick={async () => {
                         await removeFromIssueListNames(index);
-                        dispatch({ type: 'DELETEISSUELIST', deleteMe: index });
+                        await dispatch({ type: 'DELETEISSUELIST', deleteMe: index });
                     }}
                 >
                     Delete List
