@@ -73,7 +73,6 @@ export function App() {
                         if (pass != passCon) {
                             alert("password and confirmation dosn't match");
                         } else if (await signupUser(username, pass, email)) {
-                            await bordMainSetup(0);
                             navigate('/board');
                         } else {
                             alert('improper login info');

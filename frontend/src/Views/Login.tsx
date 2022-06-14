@@ -54,7 +54,6 @@ export function App() {
                         setError(false);
                         e.preventDefault();
                         if (await authenticateMe(username, pass, email)) {
-                            await bordMainSetup(0);
                             navigate('/board');
                         } else {
                             setError(true);
