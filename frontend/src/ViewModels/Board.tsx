@@ -137,6 +137,7 @@ export const dragReducer = produce((state: any, action: any) => {
     }
 });
 
+export var img: any;
 var currentBoardId: string;
 
 export async function bordMainSetup(boardNum: number) {
@@ -152,8 +153,8 @@ export async function bordMainSetup(boardNum: number) {
 
     var boardResponse = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/boards/` + userId, 'GET');
     var boardID: string;
-    var img: any;
 
+    console.log(boardResponse.board);
     if (boardResponse.board.length == 0) {
         boardResponse = await postGeneric(
             `${process.env.REACT_APP_BASE_API_URI}/board/`,
@@ -168,12 +169,17 @@ export async function bordMainSetup(boardNum: number) {
             },
             'POST'
         );
-        boardID = boardResponse.board[boardNum]._id;
+        boardID = boardResponse.board._id;
         img = boardResponse.board.image;
         // console.log(img.color);
     } else {
         boardID = boardResponse.board[boardNum]._id;
-        img = boardResponse.board.image;
+        img = boardResponse.board[boardNum].image;
+    }
+
+    if ((img.full = undefined || img.full == 'true' || typeof img.full != 'string')) {
+        img.full =
+            'https://images.unsplash.com/photo-1466971060667-16467c7d04ee?crop=entropy&cs=tinysrgb&fm=jpg&ixid=MnwzMzU2NTR8MHwxfHNlYXJjaHw3NjF8fGxhbmRzY2FwZXxlbnwwfHx8fDE2NTUxOTYxNTM&ixlib=rb-1.2.1&q=80';
     }
 
     currentBoardId = boardID;
@@ -183,6 +189,7 @@ export async function bordMainSetup(boardNum: number) {
     issueListsMIds = listResponse.lists.map((item: any, index: number) => item._id);
 
     if (issueListsMIds.length === 0) {
+        await SetSettingUPDone(true);
         return;
     }
 

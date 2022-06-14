@@ -8,6 +8,7 @@ import {
     currentCardId,
     addIssue,
     addActivity,
+    img,
     dragReducer,
     issueListsNames,
     initialState,
@@ -34,6 +35,8 @@ import { Modal } from '../components/Modal';
 import { convertCompilerOptionsFromJson } from 'typescript';
 import { useNavigate } from 'react-router-dom';
 import { jwtSet } from '../util';
+import { ImageTwoTone } from '@material-ui/icons';
+import { url } from 'inspector';
 // const horizontalList: CSS.Properties = {
 //     float: 'left',
 //     padding: '0.8rem',
@@ -147,10 +150,22 @@ function App() {
         return (
             <div>
                 <p style={{ color: 'white' }}>{loadingString}</p>
+                <button
+                    className="btn-primary"
+                    id="logout"
+                    onClick={async (e) => {
+                        e.preventDefault();
+                        localStorage.removeItem('jwt');
+                        navigate('/');
+                    }}
+                >
+                    Cancel
+                </button>
             </div>
         );
     }
     console.log(issueListsNames);
+    console.log(img);
 
     return (
         <div>
@@ -196,25 +211,27 @@ function App() {
                 >
                     <input id="inputModal" onChange={setText} placeholder={issueObj.content}></input>
                 </Modal>
-                <button
-                    id="AddIssueList"
-                    className="btn-primary"
-                    onClick={() => {
-                        addToIssueListNames('items' + issueListsNames.length);
-                        dispatch({ type: 'UPDATELISTS', me: state });
-                    }}
-                >
-                    Add Issue List
-                </button>
-                <DragDropContext
-                    onDragEnd={(e) => {
-                        useCallback(e);
-                    }}
-                >
-                    {issueListsNames.map((item, index) => {
-                        return arrangeDataInDragDropList(state, item, index);
-                    })}
-                </DragDropContext>
+                <div style={{ backgroundImage: `url("${img.full}")`, height: window.innerHeight + 'px' }}>
+                    <button
+                        id="AddIssueList"
+                        className="btn-primary"
+                        onClick={() => {
+                            addToIssueListNames('items' + issueListsNames.length);
+                            dispatch({ type: 'UPDATELISTS', me: state });
+                        }}
+                    >
+                        Add Issue List
+                    </button>
+                    <DragDropContext
+                        onDragEnd={(e) => {
+                            useCallback(e);
+                        }}
+                    >
+                        {issueListsNames.map((item, index) => {
+                            return arrangeDataInDragDropList(state, item, index);
+                        })}
+                    </DragDropContext>
+                </div>
             </div>
         </div>
     );
