@@ -14,7 +14,7 @@ import produce from 'immer';
 import { useNavigate } from 'react-router-dom';
 import { idText } from 'typescript';
 import { parseJwt } from '../util';
-import { settingUPDone, SetSettingUPDone } from '../Views/Board';
+import { settingUPDone, SetSettingUPDone, setIsWaitingResponse } from '../Views/Board';
 
 import axios from 'axios';
 import { setIn } from 'immutable';
@@ -56,17 +56,13 @@ export const dragReducer = produce((state: any, action: any) => {
         }
         case 'MOVEUPDATE': {
             if (action.swapId) {
-                console.log('gotta switch');
-                console.log(state[action.to][action.toIndex].id);
-                console.log('with');
                 console.log(currentCardId);
-                console.log(action.deleteID);
-                if (currentCardId == undefined || currentCardId == null) {
+                if (currentCardId == '' || currentCardId == undefined || currentCardId == null) {
                     movementIdSwapFailed = true;
                     return;
                 }
                 movementIdSwapFailed = false;
-
+                setIsWaitingResponse(false);
                 state[action.to][action.toIndex].id = currentCardId;
             }
             return state;
@@ -324,6 +320,7 @@ export async function moveIssueExternalList(
     oldList: string,
     newListIndex: number
 ) {
+    currentCardId = '';
     var idToDelete;
     var idToUpdate;
     var response = await getGeneric(`${process.env.REACT_APP_BASE_API_URI}/list/` + newList + `/cards`, 'GET');

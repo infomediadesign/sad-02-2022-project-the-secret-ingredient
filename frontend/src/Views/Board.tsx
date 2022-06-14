@@ -65,6 +65,10 @@ let queTextUpdate = false;
 let isWaitingResponse = false;
 let keeptStatus: any = {};
 
+export function setIsWaitingResponse(val: boolean) {
+    isWaitingResponse = val;
+}
+
 function App() {
     const navigate = useNavigate();
     const [loading, setloading] = useState(() => {
@@ -89,17 +93,14 @@ function App() {
     if (movementIdSwapFailed) {
         console.log('how about we dont mess up');
         setTimeout(() => dispatch(keeptStatus), 50);
-    } else {
-        isWaitingResponse = false;
     }
 
     function useCallback(result: any) {
-        isWaitingResponse = true;
         if (result.reason === 'DROP') {
             if (!result.destination) {
-                isWaitingResponse = false;
                 return;
             }
+            isWaitingResponse = true;
             dispatch({
                 type: 'MOVE',
                 from: result.source.droppableId,
@@ -137,7 +138,6 @@ function App() {
                     originalList,
                     destinationListNum
                 );
-                await console.log('stop pls');
                 keeptStatus = {
                     type: 'MOVEUPDATE',
                     from: result.source.droppableId,
@@ -366,9 +366,11 @@ function App() {
                         id="editCard"
                         className="btn-primary"
                         onClick={async () => {
-                            console.log(issue.id, issue.content, index, IIndex);
-                            setIssueObj({ id: issue.id, content: issue.content, list: index, num: IIndex });
-                            toggleModal();
+                            if (!isWaitingResponse) {
+                                console.log(issue.id, issue.content, index, IIndex);
+                                setIssueObj({ id: issue.id, content: issue.content, list: index, num: IIndex });
+                                toggleModal();
+                            }
                         }}
                     >
                         Edit
