@@ -108,7 +108,27 @@ export function me(router: Router, user: Model<UserSchema>) {
         const u = await user.schema.findOne({ email });
         ctx.assert(u != null, Status.BadRequest, 'User from token not found!');
 
-        ctx.response.body = { message: `User "${u.username}" retrieved.`, me: u };
+        if (u.role != null && u.role === 'admin') {
+            ctx.response.body = {
+                message: `User "${u.username}" retrieved.`,
+                me: u,
+                _links: {
+                    users: {
+                        href: `${ctx.state.baseUrl}/${user.lowerName}s`,
+                        description: usersDescription,
+                    },
+                    deleteUser: {
+                        href: `${ctx.state.baseUrl}/${user.lowerName}/:id`,
+                        description: deleteUserDescription,
+                    },
+                },
+            };
+        } else {
+            ctx.response.body = {
+                message: `User "${u.username}" retrieved.`,
+                me: u,
+            };
+        }
     });
 }
 
