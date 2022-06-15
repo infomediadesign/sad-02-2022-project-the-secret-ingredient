@@ -111,7 +111,6 @@ export function me(router: Router, user: Model<UserSchema>) {
         if (u.role != null && u.role === 'admin') {
             ctx.response.body = {
                 message: `User "${u.username}" retrieved.`,
-                me: u,
                 _links: {
                     users: {
                         href: `${ctx.state.baseUrl}/${user.lowerName}s`,
@@ -122,6 +121,7 @@ export function me(router: Router, user: Model<UserSchema>) {
                         description: deleteUserDescription,
                     },
                 },
+                me: u,
             };
         } else {
             ctx.response.body = {
@@ -139,10 +139,10 @@ export function users(router: Router, user: Model<UserSchema>) {
 
         ctx.response.body = {
             message: `Users retrieved.`,
-            users,
             _links: {
                 deleteUser: { href: `${ctx.state.baseUrl}/${user.lowerName}/:id`, description: deleteUserDescription },
             },
+            users,
         };
     });
 }

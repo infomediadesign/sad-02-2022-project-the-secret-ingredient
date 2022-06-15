@@ -5,6 +5,7 @@ import { CardSchema } from '../models/Card.ts';
 import { ListSchema } from '../models/List.ts';
 import { Model, Router } from '../types.ts';
 import { oakAssert } from '../util.ts';
+import { createCardDescription, updateCardContentDescription } from './CardController.ts';
 
 export const createListDescription =
     'Creates a new board. [Request (POST): Valid name, order and bId (boardId) present in request-body]';
@@ -61,7 +62,6 @@ export function getListsByBoardId(router: Router, list: Model<ListSchema>) {
 
         ctx.response.body = {
             message: `Lists retrieved!`,
-            lists,
             _links: {
                 createList: { href: `${ctx.state.baseUrl}/${list.lowerName}`, description: createListDescription },
                 updateList: {
@@ -70,6 +70,7 @@ export function getListsByBoardId(router: Router, list: Model<ListSchema>) {
                 },
                 deleteList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: deleteListDescription },
             },
+            lists,
         };
     });
 }
@@ -119,6 +120,20 @@ export function getCardsByListId(router: Router, list: Model<ListSchema>, card: 
 
         ctx.response.body = {
             message: 'Cards present in this list retrieved',
+            _links: {
+                createCard: {
+                    href: `${ctx.state.baseUrl}/card`,
+                    description: createCardDescription,
+                },
+                updateCardContent: {
+                    href: `${ctx.state.baseUrl}/card/:id`,
+                    description: updateCardContentDescription,
+                },
+                deleteCard: {
+                    href: `${ctx.state.baseUrl}/card/:id`,
+                    description: createCardDescription,
+                },
+            },
             cards,
         };
     });
@@ -150,9 +165,9 @@ export function updateListContent(router: Router, list: Model<ListSchema>) {
         ctx.response.body = {
             message: `List "${name}" updated.`,
             list: { _id, name, order },
-            deleteList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: deleteListDescription },
-            getList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: getListDescription },
             _links: {
+                deleteList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: deleteListDescription },
+                getList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: getListDescription },
                 getListsByBoardId: {
                     href: `${ctx.state.baseUrl}/${list.lowerName}s/:boardId`,
                     description: getListsByBoardIdDescription,

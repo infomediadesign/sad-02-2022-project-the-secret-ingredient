@@ -44,13 +44,13 @@ export function createActivity({
         const _id = await activity.schema.insertOne({ text, boardId, cardId });
         ctx.response.body = {
             message: `${activity.name} created!`,
-            activity: { _id, text },
             _links: {
                 deleteAcitivity: {
                     href: `${ctx.state.baseUrl}/${activity.lowerName}/:id`,
                     description: deleteActivityDescription,
                 },
             },
+            activity: { _id, text },
         };
     });
 }

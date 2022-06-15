@@ -181,7 +181,6 @@ export function getCardsByBoardId(router: Router, board: Model<BoardSchema>, car
 
         ctx.response.body = {
             message: 'Cards retrieved.',
-            cards,
             _links: {
                 createCard: {
                     href: `${ctx.state.baseUrl}/card`,
@@ -197,6 +196,7 @@ export function getCardsByBoardId(router: Router, board: Model<BoardSchema>, car
                     description: deleteBoardDescription,
                 },
             },
+            cards,
         };
     });
 }
@@ -218,7 +218,6 @@ export function getActivitysByBoardId(router: Router, board: Model<BoardSchema>,
 
         ctx.response.body = {
             message: 'Activities present in this board retrieved.',
-            activities,
             _links: {
                 createActivity: {
                     href: `${ctx.state.baseUrl}/activity`,
@@ -234,6 +233,7 @@ export function getActivitysByBoardId(router: Router, board: Model<BoardSchema>,
                     description: deleteBoardDescription,
                 },
             },
+            activities,
         };
     });
 }

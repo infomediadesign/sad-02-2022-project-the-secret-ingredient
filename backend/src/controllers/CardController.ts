@@ -117,7 +117,6 @@ export function getActivitysBycardId(router: Router, card: Model<CardSchema>, ac
 
         ctx.response.body = {
             message: 'Activities present in this card retrieved.',
-            activities,
             _links: {
                 createCard: {
                     href: `${ctx.state.baseUrl}/${card.lowerName}`,
@@ -132,12 +131,13 @@ export function getActivitysBycardId(router: Router, card: Model<CardSchema>, ac
                     description: deleteCardDescription,
                 },
             },
+            activities,
         };
     });
 }
 
 // Update card content based on id
-const updateCardContentDescription =
+export const updateCardContentDescription =
     'Updates card-content by boardId. [Request (PUT): Valid id present in request-url and name and order present in request-body]';
 export function updateCardContent(router: Router, card: Model<CardSchema>) {
     router.put(`/${card.lowerName}/:id`, authMiddleware, async (ctx) => {
@@ -178,7 +178,7 @@ export function updateCardContent(router: Router, card: Model<CardSchema>) {
 }
 
 // Delete card based on cardid
-const deleteCardDescription = 'Deletes a card. [Request (DELETE): Valid ObjectId present in URL]';
+export const deleteCardDescription = 'Deletes a card. [Request (DELETE): Valid ObjectId present in URL]';
 export function deleteCard(router: Router, card: Model<CardSchema>) {
     router.delete(`/${card.lowerName}/:id`, authMiddleware, async (ctx) => {
         const _data = await card.schema.deleteOne({
