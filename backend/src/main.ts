@@ -31,10 +31,11 @@ import {
     getCard,
     updateCardContent,
 } from './controllers/CardController.ts';
-import { registerUser, loginUser, me } from './controllers/UserController.ts';
+import { registerUser, loginUser, me, deleteUser, users } from './controllers/UserController.ts';
 import { error } from './middlewares/error.ts';
 
 const port = Number(Deno.env.get('APP_PORT')) || 1234;
+const baseUrl = Deno.env.get('APP_BASE_URL') || 'http://localhost';
 const connectString = Deno.env.get('MONGODB_CONNECT_STRING') || 'mongodb://127.0.0.1:27017';
 
 const appName = 'the-secret-ingredient';
@@ -44,7 +45,7 @@ await client.connect(connectString);
 
 export const db = client.database(appName);
 
-const app = new Oak.Application();
+const app = new Oak.Application({ state: { baseUrl } });
 export const router = new Oak.Router();
 
 const board = Baord(db);
@@ -59,10 +60,12 @@ router.get('/', (ctx) => {
 
 // crudFactory({ router, model: board });
 
-//Auth End points
+// Auth End points
 registerUser(router, user);
 loginUser(router, user);
 me(router, user);
+users(router, user);
+deleteUser(router, user);
 
 //End Points for Board
 createBoard(router, board, user);
@@ -98,6 +101,6 @@ app.use(oakCors());
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-console.log(`Server started at: http://localhost:${port}`);
+console.log(`Server started at: ${baseUrl} (Port: ${port})`);
 
 app.listen({ port });

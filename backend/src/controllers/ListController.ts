@@ -6,6 +6,8 @@ import { ListSchema } from '../models/List.ts';
 import { Model, Router } from '../types.ts';
 import { oakAssert } from '../util.ts';
 
+export const createListDescription =
+    'Creates a new board. [Request (POST): Valid name, order and bId (boardId) present in request-body]';
 export function createList(router: Router, list: Model<ListSchema>, board: Model<BoardSchema>) {
     router.post(`/${list.lowerName}`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
@@ -30,11 +32,28 @@ export function createList(router: Router, list: Model<ListSchema>, board: Model
         ctx.response.body = {
             message: `${list.name} created!`,
             list: { _id, name, order },
+            _links: {
+                updateList: {
+                    href: `${ctx.state.baseUrl}/${list.lowerName}/:id`,
+                    description: updateListContentDescription,
+                },
+                deleteList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: deleteListDescription },
+                getList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: getListDescription },
+                getListsByBoardId: {
+                    href: `${ctx.state.baseUrl}/${list.lowerName}s/:boardId`,
+                    description: getListsByBoardIdDescription,
+                },
+                getCardsByListId: {
+                    href: `${ctx.state.baseUrl}/${list.lowerName}/:id/cards`,
+                    description: getCardsByListIdDescription,
+                },
+            },
         };
     });
 }
 
 // Get all lists based on boardId
+const getListsByBoardIdDescription = 'Gets a list by boardId. [Request (GET): Valid boardId present in request-url]';
 export function getListsByBoardId(router: Router, list: Model<ListSchema>) {
     router.get(`/${list.lowerName}s/:boardId`, authMiddleware, async (ctx) => {
         const boardId = new Mongo.ObjectId(ctx.params.boardId);
@@ -43,11 +62,20 @@ export function getListsByBoardId(router: Router, list: Model<ListSchema>) {
         ctx.response.body = {
             message: `Lists retrieved!`,
             lists,
+            _links: {
+                createList: { href: `${ctx.state.baseUrl}/${list.lowerName}`, description: createListDescription },
+                updateList: {
+                    href: `${ctx.state.baseUrl}/${list.lowerName}/:id`,
+                    description: updateListContentDescription,
+                },
+                deleteList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: deleteListDescription },
+            },
         };
     });
 }
 
 // Get a list based on listId
+const getListDescription = 'Gets a list by id. [Request (GET): Valid id present in request-url]';
 export function getList(router: Router, list: Model<ListSchema>) {
     router.get(`/${list.lowerName}/:id`, authMiddleware, async (ctx) => {
         const _id = new Mongo.ObjectId(ctx.params.id);
@@ -60,11 +88,20 @@ export function getList(router: Router, list: Model<ListSchema>) {
         ctx.response.body = {
             message: `"${list.name}" retrieved`,
             list: l,
+            _links: {
+                createList: { href: `${ctx.state.baseUrl}/${list.lowerName}`, description: createListDescription },
+                updateList: {
+                    href: `${ctx.state.baseUrl}/${list.lowerName}/:id`,
+                    description: updateListContentDescription,
+                },
+                deleteList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: deleteListDescription },
+            },
         };
     });
 }
 
 // Fetch cards based on list-id
+const getCardsByListIdDescription = 'Gets cards by listId. [Request (GET): Valid id present in request-url]';
 export function getCardsByListId(router: Router, list: Model<ListSchema>, card: Model<CardSchema>) {
     router.get(`/${list.lowerName}/:id/cards`, authMiddleware, async (ctx) => {
         const _id = new Mongo.ObjectId(ctx.params.id);
@@ -88,6 +125,8 @@ export function getCardsByListId(router: Router, list: Model<ListSchema>, card: 
 }
 
 // Update list content based on id
+const updateListContentDescription =
+    'Updates list-content by listId. [Request (PUT): Valid id present in request-url and name and order present in request-body]';
 export function updateListContent(router: Router, list: Model<ListSchema>) {
     router.put(`/${list.lowerName}/:id`, authMiddleware, async (ctx) => {
         const body = ctx.request.body();
@@ -111,11 +150,24 @@ export function updateListContent(router: Router, list: Model<ListSchema>) {
         ctx.response.body = {
             message: `List "${name}" updated.`,
             list: { _id, name, order },
+            deleteList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: deleteListDescription },
+            getList: { href: `${ctx.state.baseUrl}/${list.lowerName}/:id`, description: getListDescription },
+            _links: {
+                getListsByBoardId: {
+                    href: `${ctx.state.baseUrl}/${list.lowerName}s/:boardId`,
+                    description: getListsByBoardIdDescription,
+                },
+                getCardsByListId: {
+                    href: `${ctx.state.baseUrl}/${list.lowerName}/:id/cards`,
+                    description: getCardsByListIdDescription,
+                },
+            },
         };
     });
 }
 
 // Delete list based on listId
+const deleteListDescription = 'Deletes a list by listId. [Request (DELETE): Valid id present in request-url]';
 export function deleteList(router: Router, list: Model<ListSchema>) {
     router.delete(`/${list.lowerName}/:id`, authMiddleware, async (ctx) => {
         const _data = await list.schema.deleteOne({
@@ -123,6 +175,13 @@ export function deleteList(router: Router, list: Model<ListSchema>) {
         });
         ctx.response.body = {
             message: `"${list.name}" deleted!`,
+            _links: {
+                createList: { href: `${ctx.state.baseUrl}`, description: createListDescription },
+                getListsByBoardId: {
+                    href: `${ctx.state.baseUrl}/${list.lowerName}s/:boardId`,
+                    description: getListsByBoardIdDescription,
+                },
+            },
         };
     });
 }

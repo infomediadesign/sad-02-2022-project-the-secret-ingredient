@@ -7,6 +7,8 @@ import { CardSchema } from '../models/Card.ts';
 import { oakAssert } from '../util.ts';
 
 // Creates activity based on given rquest body
+export const createActivityDescription =
+    'Creates an activity. [Request (POST): text, bId (boardId) and cId (cardId) present in request-body]';
 export function createActivity({
     router,
     activity,
@@ -43,11 +45,18 @@ export function createActivity({
         ctx.response.body = {
             message: `${activity.name} created!`,
             activity: { _id, text },
+            _links: {
+                deleteAcitivity: {
+                    href: `${ctx.state.baseUrl}/${activity.lowerName}/:id`,
+                    description: deleteActivityDescription,
+                },
+            },
         };
     });
 }
 
 // Deletes activity based on given activity ObjectId
+const deleteActivityDescription = 'Deletes an activity. [Request (DELETE): Valid ObjectId present in URL]';
 export function deleteAcitivity(router: Router, activity: Model<ActivitySchema>) {
     router.delete(`/${activity.lowerName}/:id`, authMiddleware, async (ctx) => {
         const _data = await activity.schema.deleteOne({
@@ -55,6 +64,12 @@ export function deleteAcitivity(router: Router, activity: Model<ActivitySchema>)
         });
         ctx.response.body = {
             message: `${activity.name} deleted!`,
+            _links: {
+                createActivity: {
+                    href: `${ctx.state.baseUrl}/${activity.lowerName}`,
+                    description: createActivityDescription,
+                },
+            },
         };
     });
 }

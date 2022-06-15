@@ -1,8 +1,8 @@
-import { create, getNumericDate, Status, dayjs, V, crypt } from '../../deps.ts';
-import { authMiddleware } from '../middlewares/auth.ts';
+import { create, getNumericDate, Status, dayjs, V, crypt, Mongo } from '../../deps.ts';
+import { adminMiddleware, authMiddleware } from '../middlewares/auth.ts';
 import { UserSchema } from '../models/User.ts';
 import { Context, Model, Router } from '../types.ts';
-import { decodeJwtFromHeader } from '../util.ts';
+import { decodeJwtFromHeader, oakAssert } from '../util.ts';
 
 const exported = Deno.env.get('JWK');
 
@@ -37,7 +37,7 @@ export function registerUser(router: Router, user: Model<UserSchema>) {
         ctx.assert(existingUser == null, Status.FailedDependency, 'User already exists, think of something unique 🦄');
 
         const passwordHash = await crypt.hash(password);
-        const newUserId = await user.schema.insertOne({ username, email, password: passwordHash });
+        const newUserId = await user.schema.insertOne({ username, email, password: passwordHash, role: 'user' });
 
         ctx.response.body = {
             message: `User "${username}" registered.`,
@@ -45,10 +45,15 @@ export function registerUser(router: Router, user: Model<UserSchema>) {
             username,
             email,
             passwordHash,
+            _links: {
+                me: { href: `${ctx.state.baseUrl}/me`, description: meDescription },
+                login: { href: `${ctx.state.baseUrl}/login`, description: loginDescription },
+            },
         };
     });
 }
 
+const loginDescription = 'Returns a new JWT. [Request (POST): Valid email and password present in request-body]';
 export function loginUser(router: Router, user: Model<UserSchema>) {
     router.post('/login', async (ctx: Context) => {
         const Headers = ctx.request.headers;
@@ -81,10 +86,14 @@ export function loginUser(router: Router, user: Model<UserSchema>) {
             message: `Logged in as "${u.username}"`,
             ...u,
             jwt,
+            _links: {
+                me: { href: `${ctx.state.baseUrl}/me`, description: meDescription },
+            },
         };
     });
 }
 
+const meDescription = 'Returns the user-object. [Request (POST): Valid JWT present in authorization-header]';
 export function me(router: Router, user: Model<UserSchema>) {
     router.get('/me', authMiddleware, async (ctx: Context) => {
         const Headers = ctx.request.headers;
@@ -100,5 +109,33 @@ export function me(router: Router, user: Model<UserSchema>) {
         ctx.assert(u != null, Status.BadRequest, 'User from token not found!');
 
         ctx.response.body = { message: `User "${u.username}" retrieved.`, me: u };
+    });
+}
+
+const usersDescription = 'Returns all users. [Request (GET): Valid admin-JWT present in authorization-header]';
+export function users(router: Router, user: Model<UserSchema>) {
+    router.get(`/${user.lowerName}s`, adminMiddleware, async (ctx: Context) => {
+        const users = await user.schema.find().toArray();
+
+        ctx.response.body = {
+            message: `Users retrieved.`,
+            users,
+            _links: {
+                deleteUser: { href: `${ctx.state.baseUrl}/${user.lowerName}/:id`, description: deleteUserDescription },
+            },
+        };
+    });
+}
+
+const deleteUserDescription =
+    'Deletes a user. [Request (DELETE): Valid admin-JWT present in authorization-header and ObjectId of user in URL]';
+export function deleteUser(router: Router, user: Model<UserSchema>) {
+    router.delete(`/${user.lowerName}/:id`, adminMiddleware, async (ctx) => {
+        const id = ctx.params.id;
+        oakAssert(ctx, id != null, Status.BadRequest, 'No userId supplied in url.');
+        const _id = new Mongo.ObjectId(ctx.params.id);
+        await user.schema.deleteOne({ _id });
+
+        ctx.response.body = { message: `User with the id: ${_id} deleted.` };
     });
 }
