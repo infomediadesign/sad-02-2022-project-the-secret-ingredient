@@ -164,9 +164,9 @@ export async function bordMainSetup(boardNum: number) {
             {
                 name: 'testBoard',
                 image: {
-                    color: (await Bkimages).data.results[k].color,
-                    thumb: (await Bkimages).data.results[k].urls.thumb,
-                    full: (await Bkimages).data.results[k].urls.full,
+                    color: (await Bkimages).data.results[0].color,
+                    thumb: (await Bkimages).data.results[0].urls.thumb,
+                    full: (await Bkimages).data.results[0].urls.full,
                 },
                 uId: userId,
             },

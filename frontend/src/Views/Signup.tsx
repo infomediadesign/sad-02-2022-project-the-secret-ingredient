@@ -7,10 +7,10 @@ import { jwtSet } from '../util';
 
 export function App() {
     let navigate = useNavigate();
-    let pass = '123456789';
-    let passCon = '123456789';
-    let username = 'test1';
-    let email = 'test@test.com';
+    let pass = '';
+    let passCon = '';
+    let username = 'Username';
+    let email = 'Emil';
 
     useEffect(() => {
         if (jwtSet()) {

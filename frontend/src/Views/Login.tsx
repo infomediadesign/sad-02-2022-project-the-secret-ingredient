@@ -8,9 +8,9 @@ import { jwtSet } from '../util';
 
 export function App() {
     let navigate = useNavigate();
-    let pass = '123456789';
-    let username = 'test123ME';
-    let email = 'test@test123ME.com';
+    let pass = 'Password';
+    let username = 'Email';
+    let email = 'Email';
 
     useEffect(() => {
         if (jwtSet()) {
@@ -39,7 +39,7 @@ export function App() {
             <form>
                 <div className="user-box">
                     <input id="email" type="text" onChange={setEmail} placeholder={email} />
-                    <label>Username</label>
+                    <label>Email</label>
                 </div>
                 <div className="user-box">
                     <input id="password" type="password" onChange={setPassValue} placeholder={pass} />
